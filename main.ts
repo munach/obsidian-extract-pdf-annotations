@@ -161,7 +161,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		let topic = ''
 		let currentFolder = ''
 		const settings = this.settings
-		console.log("all annots", grandtotal)
+		// console.log("all annots", grandtotal)
 		grandtotal.forEach((a) => {
 		// print main Title when Topic changes (and settings allow)
 		if (settings.sortByTopic) {
@@ -202,7 +202,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 			name: 'Extract PDF Annotations',
 			editorCallback: async (editor: Editor, view: MarkdownView) => { 
 				const folder = this.app.workspace.getActiveFile().parent
-				const grandtotal = [] // array that will contain all fetched Annotations kj
+				const grandtotal = [] // array that will contain all fetched Annotations
 
 				const pdfjsLib = await loadPdfJs()
 				editor.replaceSelection('Extracting PDF Comments from ' + folder.name + '\n')
