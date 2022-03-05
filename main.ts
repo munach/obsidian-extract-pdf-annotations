@@ -199,7 +199,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 		this.addCommand({
 			id: 'extract-annotations',
-			name: 'Extract and insert Annotations',
+			name: 'Extract PDF Annotations',
 			editorCallback: async (editor: Editor, view: MarkdownView) => { 
 				const folder = this.app.workspace.getActiveFile().parent
 				const grandtotal = [] // array that will contain all fetched Annotations kj
