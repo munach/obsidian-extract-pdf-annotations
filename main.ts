@@ -163,26 +163,26 @@ export default class PDFAnnotationPlugin extends Plugin {
 		const settings = this.settings
 		// console.log("all annots", grandtotal)
 		grandtotal.forEach((a) => {
-		// print main Title when Topic changes (and settings allow)
-		if (settings.sortByTopic) {
-			if (topic != a.topic) {
-				topic = a.topic
-				currentFolder = ''
-				text += `# ${topic}\n`
+			// print main Title when Topic changes (and settings allow)
+			if (settings.sortByTopic) {
+				if (topic != a.topic) {
+					topic = a.topic
+					currentFolder = ''
+					text += `# ${topic}\n`
+				}
 			}
-		}
 
-		if (settings.useFolderNames) {
-			if (currentFolder != a.folder) {
-				currentFolder = a.folder
-				text += `## ${currentFolder}\n`
+			if (settings.useFolderNames) {
+				if (currentFolder != a.folder) {
+					currentFolder = a.folder
+					text += `## ${currentFolder}\n`
+				}
+			} else {
+				if (currentFolder != a.file.name) {
+					currentFolder = a.file.name
+					text += `## ${currentFolder}\n`
+				}  
 			}
-		} else {
-			if (currentFolder != a.file.name) {
-				currentFolder = a.file.name
-				text += `## ${currentFolder}\n`
-			}  
-		}
 
 			if (a.subtype == 'Text') {
 				text += note(a)

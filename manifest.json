@@ -5,6 +5,6 @@
 	"minAppVersion": "0.12.0",
 	"description": "Extract PDF Annotations (Notes and Highlights) and sort them by topics",
 	"author": "Franz Achermann",
-	"authorUrl": "",
+	"authorUrl": "https://github.com/munach/obsidian-pdf-annotations",
 	"isDesktopOnly": false
 }
