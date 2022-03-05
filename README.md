@@ -8,7 +8,7 @@ This Plugin visits all PDF Files in a given Directory and extracts comments and 
 
 Assume we have in a folder in our Vault containing PDF Documents, e.g: 
 
-![vault_folder](https://github.com/munach/obsidian-pdf-annotations/blob/master/img/vault_folder.png?raw=true)
+![vault_folder](https://github.com/munach/obsidian-pdf-annotations/blob/master/img/vault_folder.jpg?raw=true)
 
 and we have highlighted the 'hello World' Programm with a note 'Hello World': 
 
