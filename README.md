@@ -8,9 +8,9 @@ This Plugin visits all PDF Files in a given Directory and extracts comments and 
 
 Assume we have in a folder in our Vault PDFs about Programming languages and we have highlighted the 'hello World' Programm and added a note 'Hello World': 
 
-[]
+![pdf_note](https://github.com/munach/obsidian-pdf-annotations/blob/master/img/pdf_note.jpg?raw=true)
 
-Crete a note in the folder and run the plugin's command `Extract PDF Annotations` (Hotkey Ctrl-P for all Commands)
+Crete a note (here) in the folder and run the plugin's command `Extract PDF Annotations` (Hotkey Ctrl-P for all Commands)
 
 This will fetch all Annotations in the PDF Files in the current folder, sort them by *Topic*: 
 
