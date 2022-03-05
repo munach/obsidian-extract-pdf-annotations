@@ -16,7 +16,7 @@ and we have highlighted the 'hello World' Programm with a note 'Hello World':
 
 In the editor (e.g. \_Extract) we run the plugin's command  `Extract PDF Annotations` (Hotkey Ctrl-P for all Commands). This will fetch all Annotations in the PDF Files in the current folder, sort them by *Topic*: 
 
-![extracted_annotations](https://github.com/munach/obsidian-pdf-annotations/blob/master/img/extracted_annotations.jpg?raw=true)
+![extracted_annotations](https://github.com/munach/obsidian-pdf-annotations/blob/master/img/extracted_annotations.png?raw=true)
 
 As such, you can relate Comments for your topics from several PDF Files. 
 
