@@ -46,12 +46,14 @@ export default class PDFAnnotationPlugin extends Plugin {
 		// console.log('Annotations', annotations)
 
 		annotations = annotations.filter(function (anno) {
-					return SUPPORTED_ANNOTS.indexOf(anno.subtype) >= 0;
-				});
+			return SUPPORTED_ANNOTS.indexOf(anno.subtype) >= 0;
+		});
 
-		if (annotations.length > 0) {
+		if (annotations.length > 0 && editor != null) {
 			editor.replaceSelection('PDF Page ' + pagenum + ' on ' + file.name + ' has ' + annotations.length + ' Annots.\n')
 		}
+		console.log('PDF Page ' + pagenum + ' on ' + file.name + ' has ' + annotations.length + ' Annots')
+
 
 		const content = await page.getTextContent({ normalizeWhitespace: true })
 		// sort text elements
@@ -124,6 +126,30 @@ export default class PDFAnnotationPlugin extends Plugin {
 		});
 	}
 
+	async loadPDFFile(file : TFile) {
+		const pdfjsLib = await loadPdfJs()
+		const containingFolder = file.parent.name;
+		const grandtotal = [] // array that will contain all fetched Annotations
+		console.log('loading from file ', file)
+
+		const content = await this.app.vault.readBinary(file)
+		const pdf : PDFDocumentProxy = await pdfjsLib.getDocument(content).promise
+		for (let i = 1; i <= pdf.numPages; i++) {
+			console.log('reading page ' + i)
+			const page = await pdf.getPage(i)
+			await this.loadPage(page, i, file, containingFolder, null, grandtotal) // don't pass editor
+			console.log('fetched from page', i)
+		}
+		this.sort(grandtotal)
+		const finalMarkdown = this.format(grandtotal)
+
+		let filePath = file.name.replace(".pdf", ".md");
+		filePath = "Annotations for " + filePath;
+
+		await this.saveHighlightsToFile(filePath, finalMarkdown);
+		await this.app.workspace.openLinkText(filePath, '', true);						
+	}
+
 	sort (grandtotal) {
 		const settings = this.settings
 		grandtotal.sort(function (a1, a2) {
@@ -190,12 +216,29 @@ export default class PDFAnnotationPlugin extends Plugin {
 				text += highlighted(a)
 			}
 		})
-		return text
+
+		if (grandtotal.length == 0) return '*No Annotations*'
+		else return text
 	}
 
 	async onload() {
 		this.loadSettings();
 		this.addSettingTab(new PDFAnnotationPluginSettingTab(this.app, this));
+
+		this.addCommand({
+			id: 'extract-annotations-single',
+			name: 'Extract PDF Annotations on single file',
+			checkCallback: (checking : boolean) => {
+				let file = this.app.workspace.getActiveFile();
+
+				if (checking) {
+					if (file === null) return false;
+					if (file.extension !== 'pdf') return false;
+					return true
+				}
+				this.loadPDFFile(file)
+			} 	
+		})
 
 		this.addCommand({
 			id: 'extract-annotations',
@@ -249,6 +292,24 @@ export default class PDFAnnotationPlugin extends Plugin {
 	}
 
 	onunload() {}
+
+	async saveHighlightsToFile(filePath: string, mdString: string) {
+		const fileExists = await this.app.vault.adapter.exists(filePath);
+		if (fileExists) {
+			await this.appendHighlightsToFile(filePath, mdString);
+		} else {
+			await this.app.vault.create(filePath, mdString);
+		}
+	}
+
+	async appendHighlightsToFile(filePath: string, note: string) {
+		let existingContent = await this.app.vault.adapter.read(filePath);
+		if(existingContent.length > 0) {
+			existingContent = existingContent + '\r\r';
+		}
+		await this.app.vault.adapter.write(filePath, existingContent + note);
+	}
+
 
 }
 
