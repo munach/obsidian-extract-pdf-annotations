@@ -21,14 +21,18 @@ In the editor (e.g. \_Extract) we run the plugin's command  `Extract PDF Annotat
 As such, you can relate comments for your topics (here 'Hello World') from several PDF files. 
 
 ### Commands
-* `Extract PDF Annotations` - when editing a markdown note, this command searches all PDF files in current folder for annotations and inserts them at the current position of the note. 
-* `Extract PDF Annotations on single file` - when displaying a single PDF file. Extracts annotations from this file and writes them to the note `Annotations for <filename>`.
+* `Extract PDF Annotations` Works when edititan a markdown note. Searches all PDF files in current Folder for annotations, and inserts them at the current position of the open note. 
+* `Extract PDF Annotations on single file` Works while displaying a PDF file. Extracts annotations from this file and writes them to the note `Annotations for <filename>`
 
 ### Plugin Settings: 
 
 * Use the first line of the comment as 'Topic' (and sort accordingly), or not
 * Use folder name or PDF-Filename for sorting
 
+
+## Issues / Bugs
+
+[] single word highlights are not found. I need to dig deeper...
 
 ## Installation / Build
 
@@ -55,11 +59,13 @@ $ cp main.js manifest.json ~/MyVault/.obsidian/plugins/obsidian-pdf-annotations
 
 Enable the plugin in Obsidan's setting. 
 
-## Description
+## Credits
 
 This plugin build on ideas from Alexis Rondeaus Plugin https://github.com/akaalias/obsidian-extract-pdf-highlights. But we rely direclt on obsidians pdf.js library. 
 
 ## Author
+
+Franz Achermann 
 
 
 
