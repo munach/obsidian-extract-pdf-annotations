@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-pdf-annotation",
 	"name": "Extract PDF Annotations",
-	"version": "1.0.2",
+	"version": "1.0.1",
 	"minAppVersion": "0.12.0",
 	"description": "Extract PDF Annotations (Notes and Highlights) and sort them by topics",
 	"author": "Franz Achermann",
