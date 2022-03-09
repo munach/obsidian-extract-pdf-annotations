@@ -126,29 +126,16 @@ export default class PDFAnnotationPlugin extends Plugin {
 		});
 	}
 
-	async loadPDFFile(file : TFile) {
-		const pdfjsLib = await loadPdfJs()
-		const containingFolder = file.parent.name;
-		const grandtotal = [] // array that will contain all fetched Annotations
-		console.log('loading from file ', file)
-
+	async loadPDFFile(file : TFile, pdfjsLib, containingFolder : string, total, editor : Editor) {
 		const content = await this.app.vault.readBinary(file)
 		const pdf : PDFDocumentProxy = await pdfjsLib.getDocument(content).promise
 		for (let i = 1; i <= pdf.numPages; i++) {
-			console.log('reading page ' + i)
 			const page = await pdf.getPage(i)
-			await this.loadPage(page, i, file, containingFolder, null, grandtotal) // don't pass editor
-			console.log('fetched from page', i)
+			await this.loadPage(page, i, file, containingFolder, editor, total) // don't pass editor
 		}
-		this.sort(grandtotal)
-		const finalMarkdown = this.format(grandtotal)
-
-		let filePath = file.name.replace(".pdf", ".md");
-		filePath = "Annotations for " + filePath;
-
-		await this.saveHighlightsToFile(filePath, finalMarkdown);
-		await this.app.workspace.openLinkText(filePath, '', true);						
 	}
+
+
 
 	sort (grandtotal) {
 		const settings = this.settings
@@ -221,6 +208,22 @@ export default class PDFAnnotationPlugin extends Plugin {
 		else return text
 	}
 
+	async loadSinglePDFFile(file : TFile) {
+		const pdfjsLib = await loadPdfJs()
+		const containingFolder = file.parent.name;
+		const grandtotal = [] // array that will contain all fetched Annotations
+		console.log('loading from file ', file)
+		await this.loadPDFFile(file, pdfjsLib, containingFolder, grandtotal, null)
+		this.sort(grandtotal)
+		const finalMarkdown = this.format(grandtotal)
+
+		let filePath = file.name.replace(".pdf", ".md");
+		filePath = "Annotations for " + filePath;
+
+		await this.saveHighlightsToFile(filePath, finalMarkdown);
+		await this.app.workspace.openLinkText(filePath, '', true);						
+	}
+
 	async onload() {
 		this.loadSettings();
 		this.addSettingTab(new PDFAnnotationPluginSettingTab(this.app, this));
@@ -229,14 +232,16 @@ export default class PDFAnnotationPlugin extends Plugin {
 			id: 'extract-annotations-single',
 			name: 'Extract PDF Annotations on single file',
 			checkCallback: (checking : boolean) => {
-				let file = this.app.workspace.getActiveFile();
-
-				if (checking) {
-					if (file === null) return false;
-					if (file.extension !== 'pdf') return false;
+				const file = this.app.workspace.getActiveFile();
+				if (file != null && file.extension === 'pdf') {
+					if (!checking) {
+						// load file if (not only checking) && conditions are valid
+						this.loadSinglePDFFile(file)
+					}
 					return true
+				} else {
+					return false
 				}
-				this.loadPDFFile(file)
 			} 	
 		})
 
@@ -244,7 +249,9 @@ export default class PDFAnnotationPlugin extends Plugin {
 			id: 'extract-annotations',
 			name: 'Extract PDF Annotations',
 			editorCallback: async (editor: Editor, view: MarkdownView) => { 
-				const folder = this.app.workspace.getActiveFile().parent
+				const file = this.app.workspace.getActiveFile()
+				if (file == null) return
+				const folder = file.parent
 				const grandtotal = [] // array that will contain all fetched Annotations
 
 				const pdfjsLib = await loadPdfJs()
@@ -257,16 +264,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 					if (file instanceof TFile) {
 						if (file.extension === 'pdf') {
 							const containingFolder = file.parent.name;
-							promises.push(
-								this.app.vault.readBinary(file).then(async (content) => {
-									return await pdfjsLib.getDocument(content).promise
-								}).then(async (pdf : PDFDocumentProxy ) => {
-									// console.log("The pdf", pdf)
-									for (let i = 1; i <= pdf.numPages; i++) {
-										const page = await pdf.getPage(i)
-										this.loadPage(page, i, file, containingFolder,editor, grandtotal)
-									}						
-								})) 
+							promises.push(this.loadPDFFile(file, pdfjsLib, containingFolder, grandtotal, editor)) 
 							}
 						}
 					})
@@ -285,9 +283,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 			if (loadedSettings) {
 				this.settings.useFolderNames = loadedSettings.useFolderNames;
 				this.settings.sortByTopic = loadedSettings.sortByTopic;
-			} else {
-				await this.saveData(this.settings);
-			}
+			} 
 		})();
 	}
 
@@ -347,6 +343,7 @@ class PDFAnnotationPluginSettingTab extends PluginSettingTab {
                 toggle.setValue(this.plugin.settings.useFolderNames).onChange((value) => {
                     this.plugin.settings.useFolderNames = value;
                     this.plugin.saveData(this.plugin.settings);
+
                 }),
             );
 
