@@ -38,8 +38,8 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 
 Fetch repository: 
 ```bash
-$ git clone https://github.com/munach/obsidian-pdf-annotations.git
-$ cd obsidian-pdf-annotations
+$ git clone https://github.com/munach/obsidian-extract-pdf-annotations.git
+$ cd obsidian-extract-pdf-annotations
 ```
 Install dependencies: 
 ```
@@ -53,15 +53,15 @@ $ npm run build
 
 Then create the plugin directory and copy the files `main.js` and `manifest.json`, e.g.; 
 ```
-$ mkdir ~/MyVault/.obsidian/plugins/obsidian-pdf-annotations
-$ cp main.js manifest.json ~/MyVault/.obsidian/plugins/obsidian-pdf-annotations
+$ mkdir ~/MyVault/.obsidian/plugins/obsidian-extract-pdf-annotations
+$ cp main.js manifest.json ~/MyVault/.obsidian/plugins/obsidian-extract-pdf-annotations/
 ```
 
 Enable the plugin in Obsidan's setting. 
 
 ## Credits
 
-This plugin build on ideas from Alexis Rondeaus Plugin https://github.com/akaalias/obsidian-extract-pdf-highlights. But we rely direclt on obsidians pdf.js library. 
+This plugin builds on ideas from Alexis Rondeaus Plugin https://github.com/akaalias/obsidian-extract-pdf-highlights, but uses obsidians build-in pdf.js library. 
 
 ## Author
 

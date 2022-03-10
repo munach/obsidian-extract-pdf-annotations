@@ -16,15 +16,15 @@ function template(strings, ...keys) {
 // templates for different types of Annotations
 const highlighted = template`> ${'highlightedText'}
 
-${'contents'}
+${'body'}
 			    
-* *highlighted by ${'title'} at page ${'pageNumber'} on [[${'filepath'}]]*
+* *highlighted by ${'author'} at page ${'pageNumber'} on [[${'filepath'}]]*
 
 `
 
-const note = template`${'contents'}
+const note = template`${'body'}
   
-* *noted by ${'title'} at page ${'pageNumber'} on [[${'filepath'}]]*
+* *noted by ${'author'} at page ${'pageNumber'} on [[${'filepath'}]]*
 
 `
 
@@ -40,7 +40,6 @@ export default class PDFAnnotationPlugin extends Plugin {
 	// we look only at SUPPORTED_ANNOTS (Text, Underline, Highlight)
 	// if its a underline or highlight, we fetch the TextContent under the 'Rect' Element of the highlghts. 
 	async loadPage(page, pagenum : number, file: TFile, containingFolder : string, editor : Editor, total) {
-		// console.log('page', pagenum, page)
 		const settings = this.settings
 		let annotations = await page.getAnnotations()
 		// console.log('Annotations', annotations)
@@ -54,8 +53,8 @@ export default class PDFAnnotationPlugin extends Plugin {
 		}
 		console.log('PDF Page ' + pagenum + ' on ' + file.name + ' has ' + annotations.length + ' Annots')
 
+		const content : TextContent = await page.getTextContent({ normalizeWhitespace: true })
 
-		const content = await page.getTextContent({ normalizeWhitespace: true })
 		// sort text elements
 		content.items.sort(function (a1, a2) {							
 			if (a1.transform[5] > a2.transform[5]) return -1    // y coord. descending
@@ -113,15 +112,19 @@ export default class PDFAnnotationPlugin extends Plugin {
 				// editor.replaceSelection(`\n> ${r}\n`)
 				anno.highlightedText = r
 			}
-			const lines = anno.contents.split(/\r\n|\n\r|\n|\r/); // split by:     \r\n  \n\r  \n  or  \r
+			// with Obsidion v0.13, contents became deprecated, and replaced by contentsObj
+			const lines = anno.contentsObj.str.split(/\r\n|\n\r|\n|\r/); // split by:     \r\n  \n\r  \n  or  \r
 			anno.topic = lines[0]; // First line of contents
 			if (settings.sortByTopic) {
-				anno.contents = lines.slice(1).join('\r\n')
+				anno.body = lines.slice(1).join('\r\n')
+			} else {
+				anno.body = anno.contentsObj.str
 			}
 			anno.folder = containingFolder
 			anno.file = file
 			anno.filepath = file.path		// we need a direct string property in the templates 
 			anno.pageNumber = pagenum
+			anno.author = anno.titleObj.str
 			total.push(anno)
 		});
 	}
