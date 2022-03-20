@@ -1,5 +1,5 @@
 import { App, Editor, MarkdownView, TFile, Vault, Plugin, PluginSettingTab, Setting, loadPdfJs } from 'obsidian';
-
+import { loadPDFFile } from 'extractHighlight'
 
 function template(strings, ...keys) {
 	return (function (...values) {
@@ -29,119 +29,21 @@ const note = template`${'body'}
 `
 
 
-const SUPPORTED_ANNOTS = ['Text', 'Highlight', 'Underline'];
-
-
 export default class PDFAnnotationPlugin extends Plugin {
 
 	public settings: PDFAnnotationPluginSetting;
 
-	// load the PDFpage, then get all Annotations
-	// we look only at SUPPORTED_ANNOTS (Text, Underline, Highlight)
-	// if its a underline or highlight, we fetch the TextContent under the 'Rect' Element of the highlghts. 
-	async loadPage(page, pagenum : number, file: TFile, containingFolder : string, editor : Editor, total) {
-		const settings = this.settings
-		let annotations = await page.getAnnotations()
-		// console.log('Annotations', annotations)
-
-		annotations = annotations.filter(function (anno) {
-			return SUPPORTED_ANNOTS.indexOf(anno.subtype) >= 0;
-		});
-
-		if (annotations.length > 0 && editor != null) {
-			editor.replaceSelection('PDF Page ' + pagenum + ' on ' + file.name + ' has ' + annotations.length + ' Annots.\n')
-		}
-		console.log('PDF Page ' + pagenum + ' on ' + file.name + ' has ' + annotations.length + ' Annots')
-
-		const content : TextContent = await page.getTextContent({ normalizeWhitespace: true })
-
-		// sort text elements
-		content.items.sort(function (a1, a2) {							
-			if (a1.transform[5] > a2.transform[5]) return -1    // y coord. descending
-			if (a1.transform[5] < a2.transform[5]) return 1
-			if (a1.transform[4] > a2.transform[4]) return 1    // x coord. ascending
-			if (a1.transform[4] < a2.transform[4]) return -1				
-			return 0
-		})
-
-
-		annotations.map(async function (anno) {
-			if (anno.subtype == 'Highlight' || anno.subtype == 'Underline') {
-
-				// get bounding box (we use rect, instead of quadPoints, this ist simpler...)
-				const minx = (anno.rect[0] < anno.rect[2] ? anno.rect[0] : anno.rect[2])
-				const maxx = (anno.rect[0] < anno.rect[2] ? anno.rect[2] : anno.rect[0])
-				const miny = (anno.rect[1] < anno.rect[3] ? anno.rect[1] : anno.rect[3])
-				const maxy = (anno.rect[1] < anno.rect[3] ? anno.rect[3] : anno.rect[1])
-
-				const mycontent = content.items.filter(function (x) {
-					// TODO: if bounding box is withing text line, we miss the line
-					if (x.width == 0) return false      // eliminate empty stuff
-					if (!((miny <= x.transform[5]) && (x.transform[5] <= maxy))) return false  // y coordinate not in box
-					if ((minx <= x.transform[4]) && (x.transform[4] <= maxx)) return true     // x coordinate withng box
-					if ((x.transform[4] <= minx) && (x.transform[4] + x.width >= minx))		// x+width is right crosses the box
-					return false
-				})
-				// console.log('in box', mycontent)
-
-				let r = '???'
-				if (mycontent.length > 0) {
-					r = ''
-					let y = mycontent[0].transform[5]  // y coordinate of current line, initialize with first line 
-
-					mycontent.forEach((textContent) => {
-						if (textContent.transform[5] != y) {  
-							// new line
-							y = textContent.transform[5]
-							if (r.endsWith('-')) {
-								r = r.slice(0,-1) + textContent.str
-							} else {
-								r += ' ' + textContent.str
-							}
-						} else {
-							r += textContent.str
-						}
-					});
-				} else {
-					console.warn ('No highlighted text found.')
-					console.log(`${file.name} (Page ${pagenum}) rect ${minx} < x < ${maxx}, ${miny} < y < ${maxy}`)
-					console.log("content", content)
-				}
-
-				// console.log('lines', r)
-				// editor.replaceSelection(`\n> ${r}\n`)
-				anno.highlightedText = r
-			}
-			// with Obsidion v0.13, contents became deprecated, and replaced by contentsObj
-			const lines = anno.contentsObj.str.split(/\r\n|\n\r|\n|\r/); // split by:     \r\n  \n\r  \n  or  \r
-			anno.topic = lines[0]; // First line of contents
-			if (settings.sortByTopic) {
-				anno.body = lines.slice(1).join('\r\n')
-			} else {
-				anno.body = anno.contentsObj.str
-			}
-			anno.folder = containingFolder
-			anno.file = file
-			anno.filepath = file.path		// we need a direct string property in the templates 
-			anno.pageNumber = pagenum
-			anno.author = anno.titleObj.str
-			total.push(anno)
-		});
-	}
-
-	async loadPDFFile(file : TFile, pdfjsLib, containingFolder : string, total, editor : Editor) {
-		const content = await this.app.vault.readBinary(file)
-		const pdf : PDFDocumentProxy = await pdfjsLib.getDocument(content).promise
-		for (let i = 1; i <= pdf.numPages; i++) {
-			const page = await pdf.getPage(i)
-			await this.loadPage(page, i, file, containingFolder, editor, total) // don't pass editor
-		}
-	}
-
-
-
 	sort (grandtotal) {
 		const settings = this.settings
+
+		if (settings.sortByTopic) {
+			grandtotal.forEach((anno) => {
+				const lines = anno.body.split(/\r\n|\n\r|\n|\r/); // split by:     \r\n  \n\r  \n  or  \r
+				anno.topic = lines[0]; // First line of contents
+				anno.body = lines.slice(1).join('\r\n')
+			})	
+		}
+
 		grandtotal.sort(function (a1, a2) {
 			if (settings.sortByTopic) {
 				// sort by topic
@@ -176,11 +78,10 @@ export default class PDFAnnotationPlugin extends Plugin {
 		let text = ''
 		let topic = ''
 		let currentFolder = ''
-		const settings = this.settings
 		// console.log("all annots", grandtotal)
 		grandtotal.forEach((a) => {
 			// print main Title when Topic changes (and settings allow)
-			if (settings.sortByTopic) {
+			if (this.settings.sortByTopic) {
 				if (topic != a.topic) {
 					topic = a.topic
 					currentFolder = ''
@@ -188,7 +89,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				}
 			}
 
-			if (settings.useFolderNames) {
+			if (this.settings.useFolderNames) {
 				if (currentFolder != a.folder) {
 					currentFolder = a.folder
 					text += `## ${currentFolder}\n`
@@ -216,13 +117,12 @@ export default class PDFAnnotationPlugin extends Plugin {
 		const containingFolder = file.parent.name;
 		const grandtotal = [] // array that will contain all fetched Annotations
 		console.log('loading from file ', file)
-		await this.loadPDFFile(file, pdfjsLib, containingFolder, grandtotal, null)
+		await loadPDFFile(file, pdfjsLib, containingFolder, grandtotal)
 		this.sort(grandtotal)
 		const finalMarkdown = this.format(grandtotal)
 
 		let filePath = file.name.replace(".pdf", ".md");
 		filePath = "Annotations for " + filePath;
-
 		await this.saveHighlightsToFile(filePath, finalMarkdown);
 		await this.app.workspace.openLinkText(filePath, '', true);						
 	}
@@ -266,11 +166,10 @@ export default class PDFAnnotationPlugin extends Plugin {
 					// visit all Childern of parent folder of current active File
 					if (file instanceof TFile) {
 						if (file.extension === 'pdf') {
-							const containingFolder = file.parent.name;
-							promises.push(this.loadPDFFile(file, pdfjsLib, containingFolder, grandtotal, editor)) 
-							}
+							promises.push(loadPDFFile(file, pdfjsLib, file.parent.name, grandtotal)) 
 						}
-					})
+					}
+				})
 				await Promise.all(promises)
 				this.sort(grandtotal)
 				editor.replaceSelection(this.format(grandtotal))

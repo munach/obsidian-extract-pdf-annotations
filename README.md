@@ -29,10 +29,9 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 * Use the first line of the comment as 'Topic' (and sort accordingly), or not
 * Use folder name or PDF-Filename for sorting
 
+## Versions
 
-## Issues / Bugs
-
-[] single word highlights are not found. I need to dig deeper...
+1.0.3 updated highlight fetching to use QuadPoints instead of Rectangles
 
 ## Installation / Build
 
@@ -58,6 +57,10 @@ $ cp main.js manifest.json ~/MyVault/.obsidian/plugins/obsidian-extract-pdf-anno
 ```
 
 Enable the plugin in Obsidan's setting. 
+
+## Issues / Bugs
+
+[] works only on left-to-right highlights 
 
 ## Credits
 
