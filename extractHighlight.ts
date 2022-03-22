@@ -32,7 +32,14 @@ function searchQuad(minx : number, maxx : number, miny : number, maxy : number, 
       const miny = quad.reduce((prev : number, curr : any) => Math.min(prev, curr.y), quad[0].y)
       const maxy = quad.reduce((prev : number, curr : any) => Math.max(prev, curr.y), quad[0].y)
       const res = searchQuad(minx, maxx, miny, maxy, items)
-      return txt + ' ' + res    // concatenate lines by 'blank' 
+	  if (txt.substring(txt.length - 1) != '-') {
+			return txt + ' ' + res    // concatenate lines by 'blank' 
+	  } else if (txt.substring(txt.length - 2).toLowerCase() == txt.substring(txt.length - 2) &&  // end by lowercase-
+			     res.substring(0,1).toLowerCase() == res.substring(0,1)) {						 // and start with lowercase
+			return txt.substring(0,txt.length - 1) + res	// remove hyphon
+	  } else {
+			return txt + res							// keep hyphon 
+ 	  }
     }, '');
     return highlight
   }
