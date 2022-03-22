@@ -31,6 +31,7 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 
 ## Versions
 
+1.0.4 clean up hyphenation https://github.com/munach/obsidian-extract-pdf-annotations/issues/5
 1.0.3 updated highlight fetching to use QuadPoints instead of Rectangles
 
 ## Installation / Build
