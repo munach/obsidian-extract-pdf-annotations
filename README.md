@@ -21,7 +21,7 @@ In the editor (e.g. \_Extract) we run the plugin's command  `Extract PDF Annotat
 As such, you can relate comments for your topics (here 'Hello World') from several PDF files. 
 
 ### Commands
-* `Extract PDF Annotations` Works when edititan a markdown note. Searches all PDF files in current Folder for annotations, and inserts them at the current position of the open note. 
+* `Extract PDF Annotations` Works when editing a markdown note. Searches all PDF files in current Folder for annotations, and inserts them at the current position of the open note. 
 * `Extract PDF Annotations on single file` Works while displaying a PDF file. Extracts annotations from this file and writes them to the note `Annotations for <filename>`
 
 ### Plugin Settings: 
