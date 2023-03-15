@@ -78,7 +78,7 @@ function searchQuad(minx : number, maxx : number, miny : number, maxy : number, 
 			anno.filepath = file.path		// we need a direct string property in the templates 
 			anno.pageNumber = pagenum
 			anno.author = anno.titleObj.str
-      anno.body = anno.contentsObj.str
+      		anno.body = anno.contentsObj.str
 			total.push(anno)
 		});
 	}
