@@ -1,4 +1,4 @@
-import { App, Editor, MarkdownView, TFile, Vault, Plugin, PluginSettingTab, Setting, loadPdfJs } from 'obsidian';
+import { App, Editor, MarkdownView, TFile, Vault, Plugin, PluginSettingTab, Setting, loadPdfJs, FileSystemAdapter } from 'obsidian';
 import { loadPDFFile } from 'extractHighlight'
 
 function template(strings, ...keys) {
@@ -33,7 +33,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 	public settings: PDFAnnotationPluginSetting;
 
-	sort (grandtotal) {
+	sort(grandtotal) {
 		const settings = this.settings
 
 		if (settings.sortByTopic) {
@@ -41,7 +41,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				const lines = anno.body.split(/\r\n|\n\r|\n|\r/); // split by:     \r\n  \n\r  \n  or  \r
 				anno.topic = lines[0]; // First line of contents
 				anno.body = lines.slice(1).join('\r\n')
-			})	
+			})
 		}
 
 		grandtotal.sort(function (a1, a2) {
@@ -98,7 +98,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				if (currentFolder != a.file.name) {
 					currentFolder = a.file.name
 					text += `## ${currentFolder}\n`
-				}  
+				}
 			}
 
 			if (a.subtype == 'Text') {
@@ -112,7 +112,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		else return text
 	}
 
-	async loadSinglePDFFile(file : TFile) {
+	async loadSinglePDFFile(file: TFile) {
 		const pdfjsLib = await loadPdfJs()
 		const containingFolder = file.parent.name;
 		const grandtotal = [] // array that will contain all fetched Annotations
@@ -124,17 +124,19 @@ export default class PDFAnnotationPlugin extends Plugin {
 		let filePath = file.name.replace(".pdf", ".md");
 		filePath = "Annotations for " + filePath;
 		await this.saveHighlightsToFile(filePath, finalMarkdown);
-		await this.app.workspace.openLinkText(filePath, '', true);						
+		await this.app.workspace.openLinkText(filePath, '', true);
 	}
 
 	async onload() {
+		console.log('loading plugin')
 		this.loadSettings();
 		this.addSettingTab(new PDFAnnotationPluginSettingTab(this.app, this));
+
 
 		this.addCommand({
 			id: 'extract-annotations-single',
 			name: 'Extract PDF Annotations on single file',
-			checkCallback: (checking : boolean) => {
+			checkCallback: (checking: boolean) => {
 				const file = this.app.workspace.getActiveFile();
 				if (file != null && file.extension === 'pdf') {
 					if (!checking) {
@@ -145,13 +147,34 @@ export default class PDFAnnotationPlugin extends Plugin {
 				} else {
 					return false
 				}
-			} 	
+			}
+		})
+
+		this.addCommand({
+			id: 'extract-annotations-single-from-clipboard-path',
+			name: 'Extract PDF Annotations on single file from path in clipboard',
+			callback: () => {
+				navigator.clipboard
+					.readText()
+					.then(
+						(clipText) => {
+							const filepath = clipText
+							if (filepath) {
+								console.log(filepath)
+								FileSystemAdapter.readLocalFile(filepath)
+									.then((arrayBuffer) => {
+										console.log('File read')
+									}
+									)
+							}
+						});
+			}
 		})
 
 		this.addCommand({
 			id: 'extract-annotations',
 			name: 'Extract PDF Annotations',
-			editorCallback: async (editor: Editor, view: MarkdownView) => { 
+			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				const file = this.app.workspace.getActiveFile()
 				if (file == null) return
 				const folder = file.parent
@@ -166,7 +189,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 					// visit all Childern of parent folder of current active File
 					if (file instanceof TFile) {
 						if (file.extension === 'pdf') {
-							promises.push(loadPDFFile(file, pdfjsLib, file.parent.name, grandtotal)) 
+							promises.push(loadPDFFile(file, pdfjsLib, file.parent.name, grandtotal))
 						}
 					}
 				})
@@ -185,11 +208,13 @@ export default class PDFAnnotationPlugin extends Plugin {
 			if (loadedSettings) {
 				this.settings.useFolderNames = loadedSettings.useFolderNames;
 				this.settings.sortByTopic = loadedSettings.sortByTopic;
-			} 
+			}
 		})();
 	}
 
-	onunload() {}
+	onunload() {
+		console.log('onloading plugin')
+	}
 
 	async saveHighlightsToFile(filePath: string, mdString: string) {
 		const fileExists = await this.app.vault.adapter.exists(filePath);
@@ -202,7 +227,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 	async appendHighlightsToFile(filePath: string, note: string) {
 		let existingContent = await this.app.vault.adapter.read(filePath);
-		if(existingContent.length > 0) {
+		if (existingContent.length > 0) {
 			existingContent = existingContent + '\r\r';
 		}
 		await this.app.vault.adapter.write(filePath, existingContent + note);
@@ -214,54 +239,54 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 
 class PDFAnnotationPluginSetting {
-    public useFolderNames: boolean;
-    public sortByTopic: boolean;
+	public useFolderNames: boolean;
+	public sortByTopic: boolean;
 
-    constructor() {
-        this.useFolderNames = true;
-        this.sortByTopic = true;
-    }
+	constructor() {
+		this.useFolderNames = true;
+		this.sortByTopic = true;
+	}
 }
 
 class PDFAnnotationPluginSettingTab extends PluginSettingTab {
-    plugin: PDFAnnotationPlugin;
+	plugin: PDFAnnotationPlugin;
 
-    constructor(app: App, plugin: PDFAnnotationPlugin) {
-        super(app, plugin);
-        this.plugin = plugin;
-    }
+	constructor(app: App, plugin: PDFAnnotationPlugin) {
+		super(app, plugin);
+		this.plugin = plugin;
+	}
 
-    display(): void {
-        const {containerEl} = this;
+	display(): void {
+		const { containerEl } = this;
 
-        containerEl.empty();
+		containerEl.empty();
 
-        new Setting(containerEl)
-            .setName('Use Folder Name')
-            .setDesc(
-                'If enabled, uses the PDF\'s folder name (instead of the PDF-Filename) for sorting',
-            )
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.useFolderNames).onChange((value) => {
-                    this.plugin.settings.useFolderNames = value;
-                    this.plugin.saveData(this.plugin.settings);
+		new Setting(containerEl)
+			.setName('Use Folder Name')
+			.setDesc(
+				'If enabled, uses the PDF\'s folder name (instead of the PDF-Filename) for sorting',
+			)
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.useFolderNames).onChange((value) => {
+					this.plugin.settings.useFolderNames = value;
+					this.plugin.saveData(this.plugin.settings);
 
-                }),
-            );
+				}),
+			);
 
-        new Setting(containerEl)
-            .setName('Sort by Topic')
-            .setDesc(
-                'If enabled, uses the notes first line as Topic for primary sorting',
-            )
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.sortByTopic).onChange((value) => {
-                    this.plugin.settings.sortByTopic = value;
-                    this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-        
-    }
+		new Setting(containerEl)
+			.setName('Sort by Topic')
+			.setDesc(
+				'If enabled, uses the notes first line as Topic for primary sorting',
+			)
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.sortByTopic).onChange((value) => {
+					this.plugin.settings.sortByTopic = value;
+					this.plugin.saveData(this.plugin.settings);
+				}),
+			);
+
+	}
 }
 
 
