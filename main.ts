@@ -118,7 +118,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		const containingFolder = file.parent.name;
 		const grandtotal = [] // array that will contain all fetched Annotations
 		console.log('loading from file ', file)
-        const content = await this.app.vault.readBinary(file)
+		const content = await this.app.vault.readBinary(file)
 		await loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), pdfjsLib, containingFolder, grandtotal)
 		this.sort(grandtotal)
 		const finalMarkdown = this.format(grandtotal)
@@ -196,8 +196,10 @@ export default class PDFAnnotationPlugin extends Plugin {
 					// visit all Childern of parent folder of current active File
 					if (file instanceof TFile) {
 						if (file.extension === 'pdf') {
-							const content = await this.app.vault.readBinary(file)
-							promises.push(loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), pdfjsLib, file.parent.name, grandtotal))
+							promises.push(
+								this.app.vault.readBinary(file).then((content) =>
+									loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), pdfjsLib, file.parent.name, grandtotal))
+							)
 						}
 					}
 				})
