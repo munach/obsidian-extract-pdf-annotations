@@ -1,4 +1,5 @@
 import { TFile } from 'obsidian';
+import { PDFFile } from './pdffile';
 
 
 const SUPPORTED_ANNOTS = ['Text', 'Highlight', 'Underline'];
@@ -49,7 +50,7 @@ function searchQuad(minx : number, maxx : number, miny : number, maxy : number, 
 	// we look only at SUPPORTED_ANNOTS (Text, Underline, Highlight)
 	// if its a underline or highlight, extract Highlight of the Annotation 
   // accumulate all annotations in the array total
-	async function loadPage(page, pagenum : number, file: TFile, containingFolder : string, total : Object[]) {
+	async function loadPage(page, pagenum : number, file: PDFFile, containingFolder : string, total : Object[]) {
 		let annotations = await page.getAnnotations()
 		// console.log('Annotations', annotations)
 
@@ -84,9 +85,8 @@ function searchQuad(minx : number, maxx : number, miny : number, maxy : number, 
 	}
 
 
-  export async function loadPDFFile(file : TFile, pdfjsLib, containingFolder : string, total : Object[]) {
-		const content = await this.app.vault.readBinary(file)
-		const pdf : PDFDocumentProxy = await pdfjsLib.getDocument(content).promise
+  export async function loadPDFFile(file : PDFFile, pdfjsLib, containingFolder : string, total : Object[]) {
+		const pdf : PDFDocumentProxy = await pdfjsLib.getDocument(file.content).promise
 		for (let i = 1; i <= pdf.numPages; i++) {
 			const page = await pdf.getPage(i)
 			await loadPage(page, i, file, containingFolder, total)
