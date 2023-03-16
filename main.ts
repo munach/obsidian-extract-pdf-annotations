@@ -23,9 +23,23 @@ ${'body'}
 
 `
 
+const highlightedWithExternalFilePath = template`> ${'highlightedText'}
+
+${'body'}
+			    
+* *highlighted by ${'author'} at page ${'pageNumber'} on ${'filepath'}
+
+`
+
 const note = template`${'body'}
   
 * *noted by ${'author'} at page ${'pageNumber'} on [[${'filepath'}]]*
+
+`
+
+const noteWithExternalFilePath = template`${'body'}
+  
+* *noted by ${'author'} at page ${'pageNumber'} on ${'filepath'}
 
 `
 
@@ -103,9 +117,18 @@ export default class PDFAnnotationPlugin extends Plugin {
 			}
 
 			if (a.subtype == 'Text') {
-				text += note(a)
+				if (a.filepath.startsWith('file')) {
+					text += noteWithExternalFilePath(a)
+				} else {
+					text += note(a)
+				}
+
 			} else {
-				text += highlighted(a)
+				if (a.filepath.startsWith('file')) {
+					text += highlightedWithExternalFilePath(a)
+				} else {
+					text += highlighted(a)
+				}
 			}
 		})
 
@@ -129,7 +152,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		await this.app.workspace.openLinkText(filePath, '', true);
 	}
 
-	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePathFromClipboard: string)  {
+	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePathFromClipboard: string) {
 		const grandtotal = [] // array that will contain all fetched Annotations
 		if (filePathFromClipboard) {
 			const pdfjsLib = await loadPdfJs()
@@ -144,7 +167,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 			const file: PDFFile = new PDFFile(fileName, binaryContent, extension, encodedFilePath);
 			const containingFolder = filePathWithSlashs.slice(0, filePathWithSlashs.lastIndexOf('/'));
 			console.log(containingFolder);
-			await loadPDFFile(file, pdfjsLib, containingFolder, grandtotal)	
+			await loadPDFFile(file, pdfjsLib, containingFolder, grandtotal)
 		}
 		return grandtotal;
 	}
