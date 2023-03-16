@@ -129,16 +129,23 @@ export default class PDFAnnotationPlugin extends Plugin {
 		await this.app.workspace.openLinkText(filePath, '', true);
 	}
 
-	loadSinglePDFFileFromClipboardPath(filePath: string) {
+	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePath: string)  {
+		const grandtotal = [] // array that will contain all fetched Annotations
 		if (filePath) {
+			const pdfjsLib = await loadPdfJs()
 			console.log(filePath)
-			FileSystemAdapter.readLocalFile(filePath)
-				.then((arrayBuffer) => {
-					console.log('File read')
-					let file: PDFFile = new PDFFile()
-				}
-				)
+			const binaryContent = await FileSystemAdapter.readLocalFile(filePath)
+			console.log('File read')
+			const filePathSplits: string[] = filePath.split('\\');
+			console.log(filePathSplits);
+			const fileName = filePathSplits.last();
+			const extension = fileName.split('.').last();
+			const file: PDFFile = new PDFFile(fileName, binaryContent, extension, filePath);
+			const containingFolder = filePath.slice(0, filePath.lastIndexOf('\\'));
+			console.log(containingFolder);
+			await loadPDFFile(file, pdfjsLib, containingFolder, grandtotal)	
 		}
+		return grandtotal;
 	}
 
 
@@ -168,13 +175,11 @@ export default class PDFAnnotationPlugin extends Plugin {
 		this.addCommand({
 			id: 'extract-annotations-single-from-clipboard-path',
 			name: 'Extract PDF Annotations on single file from path in clipboard',
-			callback: () => {
-				navigator.clipboard
-					.readText()
-					.then(
-						(clipText) => {
-							this.loadSinglePDFFileFromClipboardPath(clipText)
-						});
+			editorCallback: async (editor: Editor, view: MarkdownView) => {
+				const clipText = await navigator.clipboard.readText()
+				let grandtotal = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
+				this.sort(grandtotal)
+				editor.replaceSelection(this.format(grandtotal))
 			}
 		})
 
