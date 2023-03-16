@@ -129,19 +129,20 @@ export default class PDFAnnotationPlugin extends Plugin {
 		await this.app.workspace.openLinkText(filePath, '', true);
 	}
 
-	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePath: string)  {
+	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePathFromClipboard: string)  {
 		const grandtotal = [] // array that will contain all fetched Annotations
-		if (filePath) {
+		if (filePathFromClipboard) {
 			const pdfjsLib = await loadPdfJs()
-			console.log(filePath)
-			const binaryContent = await FileSystemAdapter.readLocalFile(filePath)
+			const binaryContent = await FileSystemAdapter.readLocalFile(filePathFromClipboard)
 			console.log('File read')
-			const filePathSplits: string[] = filePath.split('\\');
+			const filePathWithSlashs: string = filePathFromClipboard.replace(/\\/g, '/');
+			const filePathSplits: string[] = filePathWithSlashs.split('/');
 			console.log(filePathSplits);
 			const fileName = filePathSplits.last();
 			const extension = fileName.split('.').last();
-			const file: PDFFile = new PDFFile(fileName, binaryContent, extension, filePath);
-			const containingFolder = filePath.slice(0, filePath.lastIndexOf('\\'));
+			const encodedFilePath = encodeURI('file://' + filePathFromClipboard)
+			const file: PDFFile = new PDFFile(fileName, binaryContent, extension, encodedFilePath);
+			const containingFolder = filePathWithSlashs.slice(0, filePathWithSlashs.lastIndexOf('/'));
 			console.log(containingFolder);
 			await loadPDFFile(file, pdfjsLib, containingFolder, grandtotal)	
 		}
