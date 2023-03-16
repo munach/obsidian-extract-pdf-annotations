@@ -130,6 +130,19 @@ export default class PDFAnnotationPlugin extends Plugin {
 		await this.app.workspace.openLinkText(filePath, '', true);
 	}
 
+	loadSinglePDFFileFromClipboardPath(filePath: string) {
+		if (filePath) {
+			console.log(filePath)
+			FileSystemAdapter.readLocalFile(filePath)
+				.then((arrayBuffer) => {
+					console.log('File read')
+					let file: PDFFile = new PDFFile()
+				}
+				)
+		}
+	}
+
+
 	async onload() {
 		console.log('loading plugin')
 		this.loadSettings();
@@ -161,15 +174,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 					.readText()
 					.then(
 						(clipText) => {
-							const filepath = clipText
-							if (filepath) {
-								console.log(filepath)
-								FileSystemAdapter.readLocalFile(filepath)
-									.then((arrayBuffer) => {
-										console.log('File read')
-									}
-									)
-							}
+							this.loadSinglePDFFileFromClipboardPath(clipText)
 						});
 			}
 		})
