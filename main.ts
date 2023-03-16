@@ -29,7 +29,7 @@ const highlightedWithExternalFilePath = template`> ${'highlightedText'}
 
 ${'body'}
 			    
-* *highlighted by ${'author'} at page ${'pageNumber'} on ${'filepath'}
+* *highlighted by ${'author'} at page ${'pageNumber'} on ${'filepath'}*
 
 `
 
@@ -41,7 +41,7 @@ const note = template`${'body'}
 
 const noteWithExternalFilePath = template`${'body'}
   
-* *noted by ${'author'} at page ${'pageNumber'} on ${'filepath'}
+* *noted by ${'author'} at page ${'pageNumber'} on ${'filepath'}*
 
 `
 
