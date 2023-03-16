@@ -157,15 +157,16 @@ export default class PDFAnnotationPlugin extends Plugin {
 	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePathFromClipboard: string) {
 		const grandtotal = [] // array that will contain all fetched Annotations
 		try {
-			const stats = fs.statSync(filePathFromClipboard);
+			const filePathWithoutQuotes = filePathFromClipboard.replace(/\"/g, '');
+			const stats = fs.statSync(filePathWithoutQuotes);
 			if (stats.isFile()) {
 				const pdfjsLib = await loadPdfJs()
-				const binaryContent = await FileSystemAdapter.readLocalFile(filePathFromClipboard)
-				const filePathWithSlashs: string = filePathFromClipboard.replace(/\\/g, '/');
+				const binaryContent = await FileSystemAdapter.readLocalFile(filePathWithoutQuotes)
+				const filePathWithSlashs: string = filePathWithoutQuotes.replace(/\\/g, '/');
 				const filePathSplits: string[] = filePathWithSlashs.split('/');
 				const fileName = filePathSplits.last();
 				const extension = fileName.split('.').last();
-				const encodedFilePath = encodeURI('file://' + filePathFromClipboard)
+				const encodedFilePath = encodeURI('file://' + filePathWithoutQuotes)
 				const file: PDFFile = new PDFFile(fileName, binaryContent, extension, encodedFilePath);
 				const containingFolder = filePathWithSlashs.slice(0, filePathWithSlashs.lastIndexOf('/'));
 				await loadPDFFile(file, pdfjsLib, containingFolder, grandtotal)
