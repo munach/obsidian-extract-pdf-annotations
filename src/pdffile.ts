@@ -9,7 +9,6 @@ export class PDFFile {
      * @public
      */
 	path: string;
-
     /**
      * @public
      */
@@ -18,6 +17,13 @@ export class PDFFile {
      * @public
      */
     name: string;
+
+    public PDFFile(name: string, binaryContent: ArrayBuffer, extension: string, path: string) {
+        this.name = name;
+        this.content = binaryContent;
+        this.extension = extension;
+        this.path = path;
+    }
 
     public static convertTFileToPDFFile(tFile: TFile, binaryContent: ArrayBuffer): PDFFile {
         let pdfFile = new PDFFile;
