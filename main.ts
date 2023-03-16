@@ -98,23 +98,25 @@ export default class PDFAnnotationPlugin extends Plugin {
 		// console.log("all annots", grandtotal)
 		grandtotal.forEach((a) => {
 			// print main Title when Topic changes (and settings allow)
-			if (this.settings.sortByTopic) {
-				if (topic != a.topic) {
-					topic = a.topic
-					currentFolder = ''
-					text += `# ${topic}\n`
+			if (this.settings.useStructuringHeadlines) {
+				if (this.settings.sortByTopic) {
+					if (topic != a.topic) {
+						topic = a.topic
+						currentFolder = ''
+						text += `# ${topic}\n`
+					}
 				}
-			}
 
-			if (this.settings.useFolderNames) {
-				if (currentFolder != a.folder) {
-					currentFolder = a.folder
-					text += `## ${currentFolder}\n`
-				}
-			} else {
-				if (currentFolder != a.file.name) {
-					currentFolder = a.file.name
-					text += `## ${currentFolder}\n`
+				if (this.settings.useFolderNames) {
+					if (currentFolder != a.folder) {
+						currentFolder = a.folder
+						text += `## ${currentFolder}\n`
+					}
+				} else {
+					if (currentFolder != a.file.name) {
+						currentFolder = a.file.name
+						text += `## ${currentFolder}\n`
+					}
 				}
 			}
 
@@ -285,10 +287,12 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 
 class PDFAnnotationPluginSetting {
+	public useStructuringHeadlines: boolean;
 	public useFolderNames: boolean;
 	public sortByTopic: boolean;
 
 	constructor() {
+		this.useStructuringHeadlines = true;
 		this.useFolderNames = true;
 		this.sortByTopic = true;
 	}
@@ -306,6 +310,18 @@ class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 
 		containerEl.empty();
+
+		new Setting(containerEl)
+			.setName('Use structuring headlines')
+			.setDesc(
+				'If disabled, no structuring headlines will be shown. Just the annotations in the specified template style.',
+			)
+			.addToggle((toggle) =>
+				toggle.setValue(this.plugin.settings.useStructuringHeadlines).onChange((value) => {
+					this.plugin.settings.useStructuringHeadlines = value;
+					this.plugin.saveData(this.plugin.settings);
+				}),
+			);
 
 		new Setting(containerEl)
 			.setName('Use Folder Name')
