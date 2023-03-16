@@ -1,6 +1,8 @@
 import { App, Editor, MarkdownView, TFile, Vault, Plugin, PluginSettingTab, Setting, loadPdfJs, FileSystemAdapter } from 'obsidian';
 import { loadPDFFile } from 'src/extractHighlight'
 import { PDFFile } from 'src/pdffile'
+const fs = require('fs');
+
 
 function template(strings, ...keys) {
 	return (function (...values) {
@@ -154,20 +156,28 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePathFromClipboard: string) {
 		const grandtotal = [] // array that will contain all fetched Annotations
-		if (filePathFromClipboard) {
-			const pdfjsLib = await loadPdfJs()
-			const binaryContent = await FileSystemAdapter.readLocalFile(filePathFromClipboard)
 			console.log('File read')
-			const filePathWithSlashs: string = filePathFromClipboard.replace(/\\/g, '/');
-			const filePathSplits: string[] = filePathWithSlashs.split('/');
 			console.log(filePathSplits);
-			const fileName = filePathSplits.last();
-			const extension = fileName.split('.').last();
-			const encodedFilePath = encodeURI('file://' + filePathFromClipboard)
-			const file: PDFFile = new PDFFile(fileName, binaryContent, extension, encodedFilePath);
-			const containingFolder = filePathWithSlashs.slice(0, filePathWithSlashs.lastIndexOf('/'));
 			console.log(containingFolder);
-			await loadPDFFile(file, pdfjsLib, containingFolder, grandtotal)
+		try {
+			const stats = fs.statSync(filePathFromClipboard);
+			if (stats.isFile()) {
+				const pdfjsLib = await loadPdfJs()
+				const binaryContent = await FileSystemAdapter.readLocalFile(filePathFromClipboard)
+				const filePathWithSlashs: string = filePathFromClipboard.replace(/\\/g, '/');
+				const filePathSplits: string[] = filePathWithSlashs.split('/');
+				const fileName = filePathSplits.last();
+				const extension = fileName.split('.').last();
+				const encodedFilePath = encodeURI('file://' + filePathFromClipboard)
+				const file: PDFFile = new PDFFile(fileName, binaryContent, extension, encodedFilePath);
+				const containingFolder = filePathWithSlashs.slice(0, filePathWithSlashs.lastIndexOf('/'));
+				await loadPDFFile(file, pdfjsLib, containingFolder, grandtotal)
+			} else {
+				console.log('Data in clipboard is no file.');
+			}
+		} catch (error) {
+			console.log('Data in clipboard could not be read as filepath.');
+			console.error(error);
 		}
 		return grandtotal;
 	}
