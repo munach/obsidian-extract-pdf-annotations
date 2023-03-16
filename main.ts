@@ -1,5 +1,5 @@
 import { App, Editor, MarkdownView, TFile, Vault, Plugin, PluginSettingTab, Setting, loadPdfJs, FileSystemAdapter } from 'obsidian';
-import { loadPDFFile } from 'extractHighlight'
+import { loadPDFFile } from 'src/extractHighlight'
 
 function template(strings, ...keys) {
 	return (function (...values) {
