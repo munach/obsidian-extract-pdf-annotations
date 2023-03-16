@@ -1,5 +1,6 @@
 import { App, Editor, MarkdownView, TFile, Vault, Plugin, PluginSettingTab, Setting, loadPdfJs, FileSystemAdapter } from 'obsidian';
 import { loadPDFFile } from 'src/extractHighlight'
+import { PDFFile } from 'src/pdffile'
 
 function template(strings, ...keys) {
 	return (function (...values) {
@@ -117,7 +118,9 @@ export default class PDFAnnotationPlugin extends Plugin {
 		const containingFolder = file.parent.name;
 		const grandtotal = [] // array that will contain all fetched Annotations
 		console.log('loading from file ', file)
-		await loadPDFFile(file, pdfjsLib, containingFolder, grandtotal)
+        const content = await this.app.vault.readBinary(file)
+		console.log(content)
+		await loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), pdfjsLib, containingFolder, grandtotal)
 		this.sort(grandtotal)
 		const finalMarkdown = this.format(grandtotal)
 
