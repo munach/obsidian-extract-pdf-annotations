@@ -156,9 +156,6 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePathFromClipboard: string) {
 		const grandtotal = [] // array that will contain all fetched Annotations
-			console.log('File read')
-			console.log(filePathSplits);
-			console.log(containingFolder);
 		try {
 			const stats = fs.statSync(filePathFromClipboard);
 			if (stats.isFile()) {
@@ -184,7 +181,6 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 
 	async onload() {
-		console.log('loading plugin')
 		this.loadSettings();
 		this.addSettingTab(new PDFAnnotationPluginSettingTab(this.app, this));
 
