@@ -261,9 +261,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		})();
 	}
 
-	onunload() {
-		console.log('onloading plugin')
-	}
+	onunload() { }
 
 	async saveHighlightsToFile(filePath: string, mdString: string) {
 		const fileExists = await this.app.vault.adapter.exists(filePath);
