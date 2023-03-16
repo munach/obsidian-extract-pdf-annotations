@@ -18,7 +18,7 @@ export class PDFFile {
      */
     name: string;
 
-    public PDFFile(name: string, binaryContent: ArrayBuffer, extension: string, path: string) {
+    constructor(name: string, binaryContent: ArrayBuffer, extension: string, path: string) {
         this.name = name;
         this.content = binaryContent;
         this.extension = extension;
