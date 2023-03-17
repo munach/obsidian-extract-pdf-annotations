@@ -1,6 +1,6 @@
-import { App, Editor, MarkdownView, TFile, Vault, Plugin, PluginSettingTab, Setting, loadPdfJs, FileSystemAdapter } from 'obsidian';
-import { loadPDFFile } from 'src/extractHighlight'
-import { PDFFile } from 'src/pdffile'
+import { App, Editor, FileSystemAdapter, loadPdfJs, MarkdownView, Plugin, PluginSettingTab, Setting, TFile, Vault } from 'obsidian';
+import { loadPDFFile } from 'src/extractHighlight';
+import { PDFFile } from 'src/pdffile';
 const fs = require('fs');
 
 
