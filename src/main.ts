@@ -1,7 +1,12 @@
 import { Editor, FileSystemAdapter, loadPdfJs, MarkdownView, Plugin, TFile, Vault } from 'obsidian';
+import {
+	compile as compileTemplate,
+	TemplateDelegate as Template,
+} from 'handlebars';
 import { loadPDFFile } from 'src/extractHighlight';
-import { PDFFile } from 'src/pdffile';
+import { IIndexable, PDFFile } from 'src/types';
 import { PDFAnnotationPluginSetting, PDFAnnotationPluginSettingTab } from './settings';
+
 const fs = require('fs');
 
 
@@ -50,6 +55,11 @@ const noteWithExternalFilePath = template`${'body'}
 export default class PDFAnnotationPlugin extends Plugin {
 
 	public settings: PDFAnnotationPluginSetting;
+
+	// Template compilation options
+	private templateSettings = {
+		noEscape: true,
+	};
 
 	sort(grandtotal) {
 		const settings = this.settings
@@ -213,7 +223,8 @@ export default class PDFAnnotationPlugin extends Plugin {
 				const clipText = await navigator.clipboard.readText()
 				let grandtotal = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
 				this.sort(grandtotal)
-				editor.replaceSelection(this.format(grandtotal))
+				//editor.replaceSelection(this.format(grandtotal))
+				await this.insertNoteFromInsidePDFs(grandtotal[0], editor);
 			}
 		})
 
@@ -255,13 +266,48 @@ export default class PDFAnnotationPlugin extends Plugin {
 		(async () => {
 			const loadedSettings = await this.loadData();
 			if (loadedSettings) {
-				this.settings.useFolderNames = loadedSettings.useFolderNames;
-				this.settings.sortByTopic = loadedSettings.sortByTopic;
+				const toLoad = [
+					'useStructuringHeadlines',
+					'useFolderNames',
+					'sortByTopic'
+				];
+				toLoad.forEach((setting) => {
+					if (setting in loadedSettings) {
+						(this.settings as IIndexable)[setting] = loadedSettings[setting];
+					}
+				});
 			}
 		})();
 	}
 
+	async saveSettings(): Promise<void> {
+		await this.saveData(this.settings);
+	}
+
 	onunload() { }
+
+	get noteFromInsidePDFsTemplate(): Template {
+		return compileTemplate(
+			this.settings.noteTemplateInsidePDFs,
+			this.templateSettings,
+		);
+	}
+
+	getTemplateVariablesForAnnotation(annotation: any): Record<string, any> {
+		const shortcuts = {
+			highlightedText: annotation.highlightedText,
+			body: annotation.body
+		};
+	
+		return { annotation: annotation, ...shortcuts };
+	  }
+
+
+	getInitialContentForNote(annotation: any): string {
+		return this.noteFromInsidePDFsTemplate(
+			this.getTemplateVariablesForAnnotation(annotation),
+		);
+	}
 
 	async saveHighlightsToFile(filePath: string, mdString: string) {
 		const fileExists = await this.app.vault.adapter.exists(filePath);
@@ -278,6 +324,15 @@ export default class PDFAnnotationPlugin extends Plugin {
 			existingContent = existingContent + '\r\r';
 		}
 		await this.app.vault.adapter.write(filePath, existingContent + note);
+	}
+
+	/**
+  * Format literature note content for a given reference and insert in the
+  * currently active pane.
+  */
+	async insertNoteFromInsidePDFs(annotation: any, editor: Editor): Promise<void> {
+		const content = this.getInitialContentForNote(annotation);
+		editor.replaceRange(content, editor.getCursor());
 	}
 
 
