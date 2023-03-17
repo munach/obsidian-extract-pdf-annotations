@@ -1,4 +1,4 @@
-import { PDFFile } from './pdffile';
+import { PDFFile } from './types';
 
 
 const SUPPORTED_ANNOTS = ['Text', 'Highlight', 'Underline'];
