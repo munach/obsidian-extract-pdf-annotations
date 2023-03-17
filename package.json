@@ -23,6 +23,7 @@
 	},
 	"dependencies": {
 		"@types/pdf": "^0.0.31",
-		"eslint": "^8.36.0"
+		"eslint": "^8.36.0",
+		"handlebars": "^4.7.7"
 	}
 }
