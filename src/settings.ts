@@ -2,7 +2,8 @@ import { App, PluginSettingTab, Setting } from "obsidian";
 import PDFAnnotationPlugin from "./main";
 
 export const TEMPLATE_VARIABLES = {
-    highlightedText: 'Highlighted text'
+    highlightedText: 'Highlighted text',
+    body: ''
   };
 
 export class PDFAnnotationPluginSetting {
