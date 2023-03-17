@@ -70,7 +70,7 @@ function searchQuad(minx : number, maxx : number, miny : number, maxy : number, 
 		})
 
 
-		annotations.map(async function (anno) {
+		annotations.map(function (anno) {
 			if (anno.subtype == 'Highlight' || anno.subtype == 'Underline') {
 				anno.highlightedText = extractHighlight(anno, content.items)
 			}
