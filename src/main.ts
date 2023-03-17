@@ -54,7 +54,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 	sort(grandtotal) {
 		const settings = this.settings
 
-		if (settings.sortByTopic) {
+		if (settings.sortByTopic && settings.useStructuringHeadlines) {
 			grandtotal.forEach((anno) => {
 				const lines = anno.body.split(/\r\n|\n\r|\n|\r/); // split by:     \r\n  \n\r  \n  or  \r
 				anno.topic = lines[0]; // First line of contents
