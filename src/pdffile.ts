@@ -8,7 +8,7 @@ export class PDFFile {
     /**
      * @public
      */
-	path: string;
+    path: string;
     /**
      * @public
      */
