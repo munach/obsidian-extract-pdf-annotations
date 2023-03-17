@@ -1,6 +1,10 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
 import PDFAnnotationPlugin from "./main";
 
+export const TEMPLATE_VARIABLES = {
+    highlightedText: 'Highlighted text'
+  };
+
 export class PDFAnnotationPluginSetting {
 	public useStructuringHeadlines: boolean;
 	public useFolderNames: boolean;
@@ -62,6 +66,33 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 					this.plugin.saveData(this.plugin.settings);
 				}),
 			);
+            containerEl.createEl('h3', { text: 'Template settings' });
+            const templateInstructionsEl = containerEl.createEl('p');
+            templateInstructionsEl.append(
+              createSpan({
+                text:
+                  'The following settings determine how the highlights and notes created by ' +
+                  'the plugin will be rendered. There are four types that you can specify, ' + 
+                  'because you might want to have other templates for highlights and notes ' +
+                  'which include links to external files. The following variables are available:',
+              }),
+            );
 
+            const templateVariableUl = containerEl.createEl('ul', {
+                attr: { id: 'pdfAnnotationTemplateVariables' },
+              });
+              Object.entries(TEMPLATE_VARIABLES).forEach((variableData) => {
+                const [key, description] = variableData,
+                  templateVariableItem = templateVariableUl.createEl('li');
+          
+                templateVariableItem.createEl('span', {
+                  cls: 'text-monospace',
+                  text: '{{' + key + '}}',
+                });
+          
+                templateVariableItem.createEl('span', {
+                  text: description ? ` — ${description}` : '',
+                });
+              });
 	}
 }
