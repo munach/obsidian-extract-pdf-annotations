@@ -205,7 +205,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 		this.addCommand({
 			id: 'extract-annotations-single-from-clipboard-path',
-			name: 'Extract PDF Annotations on single file from path in clipboard',
+			name: 'Extract PDF Annotations from single file from path in clipboard',
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				const clipText = await navigator.clipboard.readText()
 				let grandtotal = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
