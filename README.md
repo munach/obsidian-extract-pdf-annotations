@@ -3,6 +3,7 @@
 This is a plugin for [Obsidian](https://obsidian.md). It extracts Annotations from PDF Files.  
 
 ## Usage
+
 This Plugin visits all PDF files in a given directory and extracts comments and highlights from the PDF files. It treats the first line of every comment as *Topic* for grouping the comments. 
 
 Assume we have in a folder in our Vault containing PDF files, e.g: 
