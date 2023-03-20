@@ -268,7 +268,11 @@ export default class PDFAnnotationPlugin extends Plugin {
 				const toLoad = [
 					'useStructuringHeadlines',
 					'useFolderNames',
-					'sortByTopic'
+					'sortByTopic',
+					'noteTemplateExternalPDFs',
+					'noteTemplateInternalPDFs',
+					'highlightTemplateExternalPDFs',
+					'highlightTemplateInternalPDFs'
 				];
 				toLoad.forEach((setting) => {
 					if (setting in loadedSettings) {
