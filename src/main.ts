@@ -1,8 +1,8 @@
-import { Editor, FileSystemAdapter, loadPdfJs, MarkdownView, Plugin, TFile, Vault } from 'obsidian';
 import {
 	compile as compileTemplate,
-	TemplateDelegate as Template,
+	TemplateDelegate as Template
 } from 'handlebars';
+import { Editor, FileSystemAdapter, loadPdfJs, MarkdownView, Plugin, TFile, Vault } from 'obsidian';
 import { loadPDFFile } from 'src/extractHighlight';
 import { IIndexable, PDFFile } from 'src/types';
 import { PDFAnnotationPluginSetting, PDFAnnotationPluginSettingTab } from './settings';
@@ -101,7 +101,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		})
 	}
 
-	format(grandtotal) {
+	format(grandtotal, isExternalFile) {
 		// now iterate over the annotations printing topics, then folder, then comments...
 		let text = ''
 		let topic = ''
@@ -132,17 +132,17 @@ export default class PDFAnnotationPlugin extends Plugin {
 			}
 
 			if (a.subtype == 'Text') {
-				if (a.filepath.startsWith('file')) {
-					text += noteWithExternalFilePath(a)
+				if (isExternalFile) {
+					text += this.getContentForNoteFromExternalPDF(a)
 				} else {
-					text += note(a)
+					text += this.getContentForNoteFromInternalPDF(a)
 				}
 
 			} else {
-				if (a.filepath.startsWith('file')) {
-					text += highlightedWithExternalFilePath(a)
+				if (isExternalFile) {
+					text += this.getContentForHighlightFromExternalPDF(a)
 				} else {
-					text += highlighted(a)
+					text += this.getContentForHighlightFromInternalPDF(a)
 				}
 			}
 		})
@@ -159,7 +159,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		const content = await this.app.vault.readBinary(file)
 		await loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), pdfjsLib, containingFolder, grandtotal)
 		this.sort(grandtotal)
-		const finalMarkdown = this.format(grandtotal)
+		const finalMarkdown = this.format(grandtotal, false)
 
 		let filePath = file.name.replace(".pdf", ".md");
 		filePath = "Annotations for " + filePath;
@@ -223,8 +223,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				const clipText = await navigator.clipboard.readText()
 				let grandtotal = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
 				this.sort(grandtotal)
-				//editor.replaceSelection(this.format(grandtotal))
-				await this.insertNoteFromInsidePDFs(grandtotal[0], editor);
+				editor.replaceSelection(this.format(grandtotal, true))
 			}
 		})
 
@@ -255,7 +254,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				})
 				await Promise.all(promises)
 				this.sort(grandtotal)
-				editor.replaceSelection(this.format(grandtotal))
+				editor.replaceSelection(this.format(grandtotal, false))
 			}
 		})
 	}
@@ -286,9 +285,30 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 	onunload() { }
 
-	get noteFromInsidePDFsTemplate(): Template {
+	get noteFromExternalPDFsTemplate(): Template {
 		return compileTemplate(
-			this.settings.noteTemplateInsidePDFs,
+			this.settings.noteTemplateExternalPDFs,
+			this.templateSettings,
+		);
+	}
+
+	get noteFromInternalPDFsTemplate(): Template {
+		return compileTemplate(
+			this.settings.noteTemplateInternalPDFs,
+			this.templateSettings,
+		);
+	}
+
+	get highlightFromExternalPDFsTemplate(): Template {
+		return compileTemplate(
+			this.settings.highlightTemplateExternalPDFs,
+			this.templateSettings,
+		);
+	}
+
+	get highlightFromInternalPDFsTemplate(): Template {
+		return compileTemplate(
+			this.settings.highlightTemplateInternalPDFs,
 			this.templateSettings,
 		);
 	}
@@ -296,15 +316,38 @@ export default class PDFAnnotationPlugin extends Plugin {
 	getTemplateVariablesForAnnotation(annotation: any): Record<string, any> {
 		const shortcuts = {
 			highlightedText: annotation.highlightedText,
+			folder: annotation.folder,
+			file: annotation.file,
+			filepath: annotation.filepath,
+			pageNumber: annotation.pageNumber,
+			author: annotation.author,
 			body: annotation.body
 		};
-	
+
 		return { annotation: annotation, ...shortcuts };
-	  }
+	}
 
 
-	getInitialContentForNote(annotation: any): string {
-		return this.noteFromInsidePDFsTemplate(
+	getContentForNoteFromExternalPDF(annotation: any): string {
+		return this.noteFromExternalPDFsTemplate(
+			this.getTemplateVariablesForAnnotation(annotation),
+		);
+	}
+
+	getContentForNoteFromInternalPDF(annotation: any): string {
+		return this.noteFromInternalPDFsTemplate(
+			this.getTemplateVariablesForAnnotation(annotation),
+		);
+	}
+
+	getContentForHighlightFromExternalPDF(annotation: any): string {
+		return this.highlightFromExternalPDFsTemplate(
+			this.getTemplateVariablesForAnnotation(annotation),
+		);
+	}
+
+	getContentForHighlightFromInternalPDF(annotation: any): string {
+		return this.highlightFromInternalPDFsTemplate(
 			this.getTemplateVariablesForAnnotation(annotation),
 		);
 	}
@@ -325,16 +368,6 @@ export default class PDFAnnotationPlugin extends Plugin {
 		}
 		await this.app.vault.adapter.write(filePath, existingContent + note);
 	}
-
-	/**
-  * Format literature note content for a given reference and insert in the
-  * currently active pane.
-  */
-	async insertNoteFromInsidePDFs(annotation: any, editor: Editor): Promise<void> {
-		const content = this.getInitialContentForNote(annotation);
-		editor.replaceRange(content, editor.getCursor());
-	}
-
 
 }
 

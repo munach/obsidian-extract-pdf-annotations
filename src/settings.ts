@@ -4,22 +4,51 @@ import { IIndexable } from "src/types";
 
 export const TEMPLATE_VARIABLES = {
 	highlightedText: 'Highlighted text from PDF',
-	body: 'Annotation text',
+	folder: 'Folder of PDF file',
+	file: 'Binary content of file',
+	filepath: 'Path of PDF file',
+	pageNumber: 'Page number of annotation with reference to PDF pages',
+	author: 'Author of annotation',
+	body: 'Body of annotation'
 };
 
 export class PDFAnnotationPluginSetting {
 	public useStructuringHeadlines: boolean;
 	public useFolderNames: boolean;
 	public sortByTopic: boolean;
-	public noteTemplateInsidePDFs: string;
+	public noteTemplateExternalPDFs: string;
+	public noteTemplateInternalPDFs: string;
+	public highlightTemplateExternalPDFs: string;
+	public highlightTemplateInternalPDFs: string;
 
 	constructor() {
 		this.useStructuringHeadlines = true;
 		this.useFolderNames = true;
 		this.sortByTopic = true;
-		this.noteTemplateInsidePDFs =
-			'highlightedText: {{highlightedText}}\n' +
-			'body: {{body}}\n'
+		this.noteTemplateExternalPDFs =
+			'{{body}}\n' +
+			'\n' +
+			'* *noted by {{author}} at page {{pageNumber}} on {{filepath}}*\n' +
+			'\n';
+		this.noteTemplateInternalPDFs =
+			'{{body}}\n' +
+			'\n' +
+			'* *noted by {{author}} at page {{pageNumber}} on [[{{filepath}}]]*\n' +
+			'\n';
+		this.highlightTemplateExternalPDFs =
+			'> {{highlightedText}}\n' +
+			'\n' +
+			'{{body}}\n' +
+			'\n' +
+			'* *highlighted by {{author}} at page {{pageNumber}} on {{filepath}}*\n' +
+			'\n';
+		this.highlightTemplateInternalPDFs =
+			'> {{highlightedText}}\n' +
+			'\n' +
+			'{{body}}\n' +
+			'\n' +
+			'* *highlighted by {{author}} at page {{pageNumber}} on [[{{filepath}}]]*\n' +
+			'\n';
 	}
 }
 
@@ -120,9 +149,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 			}),
 		);
 
-		const templateVariableUl = containerEl.createEl('ul', {
-			attr: { id: 'pdfAnnotationTemplateVariables' },
-		});
+		const templateVariableUl = containerEl.createEl('ul');
 		Object.entries(TEMPLATE_VARIABLES).forEach((variableData) => {
 			const [key, description] = variableData,
 				templateVariableItem = templateVariableUl.createEl('li');
@@ -138,9 +165,24 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 		});
 
 		new Setting(containerEl)
+			.setName('Template for notes of PDFs outside Obsidian:')
+			.addTextArea((input) =>
+				this.buildValueInput(input, 'noteTemplateExternalPDFs'),
+			);
+		new Setting(containerEl)
 			.setName('Template for notes of PDFs inside Obsidian:')
 			.addTextArea((input) =>
-				this.buildValueInput(input, 'noteTemplateInsidePDFs'),
+				this.buildValueInput(input, 'noteTemplateInternalPDFs'),
+			);
+		new Setting(containerEl)
+			.setName('Template for highlights of PDFs outside Obsidian:')
+			.addTextArea((input) =>
+				this.buildValueInput(input, 'highlightTemplateExternalPDFs'),
+			);
+		new Setting(containerEl)
+			.setName('Template for highlights of PDFs inside Obsidian:')
+			.addTextArea((input) =>
+				this.buildValueInput(input, 'highlightTemplateInternalPDFs'),
 			);
 	}
 }
