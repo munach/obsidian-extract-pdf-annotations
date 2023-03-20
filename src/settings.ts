@@ -166,23 +166,33 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Template for notes of PDFs outside Obsidian:')
-			.addTextArea((input) =>
-				this.buildValueInput(input, 'noteTemplateExternalPDFs'),
-			);
+			.addTextArea((input) => {
+				input.inputEl.style.width = '100%';
+				input.inputEl.style.height = '10em';
+				this.buildValueInput(input, 'noteTemplateExternalPDFs')
+			});
 		new Setting(containerEl)
 			.setName('Template for notes of PDFs inside Obsidian:')
-			.addTextArea((input) =>
-				this.buildValueInput(input, 'noteTemplateInternalPDFs'),
+			.addTextArea((input) => {
+				input.inputEl.style.width = '100%';
+				input.inputEl.style.height = '10em';
+				this.buildValueInput(input, 'noteTemplateInternalPDFs');
+			}
+				
 			);
 		new Setting(containerEl)
 			.setName('Template for highlights of PDFs outside Obsidian:')
-			.addTextArea((input) =>
-				this.buildValueInput(input, 'highlightTemplateExternalPDFs'),
-			);
+			.addTextArea((input) => {
+				input.inputEl.style.width = '100%';
+				input.inputEl.style.height = '10em';
+				this.buildValueInput(input, 'highlightTemplateExternalPDFs')
+			});
 		new Setting(containerEl)
 			.setName('Template for highlights of PDFs inside Obsidian:')
-			.addTextArea((input) =>
-				this.buildValueInput(input, 'highlightTemplateInternalPDFs'),
-			);
+			.addTextArea((input) => {
+				input.inputEl.style.width = '100%';
+				input.inputEl.style.height = '10em';
+				this.buildValueInput(input, 'highlightTemplateInternalPDFs');
+			});
 	}
 }
