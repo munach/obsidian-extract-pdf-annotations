@@ -27,12 +27,22 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 
 ### Plugin Settings: 
 
+* Use structuring headlines or not, if you only want to display annotations in the specified template
 * Use the first line of the comment as 'Topic' (and sort accordingly), or not
 * Use folder name or PDF-Filename for sorting
+* Template settings for different types of notes: notes from internal or external PDFs and highlights from internal or external PDFs. The distinction between internal and external exists, if one wants to use different links (internal `[[]]` links vs. external `file://` links). The following template variables are available and can be used by following the [Handlebars]('https://handlebarsjs.com/guide/expressions.html') syntax: 
+    - {{highlightedText}}: 'Highlighted text from PDF',
+	- {{folder}}: 'Folder of PDF file',
+	- {{file}}: 'Binary content of file',
+	- {{filepath}}: 'Path of PDF file',
+	- {{pageNumber}}: 'Page number of annotation with reference to PDF pages',
+	- {{author}}: 'Author of annotation',
+	- {{body}}: 'Body of annotation'
 
 ## Versions
 
 1.2.0 added template settings
+
 1.1.0 add new function `Extract PDF Annotations from single file from path in clipboard` to extract annotations from PDFs outside Obsidian vault
 
 1.0.4 clean up hyphenation https://github.com/munach/obsidian-extract-pdf-annotations/issues/5
