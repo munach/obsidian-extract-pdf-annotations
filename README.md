@@ -3,7 +3,6 @@
 This is a plugin for [Obsidian](https://obsidian.md). It extracts Annotations from PDF Files.  
 
 ## Usage
-
 This Plugin visits all PDF files in a given directory and extracts comments and highlights from the PDF files. It treats the first line of every comment as *Topic* for grouping the comments. 
 
 Assume we have in a folder in our Vault containing PDF files, e.g: 
@@ -23,6 +22,7 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 ### Commands
 * `Extract PDF Annotations` Works when editing a markdown note. Searches all PDF files in current Folder for annotations, and inserts them at the current position of the open note. 
 * `Extract PDF Annotations on single file` Works while displaying a PDF file. Extracts annotations from this file and writes them to the note `Annotations for <filename>`
+* `Extract PDF Annotations from single file from path in clipboard` Works when editing a markdown note. Looks for a file path of a pdf in clipboard, extracts annotations from it and inserts them at the current position of the open note. This command can be used for external PDF files, which are not part of the Obsidian Vault. Helpful, if you do not want to copy your PDFs inside your vault.
 
 ### Plugin Settings: 
 
@@ -31,6 +31,7 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 
 ## Versions
 
+1.1.0 add new function `Extract PDF Annotations from single file from path in clipboard` to extract annotations from PDFs outside Obsidian vault
 1.0.4 clean up hyphenation https://github.com/munach/obsidian-extract-pdf-annotations/issues/5
 1.0.3 updated highlight fetching to use QuadPoints instead of Rectangles
 
