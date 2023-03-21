@@ -1,4 +1,4 @@
-import { PDFFile } from './types';
+import { PDFFile } from 'src/types';
 
 
 const SUPPORTED_ANNOTS = ['Text', 'Highlight', 'Underline'];
@@ -50,7 +50,7 @@ export function extractHighlight(annot: any, items: any) {
 // we look only at SUPPORTED_ANNOTS (Text, Underline, Highlight)
 // if its a underline or highlight, extract Highlight of the Annotation 
 // accumulate all annotations in the array total
-async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: string, total: Object[]) {
+async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: string, total: object[]) {
 	let annotations = await page.getAnnotations()
 	// console.log('Annotations', annotations)
 
@@ -85,7 +85,7 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
 }
 
 
-export async function loadPDFFile(file: PDFFile, pdfjsLib, containingFolder: string, total: Object[]) {
+export async function loadPDFFile(file: PDFFile, pdfjsLib, containingFolder: string, total: object[]) {
 	const pdf: PDFDocumentProxy = await pdfjsLib.getDocument(file.content).promise
 	for (let i = 1; i <= pdf.numPages; i++) {
 		const page = await pdf.getPage(i)

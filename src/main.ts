@@ -4,53 +4,10 @@ import {
 } from 'handlebars';
 import { Editor, FileSystemAdapter, loadPdfJs, MarkdownView, Plugin, TFile, Vault } from 'obsidian';
 import { loadPDFFile } from 'src/extractHighlight';
+import { PDFAnnotationPluginSetting, PDFAnnotationPluginSettingTab } from 'src/settings';
 import { IIndexable, PDFFile } from 'src/types';
-import { PDFAnnotationPluginSetting, PDFAnnotationPluginSettingTab } from './settings';
 
-const fs = require('fs');
-
-
-function template(strings, ...keys) {
-	return (function (...values) {
-		const dict = values[values.length - 1] || {};
-		const result = [strings[0]];
-		keys.forEach(function (key, i) {
-			const value = Number.isInteger(key) ? values[key] : dict[key];
-			result.push(value, strings[i + 1]);
-		});
-		return result.join('');
-	});
-}
-
-// templates for different types of Annotations
-const highlighted = template`> ${'highlightedText'}
-
-${'body'}
-			    
-* *highlighted by ${'author'} at page ${'pageNumber'} on [[${'filepath'}]]*
-
-`
-
-const highlightedWithExternalFilePath = template`> ${'highlightedText'}
-
-${'body'}
-			    
-* *highlighted by ${'author'} at page ${'pageNumber'} on ${'filepath'}*
-
-`
-
-const note = template`${'body'}
-  
-* *noted by ${'author'} at page ${'pageNumber'} on [[${'filepath'}]]*
-
-`
-
-const noteWithExternalFilePath = template`${'body'}
-  
-* *noted by ${'author'} at page ${'pageNumber'} on ${'filepath'}*
-
-`
-
+import * as fs from 'fs';
 
 export default class PDFAnnotationPlugin extends Plugin {
 
@@ -170,7 +127,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePathFromClipboard: string) {
 		const grandtotal = [] // array that will contain all fetched Annotations
 		try {
-			const filePathWithoutQuotes = filePathFromClipboard.replace(/\"/g, '');
+			const filePathWithoutQuotes = filePathFromClipboard.replace(/"/g, '');
 			const stats = fs.statSync(filePathWithoutQuotes);
 			if (stats.isFile()) {
 				const pdfjsLib = await loadPdfJs()
@@ -221,7 +178,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 			name: 'Extract PDF Annotations on single file from path in clipboard',
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				const clipText = await navigator.clipboard.readText()
-				let grandtotal = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
+				const grandtotal = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
 				this.sort(grandtotal)
 				editor.replaceSelection(this.format(grandtotal, true))
 			}
