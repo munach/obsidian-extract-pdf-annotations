@@ -41,6 +41,8 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 
 ## Versions
 
+1.2.1 improved annotation extraction
+
 1.2.0 added template settings
 
 1.1.0 add new function `Extract PDF Annotations from single file from path in clipboard` to extract annotations from PDFs outside Obsidian vault
@@ -84,7 +86,7 @@ This plugin builds on ideas from Alexis Rondeaus Plugin https://github.com/akaal
 
 ## Author
 
-Franz Achermann 
+Franz Achermann and Florian Stöckl
 
 
 

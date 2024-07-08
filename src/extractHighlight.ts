@@ -17,7 +17,7 @@ function searchQuad(minx: number, maxx: number, miny: number, maxy: number, item
 		if (x.transform[4] + x.width <= maxx) {           // end of txt ends before highlight ends
 			return txt + x.str.substr(start)                //     
 		} else {                                          // else, calculate proporation end to get the expected length
-			const lenc = Math.floor(x.str.length * (maxx - x.transform[4]) / x.width) - start
+			const lenc = Math.round(x.str.length * (maxx - x.transform[4]) / x.width) - start
 			return txt + x.str.substr(start, lenc)
 		}
 	}, '')
@@ -52,7 +52,6 @@ export function extractHighlight(annot: any, items: any) {
 // accumulate all annotations in the array total
 async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: string, total: object[]) {
 	let annotations = await page.getAnnotations()
-	// console.log('Annotations', annotations)
 
 	annotations = annotations.filter(function (anno) {
 		return SUPPORTED_ANNOTS.indexOf(anno.subtype) >= 0;
