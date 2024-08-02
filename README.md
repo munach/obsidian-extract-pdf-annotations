@@ -23,15 +23,30 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 ### Commands
 * `Extract PDF Annotations` Works when editing a markdown note. Searches all PDF files in current Folder for annotations, and inserts them at the current position of the open note. 
 * `Extract PDF Annotations on single file` Works while displaying a PDF file. Extracts annotations from this file and writes them to the note `Annotations for <filename>`
+* `Extract PDF Annotations from single file from path in clipboard` Works when editing a markdown note. Looks for a file path of a pdf in clipboard, extracts annotations from it and inserts them at the current position of the open note. This command can be used for external PDF files, which are not part of the Obsidian Vault. Helpful, if you do not want to copy your PDFs inside your vault.
 
 ### Plugin Settings: 
 
+* Use structuring headlines or not, if you only want to display annotations in the specified template
 * Use the first line of the comment as 'Topic' (and sort accordingly), or not
 * Use folder name or PDF-Filename for sorting
+* Template settings for different types of notes: notes from internal or external PDFs and highlights from internal or external PDFs. The distinction between internal and external exists, if one wants to use different links (internal `[[]]` links vs. external `file://` links). The following template variables are available and can be used by following the [Handlebars]('https://handlebarsjs.com/guide/expressions.html') syntax: 
+    - {{highlightedText}}: 'Highlighted text from PDF',
+	- {{folder}}: 'Folder of PDF file',
+	- {{file}}: 'Binary content of file',
+	- {{filepath}}: 'Path of PDF file',
+	- {{pageNumber}}: 'Page number of annotation with reference to PDF pages',
+	- {{author}}: 'Author of annotation',
+	- {{body}}: 'Body of annotation'
 
 ## Versions
 
+1.2.0 added template settings
+
+1.1.0 add new function `Extract PDF Annotations from single file from path in clipboard` to extract annotations from PDFs outside Obsidian vault
+
 1.0.4 clean up hyphenation https://github.com/munach/obsidian-extract-pdf-annotations/issues/5
+
 1.0.3 updated highlight fetching to use QuadPoints instead of Rectangles
 
 ## Installation / Build

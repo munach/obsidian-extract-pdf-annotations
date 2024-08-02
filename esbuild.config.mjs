@@ -15,7 +15,7 @@ esbuild.build({
 	banner: {
 		js: banner,
 	},
-	entryPoints: ['main.ts'],
+	entryPoints: ['src/main.ts'],
 	bundle: true,
 	external: [
 		'obsidian',
@@ -43,7 +43,6 @@ esbuild.build({
 		'@codemirror/view',
 		...builtins],
 	format: 'cjs',
-	watch: !prod,
 	target: 'es2016',
 	logLevel: "info",
 	sourcemap: prod ? false : 'inline',
