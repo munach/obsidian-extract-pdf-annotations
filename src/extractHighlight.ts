@@ -13,7 +13,7 @@ function searchQuad(minx: number, maxx: number, miny: number, maxy: number, item
 		if (x.transform[4] > maxx) return txt             // start of text after highlight ends 
 
 		const start = (x.transform[4] >= minx ? 0 :       // start at pos 0, when text starts after hightlight start
-			Math.floor(x.str.length * (minx - x.transform[4]) / x.width))  // otherwise, rule of three: start proportional
+			Math.round(x.str.length * (minx - x.transform[4]) / x.width))  // otherwise, rule of three: start proportional
 		if (x.transform[4] + x.width <= maxx) {           // end of txt ends before highlight ends
 			return txt + x.str.substr(start)                //     
 		} else {                                          // else, calculate proporation end to get the expected length
