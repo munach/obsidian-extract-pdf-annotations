@@ -130,8 +130,8 @@ export default class PDFAnnotationPlugin extends Plugin {
 			const filePathWithoutQuotes = filePathFromClipboard.replace(/"/g, '');
 			const stats = fs.statSync(filePathWithoutQuotes);
 			if (stats.isFile()) {
-				const pdfjsLib = await loadPdfJs()
-				const binaryContent = await FileSystemAdapter.readLocalFile(filePathWithoutQuotes)
+				const pdfjsLib = await loadPdfJs();
+				const binaryContent = await FileSystemAdapter.readLocalFile(filePathWithoutQuotes);
 				const filePathWithSlashs: string = filePathWithoutQuotes.replace(/\\/g, '/');
 				const filePathSplits: string[] = filePathWithSlashs.split('/');
 				const fileName = filePathSplits.last();

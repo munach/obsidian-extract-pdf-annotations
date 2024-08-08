@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-extract-pdf-annotations",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "Extract notes and highlights from PDF Files in Obsidian (https://obsidian.md)",
 	"main": "main.js",
 	"scripts": {
