@@ -23,7 +23,7 @@ export class PDFAnnotationPluginSetting {
   public useStructuringHeadlines: boolean;
   public useFolderNames: boolean;
   public sortByTopic: boolean;
-  public desiredAnnotations: string;
+  public desiredAnnotations: string[];
   public noteTemplateExternalPDFs: string;
   public noteTemplateInternalPDFs: string;
   public highlightTemplateExternalPDFs: string;
@@ -33,7 +33,7 @@ export class PDFAnnotationPluginSetting {
     this.useStructuringHeadlines = true;
     this.useFolderNames = true;
     this.sortByTopic = true;
-    this.desiredAnnotations = 'Text, Highlight, Underline';
+    this.desiredAnnotations = ['Text, Highlight, Underline'];
     this.noteTemplateExternalPDFs =
       '{{body}}\n' +
       '\n' +
