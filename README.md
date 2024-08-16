@@ -43,6 +43,8 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 
 ## Versions
 
+1.3.2 bugfix for free text, which is now treated in the same way as a note 
+
 1.3.1 bugfix for desired annotations setting
 
 1.3.0 add support for free text annotations

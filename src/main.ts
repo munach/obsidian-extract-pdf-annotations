@@ -88,7 +88,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				}
 			}
 
-			if (a.subtype == 'Text') {
+			if (a.subtype === 'Text' || a.subtype === 'FreeText') {
 				if (isExternalFile) {
 					text += this.getContentForNoteFromExternalPDF(a)
 				} else {
