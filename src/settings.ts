@@ -33,7 +33,7 @@ export class PDFAnnotationPluginSetting {
     this.useStructuringHeadlines = true;
     this.useFolderNames = true;
     this.sortByTopic = true;
-    this.desiredAnnotations = ['Text, Highlight, Underline'];
+    this.desiredAnnotations = ['Text', 'Highlight', 'Underline'];
     this.noteTemplateExternalPDFs =
       '{{body}}\n' +
       '\n' +
