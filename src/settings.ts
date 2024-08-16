@@ -65,7 +65,7 @@ export class PDFAnnotationPluginSetting {
       desiredAnnotations: this.parseCommaSeparatedStringToArray(this.desiredAnnotations)
     };
   }
-  
+
   public parseCommaSeparatedStringToArray(desiredAnnotations: string): string[] {
     return desiredAnnotations.split(',').map((item) => item.trim());
   }

@@ -112,7 +112,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		const pdfjsLib = await loadPdfJs()
 		const containingFolder = file.parent.name;
 		const grandtotal = [] // array that will contain all fetched Annotations
-    	const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
+		const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
 		console.log('loading from file ', file)
 		const content = await this.app.vault.readBinary(file)
 		await loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), pdfjsLib, containingFolder, grandtotal, desiredAnnotations)
@@ -140,7 +140,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				const encodedFilePath = encodeURI('file://' + filePathWithoutQuotes)
 				const file: PDFFile = new PDFFile(fileName, binaryContent, extension, encodedFilePath);
 				const containingFolder = filePathWithSlashs.slice(0, filePathWithSlashs.lastIndexOf('/'));
-        		const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
+				const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
 				await loadPDFFile(file, pdfjsLib, containingFolder, grandtotal, desiredAnnotations)
 			} else {
 				console.log('Data in clipboard is no file.');
@@ -194,7 +194,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				if (file == null) return
 				const folder = file.parent
 				const grandtotal = [] // array that will contain all fetched Annotations
-        		const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
+				const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
 
 				const pdfjsLib = await loadPdfJs()
 				editor.replaceSelection('Extracting PDF Comments from ' + folder.name + '\n')
@@ -229,7 +229,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 					'useStructuringHeadlines',
 					'useFolderNames',
 					'sortByTopic',
-          			'desiredAnnotations',
+					'desiredAnnotations',
 					'noteTemplateExternalPDFs',
 					'noteTemplateInternalPDFs',
 					'highlightTemplateExternalPDFs',
