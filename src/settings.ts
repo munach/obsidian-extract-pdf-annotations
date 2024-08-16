@@ -87,6 +87,9 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
     component.onChange(async (value) => {
       (this.plugin.settings as IIndexable)[settingsKey] = value;
       this.plugin.saveSettings().then(() => {
+        if (settingsKey === 'desiredAnnotations') {
+          this.plugin.settings.parsedSettings.desiredAnnotations = this.plugin.settings.parseCommaSeparatedStringToArray(value);
+        }
         if (cb) {
           cb(value);
         }
