@@ -43,6 +43,8 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 
 ## Versions
 
+1.3.1 add support for squiggle annotations
+
 1.3.0 add support for free text annotations
 
 1.2.1 improved annotation extraction
