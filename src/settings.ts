@@ -16,8 +16,11 @@ export const SUPPORTED_ANNOTS = {
   Text: 'Text-Annotation (Note)',
   Highlight: 'Highlighted text',
   Underline: 'Underlined text',
+  Squiggly: "Squiggly underlined text",
   FreeText: "Free text added to the pdf"
 };
+
+export const ANNOTS_TREATED_AS_HIGHLIGHTS = ['Highlight', 'Underline', 'Squiggly'];
 
 export class PDFAnnotationPluginSetting {
   public useStructuringHeadlines: boolean;
