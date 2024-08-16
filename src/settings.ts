@@ -23,17 +23,20 @@ export class PDFAnnotationPluginSetting {
   public useStructuringHeadlines: boolean;
   public useFolderNames: boolean;
   public sortByTopic: boolean;
-  public desiredAnnotations: string[];
+  public desiredAnnotations: string;
   public noteTemplateExternalPDFs: string;
   public noteTemplateInternalPDFs: string;
   public highlightTemplateExternalPDFs: string;
   public highlightTemplateInternalPDFs: string;
+  public parsedSettings: {
+    desiredAnnotations: string[];
+  }
 
   constructor() {
     this.useStructuringHeadlines = true;
     this.useFolderNames = true;
     this.sortByTopic = true;
-    this.desiredAnnotations = ['Text, Highlight, Underline'];
+    this.desiredAnnotations = "Text, Highlight, Underline";
     this.noteTemplateExternalPDFs =
       '{{body}}\n' +
       '\n' +
@@ -58,6 +61,13 @@ export class PDFAnnotationPluginSetting {
       '\n' +
       '* *highlighted by {{author}} at page {{pageNumber}} on [[{{filepath}}]]*\n' +
       '\n';
+    this.parsedSettings = {
+      desiredAnnotations: this.parseCommaSeparatedStringToArray(this.desiredAnnotations)
+    };
+  }
+
+  public parseCommaSeparatedStringToArray(desiredAnnotations: string): string[] {
+    return desiredAnnotations.split(',').map((item) => item.trim());
   }
 }
 
@@ -77,6 +87,9 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
     component.onChange(async (value) => {
       (this.plugin.settings as IIndexable)[settingsKey] = value;
       this.plugin.saveSettings().then(() => {
+        if (settingsKey === 'desiredAnnotations') {
+          this.plugin.settings.parsedSettings.desiredAnnotations = this.plugin.settings.parseCommaSeparatedStringToArray(value);
+        }
         if (cb) {
           cb(value);
         }
