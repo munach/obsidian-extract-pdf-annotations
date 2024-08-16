@@ -1,6 +1,6 @@
 # Obsidian Extract PDF Annotations Plugin
 
-This is a plugin for [Obsidian](https://obsidian.md). It extracts all types of annotations (highlight, underline, note, free text) from PDF files inside and outside the Obsidian Vault.
+This is a plugin for [Obsidian](https://obsidian.md). It extracts all types of annotations (highlight, underline, squiggle, note, free text, etc.) from PDF files inside and outside the Obsidian Vault.
 It can be used on single PDF files (see [`Extract PDF Annotations on single file` and `Extract PDF Annotations from single file from path in clipboard`](#commands)) or even on a whole directory containing PDFs (see [`Extract PDF Annotations`](#commands)) for batch extraction.
 
 ## Usage
@@ -42,6 +42,8 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 	- {{body}}: 'Body of annotation'
 
 ## Versions
+
+1.4.0 add support for squiggle annotations
 
 1.3.2 bugfix for free text, which is now treated in the same way as a note 
 

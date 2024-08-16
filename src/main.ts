@@ -4,7 +4,7 @@ import {
 } from 'handlebars';
 import { Editor, FileSystemAdapter, loadPdfJs, MarkdownView, Plugin, TFile, Vault } from 'obsidian';
 import { loadPDFFile } from 'src/extractHighlight';
-import { PDFAnnotationPluginSetting, PDFAnnotationPluginSettingTab } from 'src/settings';
+import { ANNOTS_TREATED_AS_HIGHLIGHTS, PDFAnnotationPluginSetting, PDFAnnotationPluginSettingTab } from 'src/settings';
 import { IIndexable, PDFFile } from 'src/types';
 
 import * as fs from 'fs';
@@ -64,42 +64,41 @@ export default class PDFAnnotationPlugin extends Plugin {
 		let topic = ''
 		let currentFolder = ''
 		// console.log("all annots", grandtotal)
-		grandtotal.forEach((a) => {
+		grandtotal.forEach((anno) => {
 			// print main Title when Topic changes (and settings allow)
 			if (this.settings.useStructuringHeadlines) {
 				if (this.settings.sortByTopic) {
-					if (topic != a.topic) {
-						topic = a.topic
+					if (topic != anno.topic) {
+						topic = anno.topic
 						currentFolder = ''
 						text += `# ${topic}\n`
 					}
 				}
 
 				if (this.settings.useFolderNames) {
-					if (currentFolder != a.folder) {
-						currentFolder = a.folder
+					if (currentFolder != anno.folder) {
+						currentFolder = anno.folder
 						text += `## ${currentFolder}\n`
 					}
 				} else {
-					if (currentFolder != a.file.name) {
-						currentFolder = a.file.name
+					if (currentFolder != anno.file.name) {
+						currentFolder = anno.file.name
 						text += `## ${currentFolder}\n`
 					}
 				}
 			}
 
-			if (a.subtype === 'Text' || a.subtype === 'FreeText') {
+			if (ANNOTS_TREATED_AS_HIGHLIGHTS.includes(anno.subtype)) {
 				if (isExternalFile) {
-					text += this.getContentForNoteFromExternalPDF(a)
+					text += this.getContentForHighlightFromExternalPDF(anno)
 				} else {
-					text += this.getContentForNoteFromInternalPDF(a)
+					text += this.getContentForHighlightFromInternalPDF(anno)
 				}
-
 			} else {
 				if (isExternalFile) {
-					text += this.getContentForHighlightFromExternalPDF(a)
+					text += this.getContentForNoteFromExternalPDF(anno)
 				} else {
-					text += this.getContentForHighlightFromInternalPDF(a)
+					text += this.getContentForNoteFromInternalPDF(anno)
 				}
 			}
 		})

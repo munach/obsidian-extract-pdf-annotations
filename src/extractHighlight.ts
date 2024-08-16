@@ -1,4 +1,5 @@
 import { PDFFile } from 'src/types';
+import { ANNOTS_TREATED_AS_HIGHLIGHTS } from './settings';
 
 
 // return text between min and max, x and y
@@ -45,7 +46,7 @@ export function extractHighlight(annot: any, items: any) {
 
 // load the PDFpage, then get all Annotations
 // we look only at desiredAnnotations from the user's settings
-// if its a underline or highlight, extract Highlight of the Annotation 
+// if its a underline, squiggle or highlight, extract Highlight of the Annotation 
 // accumulate all annotations in the array total
 async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: string, total: object[], desiredAnnotations: string[]) {
 	let annotations = await page.getAnnotations()
@@ -67,7 +68,7 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
 
 
 	annotations.map(async function (anno) {
-		if (anno.subtype == 'Highlight' || anno.subtype == 'Underline') {
+		if (ANNOTS_TREATED_AS_HIGHLIGHTS.includes(anno.subtype)) {
 			anno.highlightedText = extractHighlight(anno, content.items)
 		}
 		anno.folder = containingFolder
