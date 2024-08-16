@@ -1,6 +1,7 @@
 # Obsidian Extract PDF Annotations Plugin
 
-This is a plugin for [Obsidian](https://obsidian.md). It extracts Annotations from PDF Files.  
+This is a plugin for [Obsidian](https://obsidian.md). It extracts all types of annotations (highlight, underline, note, free text) from PDF files inside and outside the Obsidian Vault.
+It can be used on single PDF files (see [`Extract PDF Annotations on single file` and `Extract PDF Annotations from single file from path in clipboard`](#commands)) or even on a whole directory containing PDFs (see [`Extract PDF Annotations`](#commands)) for batch extraction.
 
 ## Usage
 
@@ -22,14 +23,15 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 
 ### Commands
 * `Extract PDF Annotations` Works when editing a markdown note. Searches all PDF files in current Folder for annotations, and inserts them at the current position of the open note. 
-* `Extract PDF Annotations on single file` Works while displaying a PDF file. Extracts annotations from this file and writes them to the note `Annotations for <filename>`
-* `Extract PDF Annotations from single file from path in clipboard` Works when editing a markdown note. Looks for a file path of a pdf in clipboard, extracts annotations from it and inserts them at the current position of the open note. This command can be used for external PDF files, which are not part of the Obsidian Vault. Helpful, if you do not want to copy your PDFs inside your vault.
+* `Extract PDF Annotations on single file` Works while displaying a PDF file inside the Obisidan PDF-Viewer. Extracts annotations from this file and writes them to the note `Annotations for <filename>`
+* `Extract PDF Annotations from single file from path in clipboard` Works when editing a markdown note. Looks for a file path of a PDF in clipboard, extracts annotations from it and inserts them at the current position of the open note. This command can be used for external PDF files, which are not part of the Obsidian Vault. Helpful, if you do not want to copy your PDFs inside your vault.
 
 ### Plugin Settings: 
 
 * Use structuring headlines or not, if you only want to display annotations in the specified template
 * Use the first line of the comment as 'Topic' (and sort accordingly), or not
 * Use folder name or PDF-Filename for sorting
+* Select your desired annotation types that should be extracted from the PDF, if it includes other types that you don't need
 * Template settings for different types of notes: notes from internal or external PDFs and highlights from internal or external PDFs. The distinction between internal and external exists, if one wants to use different links (internal `[[]]` links vs. external `file://` links). The following template variables are available and can be used by following the [Handlebars]('https://handlebarsjs.com/guide/expressions.html') syntax: 
     - {{highlightedText}}: 'Highlighted text from PDF',
 	- {{folder}}: 'Folder of PDF file',
@@ -40,6 +42,8 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 	- {{body}}: 'Body of annotation'
 
 ## Versions
+
+1.3.0 add support for free text annotations
 
 1.2.1 improved annotation extraction
 

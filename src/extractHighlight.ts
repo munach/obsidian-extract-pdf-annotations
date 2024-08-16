@@ -1,9 +1,6 @@
 import { PDFFile } from 'src/types';
 
 
-const SUPPORTED_ANNOTS = ['Text', 'Highlight', 'Underline'];
-
-
 // return text between min and max, x and y
 function searchQuad(minx: number, maxx: number, miny: number, maxy: number, items: any) {
 	const mycontent = items.reduce(function (txt: string, x: any) {
@@ -47,14 +44,14 @@ export function extractHighlight(annot: any, items: any) {
 
 
 // load the PDFpage, then get all Annotations
-// we look only at SUPPORTED_ANNOTS (Text, Underline, Highlight)
+// we look only at desiredAnnotations from the user's settings
 // if its a underline or highlight, extract Highlight of the Annotation 
 // accumulate all annotations in the array total
-async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: string, total: object[]) {
+async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: string, total: object[], desiredAnnotations: string[]) {
 	let annotations = await page.getAnnotations()
 
 	annotations = annotations.filter(function (anno) {
-		return SUPPORTED_ANNOTS.indexOf(anno.subtype) >= 0;
+		return desiredAnnotations.indexOf(anno.subtype) >= 0;
 	});
 
 	const content: TextContent = await page.getTextContent({ normalizeWhitespace: true })
@@ -84,10 +81,10 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
 }
 
 
-export async function loadPDFFile(file: PDFFile, pdfjsLib, containingFolder: string, total: object[]) {
-	const pdf: PDFDocumentProxy = await pdfjsLib.getDocument(file.content).promise
+export async function loadPDFFile(file: PDFFile, pdfjsLib, containingFolder: string, total: object[], desiredAnnotations: string[]) {
+	const pdf: PDFDocumentProxy = await pdfjsLib.getDocument(file.content).promise;
 	for (let i = 1; i <= pdf.numPages; i++) {
 		const page = await pdf.getPage(i)
-		await loadPage(page, i, file, containingFolder, total)
+		await loadPage(page, i, file, containingFolder, total, desiredAnnotations)
 	}
 }
