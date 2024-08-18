@@ -2,7 +2,8 @@ import { PDFFile } from 'src/types';
 
 
 const SUPPORTED_ANNOTS = ['Text', 'Highlight', 'Underline'];
-
+const COEFF_CRCT_LOW = 0;
+const COEFF_CRCT_HIGH = 2;
 
 // return text between min and max, x and y
 function searchQuad(minx: number, maxx: number, miny: number, maxy: number, items: any) {
@@ -13,14 +14,13 @@ function searchQuad(minx: number, maxx: number, miny: number, maxy: number, item
 		if (x.transform[4] > maxx) return txt             // start of text after highlight ends 
 
 		const start = (x.transform[4] >= minx ? 0 :       // start at pos 0, when text starts after hightlight start
-			Math.round(x.str.length * (minx - x.transform[4]) / x.width))  // otherwise, rule of three: start proportional
+        Math.floor(x.str.length * (minx - x.transform[4]) / x.width))  // otherwise, rule of three: start proportional
 		if (x.transform[4] + x.width <= maxx) {           // end of txt ends before highlight ends
 			return txt + x.str.substr(start)                //     
 		} else {                                          // else, calculate proporation end to get the expected length
-			const lenc = Math.round(x.str.length * (maxx - x.transform[4]) / x.width) - start
+        const lenc = Math.floor(x.str.length * (maxx - x.transform[4]) / x.width) - start
 			return txt + x.str.substr(start, lenc)
-		}
-	}, '')
+      }}, '')
 	return mycontent.trim()
 }
 
@@ -32,7 +32,7 @@ export function extractHighlight(annot: any, items: any) {
 		const maxx = quad.reduce((prev: number, curr: any) => Math.max(prev, curr.x), quad[0].x)
 		const miny = quad.reduce((prev: number, curr: any) => Math.min(prev, curr.y), quad[0].y)
 		const maxy = quad.reduce((prev: number, curr: any) => Math.max(prev, curr.y), quad[0].y)
-		const res = searchQuad(minx, maxx, miny, maxy, items)
+      const res = searchQuad(minx-COEFF_CRCT_LOW, maxx+COEFF_CRCT_HIGH, miny-COEFF_CRCT_LOW, maxy+COEFF_CRCT_LOW, items) // Add a little to maxx otherwise the last char is ommitted
 		if (txt.substring(txt.length - 1) != '-') {
 			return txt + ' ' + res    // concatenate lines by 'blank' 
 		} else if (txt.substring(txt.length - 2).toLowerCase() == txt.substring(txt.length - 2) &&  // end by lowercase-
@@ -84,9 +84,16 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
 }
 
 
-export async function loadPDFFile(file: PDFFile, pdfjsLib, containingFolder: string, total: object[]) {
+export async function loadPDFFile(file: PDFFile, page_min: number, page_max: number, pdfjsLib, containingFolder: string, total: object[]) {
 	const pdf: PDFDocumentProxy = await pdfjsLib.getDocument(file.content).promise
-	for (let i = 1; i <= pdf.numPages; i++) {
+
+	  	// Set first and last page to load annotations
+	    let page_min_ok = (page_min < 1) ? 1 : page_min
+		page_min_ok = (page_min_ok > pdf.numPages) ? pdf.numPages : page_min_ok
+	  	let page_max_ok = (page_max < 1) ? pdf.numPages : page_max
+	  	page_max_ok = (page_max_ok > pdf.numPages) ? pdf.numPages : page_max_ok
+
+		for (let i = page_min_ok; i <= page_max_ok; i++) {
 		const page = await pdf.getPage(i)
 		await loadPage(page, i, file, containingFolder, total)
 	}
