@@ -10,7 +10,8 @@ export const TEMPLATE_VARIABLES = {
 	filepath: 'Path of PDF file',
 	pageNumber: 'Page number of annotation with reference to PDF pages',
 	author: 'Author of annotation',
-	body: 'Body of annotation'
+	body: 'Body of annotation',
+    highlightedText_body: 'Body of annotation if any, otherwise highlighted text from PDF'
 };
 
 export class PDFAnnotationPluginSetting {
@@ -76,13 +77,13 @@ export class PDFAnnotationPluginSetting {
 		this.useFolderNames = true;
 		this.sortByTopic = true;
 		this.noteTemplateExternalPDFs =
-			'{{body}}';
+			'{{highlightedText_body}}';
 		this.noteTemplateInternalPDFs =
-			'{{body}}';
+			'{{highlightedText_body}}';
 		this.highlightTemplateExternalPDFs =
-			'{{body}}';
+			'{{highlightedText_body}}';
 		this.highlightTemplateInternalPDFs =
-			'{{body}}';
+			'{{highlightedText_body}}';
         this.page_min = 0;
         this.page_max = 0;
         this.level1RGB = [255, 173, 91];

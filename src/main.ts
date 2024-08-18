@@ -412,15 +412,34 @@ mindmap-plugin: basic
 				while ((l_details.substring(l_details.length - 1) == " ") || (l_details.substring(l_details.length - 1) == "\n"))
 				{   l_details = l_details.substring(0, l_details.length - 1); }
 
-				// ▶️ Replace carriage returns (\r or \n)
+				// ▶️ Replace carriage returns (\r and/or \n)
 				if(i_isForExtMindmap == false) {
 					// Replace by <br>
-					// Note: doesn't work with l_details.replace('\r',"<br>")
+					// Notes:
+					//	- Doesn't work with l_details.replace('\r',"<br>")
+					//  - Do not replace \r\n nor \n\r as they do not happen on intentional line break
+					//    (happen only on line break on highlighted text which can be due to page width)
 					// l_details.replace('\r',"<br>");
 					// l_details.replace('\n',"<br>");
-					if( (l_details.includes('\r'))  ||
-						(l_details.includes('\n'))  )
-					{// There is/are carriage return(s)
+					if( (l_details.includes('\r\n'))	||
+						(l_details.includes('\n\r'))	)
+					{// There is/are carriage return(s) to remove
+						// Replace \r\n
+						let l_note = l_details.split('\r\n');
+						l_details = "";
+						for (let i = 0; i < l_note.length; i++) {
+							l_details += l_note[i];
+						}
+						// Replace \n\r
+						l_note = l_details.split('\n\r');
+						l_details = "";
+						for (let i = 0; i < l_note.length; i++) {
+							l_details += l_note[i];
+						}
+					}
+					else if((l_details.includes('\r'))	||
+						 	(l_details.includes('\n'))	)
+					{// There is/are carriage return(s) to process
 						// Replace \r
 						let l_note = l_details.split('\r');
 						l_details = "";
@@ -917,7 +936,8 @@ mindmap-plugin: basic
 			filepath: annotation.filepath,
 			pageNumber: annotation.pageNumber,
 			author: annotation.author,
-			body: annotation.body
+			body: annotation.body,
+			highlightedText_body: annotation.highlightedText_body,
 		};
 
 		return { annotation: annotation, ...shortcuts };
