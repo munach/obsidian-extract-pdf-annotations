@@ -80,9 +80,9 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
 		anno.author = anno.titleObj.str
 		anno.body = anno.contentsObj.str
 		if(anno.body)
-		{ anno.highlightedText_body = anno.body}
+		{ anno.body_highlightedText = anno.body}
 		else
-		{ anno.highlightedText_body = anno.highlightedText}
+		{ anno.body_highlightedText = anno.highlightedText}
 		total.push(anno)
 	});
 }
@@ -101,4 +101,12 @@ export async function loadPDFFile(file: PDFFile, page_min: number, page_max: num
 		const page = await pdf.getPage(i)
 		await loadPage(page, i, file, containingFolder, total)
 	}
+
+	if ((page_min == 0) && (page_max == 0)) {
+		// The whole PDF is loaded, do not specify min/max pages
+		page_min_ok = 0
+		page_max_ok = 0
+	}
+
+	return [page_min_ok, page_max_ok]
 }

@@ -126,10 +126,116 @@ export default class PDFAnnotationPlugin extends Plugin {
 	}
 
 
-	format(grandtotal, i_isForMindmap: boolean, i_isForExtMindmap: boolean, i_isGetNrml: boolean, i_isGetLow: boolean, isExternalFile) {
+	private buildPreamble(currentFileName, i_isForObsMindmap: boolean, i_isForExtMindmap: boolean): string {
+        const lvl1_format     = this.settings.lvl1_format;
+        const lvl2_format     = this.settings.lvl2_format;
+        const lvl3_format     = this.settings.lvl3_format;
+        const sumr_format     = this.settings.sumr_format;
+        const impt_format     = this.settings.impt_format;
+        const note_format     = this.settings.note_format;
+        const note_preamb     = this.settings.note_preamb+" ";
+        const lvl1_icon       = this.settings.lvl1_icon+" ";
+        const lvl2_icon       = this.settings.lvl2_icon+" ";
+        const lvl3_icon       = this.settings.lvl3_icon+" ";
+        const sumr_icon       = this.settings.sumr_icon+" ";
+        const impt_icon       = this.settings.impt_icon+" ";
+        const ext_lvl1_icon   = this.settings.ext_lvl1_icon+" ";
+        const ext_lvl2_icon   = this.settings.ext_lvl2_icon+" ";
+        const ext_lvl3_icon   = this.settings.ext_lvl3_icon+" ";
+        const ext_sumr_icon   = this.settings.ext_sumr_icon+" ";
+        const ext_impt_icon   = this.settings.ext_impt_icon+" ";
+
+		let l_title_lvl1 = "\n"+title_lvl1;
+        let l_lvl2_prefix = lvl2_prefix;
+        let l_lvl3_prefix = lvl3_prefix;
+        let l_sumr_prefix = sumr_prefix;
+        let l_impt_prefix = impt_prefix;
+
+		let text 		  = "";
+
+		if (i_isForExtMindmap) {
+            l_title_lvl1  = "\n"
+            l_lvl2_prefix = "	" + lvl2_prefix.substring(0, lvl2_prefix.length - 2);
+            l_lvl3_prefix = "	" + lvl3_prefix.substring(0, lvl3_prefix.length - 2);
+            l_sumr_prefix = "	" + sumr_prefix.substring(0, sumr_prefix.length - 2);
+            l_impt_prefix = "	" + impt_prefix.substring(0, impt_prefix.length - 2);
+        }
+
+		// ▶️ File preamble:
+		if(i_isForExtMindmap == true) {
+			text += "\n**Reference :** [[" + currentFileName + "]]\n\n\n---\n";
+		}
+		else if (i_isForObsMindmap == false) {
+			text += this.settings.pdf_f_prb.replace("{fileName}",currentFileName);
+		}
+		else {
+			text += "### [[" + currentFileName + "]]\n";
+			if(this.settings.mm_preamb)
+			{ text += "#### _\n"; }
+		}
+
+		// ▶️ Formatting presentation:
+		let l_FormattageText = "";
+		// Add current annotation to global string
+		if (i_isForExtMindmap) {
+			l_FormattageText += "## Format\n";
+			l_FormattageText += l_title_lvl1  + ext_lvl1_icon + " Level 1 ("        + getColorName(this.settings.level1RGB) + ")"  + "\n";
+			l_FormattageText += l_lvl2_prefix + ext_lvl2_icon + " Level 2 ("        + getColorName(this.settings.level2RGB) + ")"  + "\n";
+			l_FormattageText += l_lvl3_prefix + ext_lvl3_icon + " Level 3 ("        + getColorName(this.settings.level3RGB) + ")"  + "\n";
+			l_FormattageText += l_sumr_prefix + ext_sumr_icon + "Special level 1 (" + getColorName(this.settings.summryRGB) + ")"  + "\n";
+			l_FormattageText += l_impt_prefix + ext_impt_icon + "Special level 2 (" + getColorName(this.settings.imprttRGB) + ")"  + "\n";
+
+			l_FormattageText += "\n\n---\n## Notes\n"
+
+			text += l_FormattageText;
+		}
+		else if (i_isForObsMindmap == false) {
+			//if (i_isForObsMindmap) { l_FormattageText += "##"; }
+			l_FormattageText += "## Format\n";
+			l_FormattageText += l_title_lvl1  + lvl1_icon + lvl1_format + " Level 1 ("        + getColorName(this.settings.level1RGB) + ")" + lvl1_format + "\n";
+			l_FormattageText += l_lvl2_prefix + lvl2_icon + lvl2_format + " Level 2 ("        + getColorName(this.settings.level2RGB) + ")" + lvl2_format + "\n";
+			l_FormattageText += l_lvl3_prefix + lvl3_icon + lvl3_format + " Level 3 ("        + getColorName(this.settings.level3RGB) + ")" + lvl3_format + "\n";
+			l_FormattageText += l_sumr_prefix + sumr_icon + sumr_format + "Special level 1 (" + getColorName(this.settings.summryRGB) + ")" + sumr_format + "\n";
+			l_FormattageText += l_impt_prefix + impt_icon + impt_format + "Special level 2 (" + getColorName(this.settings.imprttRGB) + ")" + impt_format + "\n";
+
+			l_FormattageText +=             note_preamb + note_format + "Note content"      +                                               note_format + "\n";
+
+			//if (i_isForObsMindmap == false) {
+				text += l_FormattageText;
+			//}
+		}
+		return text;
+	}
+
+    private buildAnnotations(i_isForObsMindmap: boolean, i_isForExtMindmap: boolean, currentFileName: string, text_cd: string, text_dt: string): string {
+		let text 		  = "";
+
+		// Add annotations data
+		if ((i_isForObsMindmap == false) && (i_isForExtMindmap == false)) {
+			text += "\n\n---\n## Annotations\n";
+			text += this.settings.perso_prb + "\n"
+			text += "[[" + currentFileName + "]]\n- \n\n\n---\n";
+			text += this.settings.conds_prb + "\n";
+			text += "[[" + currentFileName + "]]\n";
+
+			text += "#### PDF annotations\n";
+		}
+
+		text += text_cd;
+		if ((i_isForObsMindmap == false) && (i_isForExtMindmap == false)) {
+			text += "\n\n\n---\n" + this.settings.detal_prb + "\n";
+			text += "[[" + currentFileName + "]]\n";
+			text += text_dt;
+		}
+
+		return text;
+	}
+
+
+	format(grandtotal, i_isForObsMindmap: boolean, i_isForExtMindmap: boolean, i_isGetNrml: boolean, i_isGetLow: boolean, isExternalFile) {
         // Args:
         // grandtotal:          list of annotations
-        // i_isForMindmap:      true if extraction for Obsidian's mindmap
+        // i_isForObsMindmap:   true if extraction for Obsidian's mindmap
         // i_isForExtMindmap:   true if extraction for an external mindmap (FreeMind, ...)
         // i_isGetNrml:         true if extraction of normal priority infos (yellow)
         // i_isGetLow:          true if extraction of low    priority infos (light blue)
@@ -138,51 +244,53 @@ export default class PDFAnnotationPlugin extends Plugin {
 		// now iterate over the annotations printing topics, then folder, then comments...
 		let text = ''
 		let topic = ''
-        if (i_isForMindmap == false) { var text_dt = ''; }
+        if (i_isForObsMindmap == false) { var text_dt = ''; }
         let text_cd         = '';
         //let text_3 = '';
         let currentFileName = '';
 		//let currentFolder = ''
         let currentFolderName = "";
         //let currentFullPath = "";
+		let new_file 		= false;
+		let first_time 		= true;
         let l_pageNumber    = 0;
         // let l_previousLevel = "";
         let l_isPrevBullet  = false;
-        let color_lvl1      = convert.rgb.hsl(this.settings.level1RGB);
-        let color_lvl2      = convert.rgb.hsl(this.settings.level2RGB);
-        let color_lvl3      = convert.rgb.hsl(this.settings.level3RGB);
-        let color_sumr      = convert.rgb.hsl(this.settings.summryRGB);
-        let color_impt      = convert.rgb.hsl(this.settings.imprttRGB);
-        let color_lvl1Hue   = color_lvl1[0];
-        let color_lvl2Hue   = color_lvl2[0];
-        let color_lvl3Hue   = color_lvl3[0];
-        let color_sumrHue   = color_sumr[0];
-        let color_imptHue   = color_impt[0];
-        let color_lvl1Lum   = color_lvl1[2];
-        let color_lvl2Lum   = color_lvl2[2];
-        let color_lvl3Lum   = color_lvl3[2];
-        let color_sumrLum   = color_sumr[2];
-        let color_imptLum   = color_impt[2];
-        let color_maxHue    = 360;
-        let color_maxLum    = 100;
-        let lvl1_format     = this.settings.lvl1_format;
-        let lvl2_format     = this.settings.lvl2_format;
-        let lvl3_format     = this.settings.lvl3_format;
-        let sumr_format     = this.settings.sumr_format;
-        let impt_format     = this.settings.impt_format;
-        let note_format     = this.settings.note_format;
-        let note_preamb     = this.settings.note_preamb+" ";
-        let lvl1_icon       = this.settings.lvl1_icon+" ";
-        let lvl2_icon       = this.settings.lvl2_icon+" ";
-        let lvl3_icon       = this.settings.lvl3_icon+" ";
-        let sumr_icon       = this.settings.sumr_icon+" ";
-        let impt_icon       = this.settings.impt_icon+" ";
-        let ext_lvl1_icon   = this.settings.ext_lvl1_icon+" ";
-        let ext_lvl2_icon   = this.settings.ext_lvl2_icon+" ";
-        let ext_lvl3_icon   = this.settings.ext_lvl3_icon+" ";
-        let ext_sumr_icon   = this.settings.ext_sumr_icon+" ";
-        let ext_impt_icon   = this.settings.ext_impt_icon+" ";
-        let unkn_icon       = this.settings.unkn_icon+" ";
+        const color_lvl1      = convert.rgb.hsl(this.settings.level1RGB);
+        const color_lvl2      = convert.rgb.hsl(this.settings.level2RGB);
+        const color_lvl3      = convert.rgb.hsl(this.settings.level3RGB);
+        const color_sumr      = convert.rgb.hsl(this.settings.summryRGB);
+        const color_impt      = convert.rgb.hsl(this.settings.imprttRGB);
+        const color_lvl1Hue   = color_lvl1[0];
+        const color_lvl2Hue   = color_lvl2[0];
+        const color_lvl3Hue   = color_lvl3[0];
+        const color_sumrHue   = color_sumr[0];
+        const color_imptHue   = color_impt[0];
+        const color_lvl1Lum   = color_lvl1[2];
+        const color_lvl2Lum   = color_lvl2[2];
+        const color_lvl3Lum   = color_lvl3[2];
+        const color_sumrLum   = color_sumr[2];
+        const color_imptLum   = color_impt[2];
+        const color_maxHue    = 360;
+        const color_maxLum    = 100;
+        const lvl1_format     = this.settings.lvl1_format;
+        const lvl2_format     = this.settings.lvl2_format;
+        const lvl3_format     = this.settings.lvl3_format;
+        const sumr_format     = this.settings.sumr_format;
+        const impt_format     = this.settings.impt_format;
+        const note_format     = this.settings.note_format;
+        const note_preamb     = this.settings.note_preamb+" ";
+        const lvl1_icon       = this.settings.lvl1_icon+" ";
+        const lvl2_icon       = this.settings.lvl2_icon+" ";
+        const lvl3_icon       = this.settings.lvl3_icon+" ";
+        const sumr_icon       = this.settings.sumr_icon+" ";
+        const impt_icon       = this.settings.impt_icon+" ";
+        const ext_lvl1_icon   = this.settings.ext_lvl1_icon+" ";
+        const ext_lvl2_icon   = this.settings.ext_lvl2_icon+" ";
+        const ext_lvl3_icon   = this.settings.ext_lvl3_icon+" ";
+        const ext_sumr_icon   = this.settings.ext_sumr_icon+" ";
+        const ext_impt_icon   = this.settings.ext_impt_icon+" ";
+        const unkn_icon       = this.settings.unkn_icon+" ";
 
         let l_levelPrefix = "";
         let l_levelFormat = "";
@@ -206,7 +314,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		// console.log("all annots", grandtotal)
 
 
-        if (i_isForMindmap) {// Mindmap format
+        if (i_isForObsMindmap) {// Mindmap format
             text = `---
 
 mindmap-plugin: basic
@@ -240,51 +348,51 @@ mindmap-plugin: basic
 					if (topic != a.topic) {
 						topic = a.topic
                     currentFileName = ''
-                    //text += `# ${topic}\n`
                     text += `\n# ${topic}\n`;
 					}
 				}
 
-	            // FILE PREAMBLE: Create preamble in case the the file/folder name changes
+				// ➡️ NEW FILE ?
 				if (this.settings.useFolderNames) {
 	                if (currentFileName != a.folder) {
-	                    currentFileName = a.file.name;
-	                    currentFolderName = a.folder;
-	                    if(i_isForExtMindmap == true) {
-	                        text += "\n**Reference :** [[" + currentFileName + "]]\n\n\n---\n";
-	                    }
-	                    else if (i_isForMindmap == false) {
-	                        text += this.settings.pdf_f_prb.replace("{fileName}",currentFileName);
-
-	                    }
-	                    else {
-	                        text += "### [[" + currentFileName + "]]\n";
-	                        if(this.settings.mm_preamb)
-	                        { text += "#### _\n"; }
-	                    }
+						new_file = true;
 					}
 				} else {
 	                if (currentFileName != a.file.name) {
-	                    currentFileName = a.file.name;
-	                    currentFolderName = a.folder;
-	                    if(i_isForExtMindmap == true) {
-	                        text += "\n**Reference :** [[" + currentFileName + "]]\n\n\n";
-	                    }
-	                    else if (i_isForMindmap == false) {
-	                        text += this.settings.pdf_f_prb.replace("{fileName}",currentFileName);
-	                    }
-	                    else {
-	                        text += "### [[" + currentFileName + "]]\n";
-	                        if(this.settings.mm_preamb)
-	                        { text += "#### _\n"; }
-						}
+						new_file = true
 					}
+				}
+
+				if(new_file){
+					// Print annotations
+					if(!first_time) {
+						// Add preamble and annotations
+						text += this.buildPreamble(currentFileName, i_isForObsMindmap, i_isForExtMindmap);
+						text += this.buildAnnotations(i_isForObsMindmap, i_isForExtMindmap, currentFileName, text_cd, text_dt)
+						// Reset detailed-/condensed-text variables
+						text_cd = "";
+						text_dt = "";
+					}
+					else{// 1st file
+						first_time = false;
+						// Replace file name
+						text.replace('{fileName}', currentFileName);
+					}
+
+					// Update file name
+					if (this.settings.useFolderNames) {
+						currentFileName = a.folder;
+					} else {
+						currentFileName = a.file.name;
+					}
+
+					new_file = false;
 				}
 			}
 
 
 			// ➡️ PAGE NB: Add page number if needed
-			if ((l_pageNumber != a.pageNumber) && (i_isForMindmap == false) && (i_isForExtMindmap == false))
+			if ((l_pageNumber != a.pageNumber) && (i_isForObsMindmap == false) && (i_isForExtMindmap == false))
 			{// Annotations on a different page
 				text_dt += "\n#### Page " + a.pageNumber + "\n";
 				l_pageNumber = a.pageNumber;
@@ -301,7 +409,7 @@ mindmap-plugin: basic
 			let annotColorLum = annotColor[2];
 			l_note_sfx        = ""
 
-				// Test if current annotation is recognized
+				// Test if current annotation color is recognized
 			l_annoToReport = true;
 			if( (Math.abs((100*(annotColorHue-color_lvl1Hue))/color_maxHue) <= this.settings.hueTol)  &&
 				(Math.abs((100*(annotColorLum-color_lvl1Lum))/color_maxLum) <= this.settings.LumiTol) )
@@ -461,7 +569,7 @@ mindmap-plugin: basic
 
 				// ▶️ Level 1 -> Title: do not set a format (except italics for a Note)
 				if (l_levelPrefix == l_title_lvl1) {
-					if ((i_isForMindmap == false) && (i_isForExtMindmap == false))
+					if ((i_isForObsMindmap == false) && (i_isForExtMindmap == false))
 					{   text_dt += l_title_lvl1; }
 					if(i_isForExtMindmap)
 					{   text_cd += l_title_lvl1;}
@@ -473,7 +581,7 @@ mindmap-plugin: basic
 					{   l_levelFormat = ""; }
 				}
 				else {// ▶️ Not level 1
-					if ((i_isForMindmap == false) && (i_isForExtMindmap == false))
+					if ((i_isForObsMindmap == false) && (i_isForExtMindmap == false))
 					{   text_dt += "> "; }
 
 					/*if (a.subtype == 'Text')    // Note
@@ -483,14 +591,14 @@ mindmap-plugin: basic
 				}
 
                 if (a.subtype == 'Text') {  // ▶️ Note
-                    if ((i_isForMindmap == false) && (i_isForExtMindmap == false))
+                    if ((i_isForObsMindmap == false) && (i_isForExtMindmap == false))
                     {   text_dt += l_levelFormat + note_preamb + note_format + l_levelIcon + l_details + note_format + l_levelFormat + l_note_sfx + "\n"; }
                     if((i_isForExtMindmap == false))
                     {   text_cd += l_levelFormat + note_preamb + note_format + l_levelIcon + l_details + note_format + l_levelFormat + l_note_sfx + "\n";}
                     else
                     {   text_cd += note_preamb + l_levelIcon + l_details + l_note_sfx + "\n";}
                 } else {                    // ▶️ Annotation: Highlight or underline
-                    if (i_isForMindmap == false)
+                    if (i_isForObsMindmap == false)
                     {   text_dt += l_levelIcon + l_levelFormat + l_details + l_levelFormat + l_note_sfx + "\n"; }
                     if((i_isForExtMindmap == false))
                     {   text_cd     += l_levelIcon + l_levelFormat + l_details + l_levelFormat + l_note_sfx + "\n"; }
@@ -501,54 +609,10 @@ mindmap-plugin: basic
             // else: Not an annotation to report
         })// End of each annotation process
 
+		// Display the last file's data
+		text += this.buildPreamble(currentFileName, i_isForObsMindmap, i_isForExtMindmap);
+		text += this.buildAnnotations(i_isForObsMindmap, i_isForExtMindmap, currentFileName, text_cd, text_dt)
 
-        // Formatting presentation:
-        let l_FormattageText = "";
-        // Add current annotation to global string
-        if (i_isForExtMindmap) {
-            l_FormattageText += "## Format\n";
-            l_FormattageText += l_title_lvl1  + ext_lvl1_icon + " Level 1 ("        + getColorName(this.settings.level1RGB) + ")"  + "\n";
-            l_FormattageText += l_lvl2_prefix + ext_lvl2_icon + " Level 2 ("        + getColorName(this.settings.level2RGB) + ")"  + "\n";
-            l_FormattageText += l_lvl3_prefix + ext_lvl3_icon + " Level 3 ("        + getColorName(this.settings.level3RGB) + ")"  + "\n";
-            l_FormattageText += l_sumr_prefix + ext_sumr_icon + "Special level 1 (" + getColorName(this.settings.summryRGB) + ")"  + "\n";
-            l_FormattageText += l_impt_prefix + ext_impt_icon + "Special level 2 (" + getColorName(this.settings.imprttRGB) + ")"  + "\n";
-
-            l_FormattageText += "\n\n---\n## Notes\n"
-
-            text += l_FormattageText;
-        }
-        else if (i_isForMindmap == false) {
-            //if (i_isForMindmap) { l_FormattageText += "##"; }
-            l_FormattageText += "## Format\n";
-            l_FormattageText += l_title_lvl1  + lvl1_icon + lvl1_format + " Level 1 ("        + getColorName(this.settings.level1RGB) + ")" + lvl1_format + "\n";
-            l_FormattageText += l_lvl2_prefix + lvl2_icon + lvl2_format + " Level 2 ("        + getColorName(this.settings.level2RGB) + ")" + lvl2_format + "\n";
-            l_FormattageText += l_lvl3_prefix + lvl3_icon + lvl3_format + " Level 3 ("        + getColorName(this.settings.level3RGB) + ")" + lvl3_format + "\n";
-            l_FormattageText += l_sumr_prefix + sumr_icon + sumr_format + "Special level 1 (" + getColorName(this.settings.summryRGB) + ")" + sumr_format + "\n";
-            l_FormattageText += l_impt_prefix + impt_icon + impt_format + "Special level 2 (" + getColorName(this.settings.imprttRGB) + ")" + impt_format + "\n";
-
-            l_FormattageText +=             note_preamb + note_format + "Note content"      +                                               note_format + "\n";
-
-            //if (i_isForMindmap == false) {
-                text += l_FormattageText;
-            //}
-        }
-
-        if ((i_isForMindmap == false) && (i_isForExtMindmap == false)) {
-            text += "\n\n---\n## Annotations\n";
-            text += this.settings.perso_prb + "\n"
-            text += "[[" + currentFileName + "]]\n- \n\n\n---\n";
-            text += this.settings.conds_prb + "\n";
-            text += "[[" + currentFileName + "]]\n";
-
-            text += "#### PDF annotations\n";
-        }
-
-        text += text_cd;
-        if ((i_isForMindmap == false) && (i_isForExtMindmap == false)) {
-            text += "\n\n\n---\n" + this.settings.detal_prb + "\n";
-            text += "[[" + currentFileName + "]]\n";
-            text += text_dt;
-        }
 
         if (grandtotal.length == 0) {
             return ("\n" + this.settings.no_an_prb + "\n");
@@ -564,7 +628,7 @@ mindmap-plugin: basic
 		const grandtotal = [] // array that will contain all fetched Annotations
 		console.log('loading from file ', file)
 		const content = await this.app.vault.readBinary(file)
-		await loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, containingFolder, grandtotal)
+		const pages = await loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, containingFolder, grandtotal)
 		this.sort(grandtotal)
 
         // Get file name
@@ -572,9 +636,89 @@ mindmap-plugin: basic
 		let filePath = file.path.replace(".pdf", "");
 		// filePath = "Annotations for " + filePath;
 
+		// Add page number in file name in case part of the PDF is loaded
+		if (pages[0] != 0) {
+			// Only part of the PDF is loaded
+			filePath += `, p.${pages[0]}-${pages[1]}`;
+		}
 
-		// TODO: Add page number processed
+        // First file: detailed & condensed versions
+            // File name
+        let l_fileName_1 = filePath + ".md";
+            // Generate annotations
+        let finalMarkdown = this.format(grandtotal, false, false, true, true, false)
+            // Save annotations in file
+        await saveDataToFile(l_fileName_1, finalMarkdown);
+            // Open file
+        await this.app.workspace.openLinkText(l_fileName_1, '', true);
 
+        // Second file: Obsidian mindmap, full version
+        if(this.settings.mm_fl_tog) {
+            let l_fileName_2 = filePath + " " + this.settings.mm_fl_suf + ".md";
+            finalMarkdown = this.format(grandtotal, true, false, true, true, false)
+            await saveDataToFile(l_fileName_2, finalMarkdown);
+            await this.app.workspace.openLinkText(l_fileName_2, '', true);
+        }
+
+        // Third file: Obsidian mindmap, essentials version
+        if(this.settings.mm_es_tog) {
+            //let l_fileName_3 = filePath + " (mindmap essential).md";
+            let l_fileName_3 = filePath + " " + this.settings.mm_es_suf + ".md";
+            finalMarkdown = this.format(grandtotal, true, false, false, false, false)
+            await saveDataToFile(l_fileName_3, finalMarkdown);
+            await this.app.workspace.openLinkText(l_fileName_3, '', true);
+        }
+
+        // Fourth file: External mindmap, full version
+        if(this.settings.ext_fl_tog) {
+            let l_fileName_4 = filePath + " " + this.settings.ext_fl_suf + ".md";
+            finalMarkdown = this.format(grandtotal, false, true, true, true, false)
+            await saveDataToFile(l_fileName_4, finalMarkdown);
+            await this.app.workspace.openLinkText(l_fileName_4, '', true);
+        }
+
+        // Fifth file: External mindmap, essentials version
+        if(this.settings.ext_es_tog) {
+            let l_fileName_5 = filePath + " " + this.settings.ext_es_suf + ".md";
+            finalMarkdown = this.format(grandtotal, false, true, false, false, false)
+            await saveDataToFile(l_fileName_5, finalMarkdown);
+            await this.app.workspace.openLinkText(l_fileName_5, '', true);
+        }
+
+	}
+
+	async loadSinglePDFFileClipboard(clipText: string) {
+		const {pages, grandtotal} = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
+		this.sort(grandtotal)
+
+		// Get input file name
+			// Find the last occurrence of "/"
+		let lastSlashIndex = clipText.lastIndexOf("/");
+			// Extract the part after the last "/"
+		const fileName = clipText.substring(lastSlashIndex + 1);
+
+        // Set output file name
+		let filePath = ""
+		const file = this.app.workspace.getActiveFile();
+		if (file != null) {
+			// Get the current's file path
+			filePath = file.path;
+			// Remove file name in the path
+				// Find the last occurrence of "/"
+			lastSlashIndex = filePath.lastIndexOf("/");
+				// Remove the part after the last "/"
+			if (lastSlashIndex !== -1) {
+				filePath = filePath.substring(0, lastSlashIndex + 1);
+			}
+		}
+		// else: no file opened: the file will be created in the vaulter's root
+		filePath += fileName
+
+		// Add page number in file name in case part of the PDF is loaded
+		if (pages[0] != 0) {
+			// Only part of the PDF is loaded
+			filePath += `p ${pages[0]}-${pages[1]}`;
+		}
 
         // First file: detailed & condensed versions
             // File name
@@ -623,6 +767,7 @@ mindmap-plugin: basic
 
 	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePathFromClipboard: string) {
 		const grandtotal = [] // array that will contain all fetched Annotations
+		let pages = []
 		try {
 			const filePathWithoutQuotes = filePathFromClipboard.replace(/"/g, '');
 			const stats = fs.statSync(filePathWithoutQuotes);
@@ -636,7 +781,7 @@ mindmap-plugin: basic
 				const encodedFilePath = encodeURI('file://' + filePathWithoutQuotes)
 				const file: PDFFile = new PDFFile(fileName, binaryContent, extension, encodedFilePath);
 				const containingFolder = filePathWithSlashs.slice(0, filePathWithSlashs.lastIndexOf('/'));
-				await loadPDFFile(file, this.settings.page_min, this.settings.page_max, pdfjsLib, containingFolder, grandtotal)
+				pages = await loadPDFFile(file, this.settings.page_min, this.settings.page_max, pdfjsLib, containingFolder, grandtotal)
 			} else {
 				console.log('Data in clipboard is no file.');
 			}
@@ -644,7 +789,7 @@ mindmap-plugin: basic
 			console.log('Data in clipboard could not be read as filepath.');
 			console.error(error);
 		}
-		return grandtotal;
+		return {pages, grandtotal};
 	}
 
 
@@ -657,7 +802,7 @@ mindmap-plugin: basic
         // Command when called from a PDF file
 		this.addCommand({
 			id: 'extract-annotations-single',
-			name: 'Extract PDF Annotations on single file',
+			name: 'Extract PDF Annotations: On single PDF file',
 			checkCallback: (checking: boolean) => {
 				const file = this.app.workspace.getActiveFile();
 				if (file != null && file.extension === 'pdf') {
@@ -665,37 +810,56 @@ mindmap-plugin: basic
 						// load file if (not only checking) && conditions are valid
 						this.loadSinglePDFFile(file)
 					}
-					return true
+					return true;
 				} else {
-					return false
+					return false;
 				}
 			}
 		})
 
 
 		// Command when the PDF path is in the clipboard
-
-
-		// TODO: Same process as loadSinglePDFFile
-
-
 		this.addCommand({
 			id: 'extract-annotations-single-from-clipboard-path',
-			name: 'Extract PDF Annotations on single file from path in clipboard',
+			name: 'Extract PDF Annotations: On single file from path in clipboard',
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
-				const clipText = await navigator.clipboard.readText()
-				const grandtotal = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
-				this.sort(grandtotal)
-				editor.replaceSelection(this.format(grandtotal, false, false, true, true, false))
+				// The following is executed when calling from a .md file
+				let clipText = ""
+				try {
+					clipText = await navigator.clipboard.readText()
+				} catch (error) {
+					console.error("Extract PDF: Failed to read clipboard:", error);
+				}
+				try {
+					if(clipText != "") {
+						// Check that the clipboard indeed contains a pdf file
+						// const extIndex = clipText.lastIndexOf(".");
+						// const extName = clipText.substring(extIndex + 1);
+						// if(extName.toLowerCase() === '.pdf') {
+						// 	const {pages, grandtotal} = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
+						// 	this.sort(grandtotal)
+						// 	editor.replaceSelection(this.format(grandtotal, false, false, true, true, false))
+						// }
+						// else {
+						// 	console.log("Extract PDF: Not a pdf file in the clipboard");
+						// }
+						// Do not check in case of "extension masked" option in File explorer
+						const {pages, grandtotal} = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
+						this.sort(grandtotal)
+						editor.replaceSelection(this.format(grandtotal, false, false, true, true, false))
+					}
+				} catch (error) {
+					console.error("Extract PDF: Failed to process the PDF:", error);
+				}
 			}
-		})
+		});
 
 
         // Command when called from a md file:
         // Annotation as detailed & condensed formats
 		this.addCommand({
 			id: 'extract-annotations',
-			name: 'Extract PDF Annotations',
+			name: 'Extract PDF Annotations. From .md file',
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				const file = this.app.workspace.getActiveFile()
 				if (file == null) return
@@ -718,16 +882,23 @@ mindmap-plugin: basic
 						}
 					}
 				})
+
+
+				// TODO: Problem, only the last one is processed !
+
+
 				await Promise.all(promises)
 				this.sort(grandtotal)
                 editor.replaceSelection(this.format(grandtotal, false, false, true, true, false))
 			}
 		})
-        // Command when called from a md file:
-        // Annotation as mindmap format
+
+
+		// Command when called from a md file:
+		// Annotation as mindmap format
         this.addCommand({
             id: 'extract-annotations-mindmap',
-            name: 'Extract PDF Annotations (Obsidian\'s mindmap format)',
+            name: 'Extract PDF Annotations. From .md file (Obsidian\'s mindmap format)',
             editorCallback: async (editor: Editor, view: MarkdownView) => {
                 const file = this.app.workspace.getActiveFile()
                 if (file == null) return
@@ -760,8 +931,8 @@ mindmap-plugin: basic
         // Command when called from a md file:
         // Annotation as mindmap format
         this.addCommand({
-            id: 'extract-annotations-mindmap',
-            name: 'Extract PDF Annotations (External mindmap format)',
+            id: 'extract-annotations-ext-mindmap',
+            name: 'Extract PDF Annotations. From .md file (External mindmap format)',
             editorCallback: async (editor: Editor, view: MarkdownView) => {
                 const file = this.app.workspace.getActiveFile()
                 if (file == null) return
@@ -795,7 +966,7 @@ mindmap-plugin: basic
         // Annotation as mindmap format only for summary & important annot.
         this.addCommand({
             id: 'extract-annotations-mindmap-summary-important',
-            name: 'Extract PDF Annotations (Obsidian\'s mindmap format, summary & important only)',
+            name: 'Extract PDF Annotations. From .md file (Obsidian\'s mindmap format, summary & important only)',
             editorCallback: async (editor: Editor, view: MarkdownView) => {
                 const file = this.app.workspace.getActiveFile()
                 if (file == null) return
@@ -821,6 +992,42 @@ mindmap-plugin: basic
                 await Promise.all(promises)
                 this.sort(grandtotal)
                 editor.replaceSelection(this.format(grandtotal, true, false, false, false, false))
+            }
+
+
+        })
+
+
+		// Command when called from a md file:
+        // Annotation as external mindmap format only for summary & important annot.
+        this.addCommand({
+            id: 'extract-annotations-ext-mindmap-summary-important',
+            name: 'Extract PDF Annotations. From .md file (External mindmap format, summary & important only)',
+            editorCallback: async (editor: Editor, view: MarkdownView) => {
+                const file = this.app.workspace.getActiveFile()
+                if (file == null) return
+                const folder = file.parent
+                const grandtotal = [] // array that will contain all fetched Annotations
+
+                const pdfjsLib = await loadPdfJs()
+				// editor.replaceSelection('Extracting PDF Comments from ' + folder.name + '\n')
+
+                const promises = [] // when all Promises will be resolved.
+
+                Vault.recurseChildren(folder, async (file) => {
+                    // visit all Childern of parent folder of current active File
+                    if (file instanceof TFile) {
+                        if (file.extension === 'pdf') {
+                            promises.push(
+                            	this.app.vault.readBinary(file).then((content) =>
+                            		loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, file.parent.name, grandtotal))
+							)
+                        }
+                    }
+                })
+                await Promise.all(promises)
+                this.sort(grandtotal)
+                editor.replaceSelection(this.format(grandtotal, false, true, false, false, false))
             }
 
 
@@ -937,7 +1144,7 @@ mindmap-plugin: basic
 			pageNumber: annotation.pageNumber,
 			author: annotation.author,
 			body: annotation.body,
-			highlightedText_body: annotation.highlightedText_body,
+			body_highlightedText: annotation.body_highlightedText,
 		};
 
 		return { annotation: annotation, ...shortcuts };

@@ -38,7 +38,7 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 	- {{pageNumber}}: 'Page number of annotation with reference to PDF pages',
 	- {{author}}: 'Author of annotation',
 	- {{body}}: 'Body of annotation'
-	- {{highlightedText_body}}: 'Body of annotation if any, otherwise highlighted text from PDF'
+	- {{body_highlightedText}}: 'Body of annotation if any, otherwise highlighted text from PDF'
 
 ## Versions
 

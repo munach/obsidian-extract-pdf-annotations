@@ -11,7 +11,7 @@ export const TEMPLATE_VARIABLES = {
 	pageNumber: 'Page number of annotation with reference to PDF pages',
 	author: 'Author of annotation',
 	body: 'Body of annotation',
-    highlightedText_body: 'Body of annotation if any, otherwise highlighted text from PDF'
+    body_highlightedText: 'Body of annotation if any, otherwise highlighted text from PDF'
 };
 
 export class PDFAnnotationPluginSetting {
@@ -77,13 +77,13 @@ export class PDFAnnotationPluginSetting {
 		this.useFolderNames = true;
 		this.sortByTopic = true;
 		this.noteTemplateExternalPDFs =
-			'{{highlightedText_body}}';
+			'{{body_highlightedText}}';
 		this.noteTemplateInternalPDFs =
-			'{{highlightedText_body}}';
+			'{{body_highlightedText}}';
 		this.highlightTemplateExternalPDFs =
-			'{{highlightedText_body}}';
+			'{{body_highlightedText}}';
 		this.highlightTemplateInternalPDFs =
-			'{{highlightedText_body}}';
+			'{{body_highlightedText}}';
         this.page_min = 0;
         this.page_max = 0;
         this.level1RGB = [255, 173, 91];
@@ -113,26 +113,25 @@ export class PDFAnnotationPluginSetting {
         this.unkn_icon = "❔";
         // Other emojis: ⚫⚪🟣🟤❔
         this.begin_prb = `---
-MOC:
-    - \"[[MAP_OF_CONTENT_1_MOC]]\"
-Source: _Annotations extracted from PDF file (see below)._
+MOC: []
+Source: [[{fileName}]]
 Projets:
 Notes liées:
 Date: \" {dateTime}\"
 tags:
     - \"#Type/Note/Info\"
-    - \"#Diffusion/Perso\"
 ---`;
         this.pdf_f_prb = `
+---
 ## *Infos note*
 ### *Références*
 - [[{fileName}]]
 
 ### *Liens*
--
+- 
 
 ### *Concepts clés / Synthèse*
--
+- 
 
 ---
 \`\`\`table-of-contents
@@ -278,14 +277,14 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 			.setName('Template for notes of PDFs outside Obsidian:')
 			.addTextArea((input) => {
 				input.inputEl.style.width = '100%';
-				input.inputEl.style.height = '10em';
+				input.inputEl.style.height = '5em';
 				this.buildValueInput(input, 'noteTemplateExternalPDFs')
 			});
 		new Setting(containerEl)
 			.setName('Template for notes of PDFs inside Obsidian:')
 			.addTextArea((input) => {
 				input.inputEl.style.width = '100%';
-				input.inputEl.style.height = '10em';
+				input.inputEl.style.height = '5em';
 				this.buildValueInput(input, 'noteTemplateInternalPDFs');
 			}
 
@@ -294,18 +293,19 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 			.setName('Template for highlights of PDFs outside Obsidian:')
 			.addTextArea((input) => {
 				input.inputEl.style.width = '100%';
-				input.inputEl.style.height = '10em';
+				input.inputEl.style.height = '5em';
 				this.buildValueInput(input, 'highlightTemplateExternalPDFs')
 			});
 		new Setting(containerEl)
 			.setName('Template for highlights of PDFs inside Obsidian:')
 			.addTextArea((input) => {
 				input.inputEl.style.width = '100%';
-				input.inputEl.style.height = '10em';
+				input.inputEl.style.height = '5em';
 				this.buildValueInput(input, 'highlightTemplateInternalPDFs');
 			});
 
 
+		containerEl.createEl('h3', { text: 'PDF annotations extraction settings' });
         // PAGES between which the plugin will be enabled
         // PAGE min:
         new Setting(containerEl)
