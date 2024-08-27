@@ -155,10 +155,10 @@ tags:
 - [[{fileName}]]
 
 ### *Links*
--
+- 
 
 ### *Keys concepts*
--
+- 
 
 ---
 \`\`\`table-of-contents
