@@ -4,13 +4,13 @@ import PDFAnnotationPlugin from "src/main";
 import { IIndexable } from "src/types";
 
 export const TEMPLATE_VARIABLES = {
-	highlightedText: 'Highlighted text from PDF',
-	folder: 'Folder of PDF file',
-	file: 'Binary content of file',
-	filepath: 'Path of PDF file',
-	pageNumber: 'Page number of annotation with reference to PDF pages',
-	author: 'Author of annotation',
-	body: 'Body of annotation',
+    highlightedText: 'Highlighted text from PDF',
+    folder: 'Folder of PDF file',
+    file: 'Binary content of file',
+    filepath: 'Path of PDF file',
+    pageNumber: 'Page number of annotation with reference to PDF pages',
+    author: 'Author of annotation',
+    body: 'Body of annotation',
     body_highlightedText: 'Body of annotation if any, otherwise highlighted text from PDF'
 };
 
@@ -25,9 +25,9 @@ export const SUPPORTED_ANNOTS = {
 export const ANNOTS_TREATED_AS_HIGHLIGHTS = ['Highlight', 'Underline', 'Squiggly'];
 
 export class PDFAnnotationPluginSetting {
-	public useStructuringHeadlines: boolean;
-	public useFolderNames: boolean;
-	public sortByTopic: boolean;
+    public useStructuringHeadlines: boolean;
+    public useFolderNames: boolean;
+    public sortByTopic: boolean;
     // Page between which the plugin will be enabled
     public page_min: number;
     public page_max: number;
@@ -43,15 +43,15 @@ export class PDFAnnotationPluginSetting {
     public ext_es_tog: boolean;
     public ext_es_suf: string;
     // Desired annotations
-	public desiredAnnotations: string;
-	public parsedSettings: {
-		desiredAnnotations: string[];
-	}
+    public desiredAnnotations: string;
+    public parsedSettings: {
+        desiredAnnotations: string[];
+    }
     // Template
-	public noteTemplateExternalPDFs: string;
-	public noteTemplateInternalPDFs: string;
-	public highlightTemplateExternalPDFs: string;
-	public highlightTemplateInternalPDFs: string;
+    public noteTemplateExternalPDFs: string;
+    public noteTemplateInternalPDFs: string;
+    public highlightTemplateExternalPDFs: string;
+    public highlightTemplateInternalPDFs: string;
     // Colors
     public level1RGB: number[];
     public level2RGB: number[];
@@ -88,10 +88,10 @@ export class PDFAnnotationPluginSetting {
     public detal_prb: string;
     public no_an_prb: string;
 
-	constructor() {
-		this.useStructuringHeadlines = true;
-		this.useFolderNames = false;
-		this.sortByTopic = false;
+    constructor() {
+        this.useStructuringHeadlines = true;
+        this.useFolderNames = false;
+        this.sortByTopic = false;
         this.page_min = 0;
         this.page_max = 0;
         this.mm_fl_tog = true;
@@ -107,14 +107,14 @@ export class PDFAnnotationPluginSetting {
         this.parsedSettings = {
           desiredAnnotations: this.parseCommaSeparatedStringToArray(this.desiredAnnotations)
         };
-		this.noteTemplateExternalPDFs =
-			'{{body_highlightedText}}';
-		this.noteTemplateInternalPDFs =
-			'{{body_highlightedText}}';
-		this.highlightTemplateExternalPDFs =
-			'{{body_highlightedText}}';
-		this.highlightTemplateInternalPDFs =
-			'{{body_highlightedText}}';
+        this.noteTemplateExternalPDFs =
+            '{{body_highlightedText}}';
+        this.noteTemplateInternalPDFs =
+            '{{body_highlightedText}}';
+        this.highlightTemplateExternalPDFs =
+            '{{body_highlightedText}}';
+        this.highlightTemplateInternalPDFs =
+            '{{body_highlightedText}}';
         this.level1RGB = [255, 173, 91];
         this.level2RGB = [255, 255, 0];
         this.level3RGB = [209, 223, 235];
@@ -174,7 +174,7 @@ style:nestedOrderedList
         this.detal_prb = "### Format détaillé";
         this.no_an_prb = "- **Aucune annotation**";
 
-	}// end of constructor
+    }// end of constructor
 
 
     public parseCommaSeparatedStringToArray(desiredAnnotations: string): string[] {
@@ -185,88 +185,88 @@ style:nestedOrderedList
 
 
 export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
-	plugin: PDFAnnotationPlugin;
+    plugin: PDFAnnotationPlugin;
 
-	constructor(app: App, plugin: PDFAnnotationPlugin) {
-		super(app, plugin);
-		this.plugin = plugin;
-	}
+    constructor(app: App, plugin: PDFAnnotationPlugin) {
+        super(app, plugin);
+        this.plugin = plugin;
+    }
 
-	addValueChangeCallback<T extends HTMLTextAreaElement | HTMLInputElement>(
-		component: AbstractTextComponent<T> | DropdownComponent,
-		settingsKey: string,
-		cb?: (value: string) => void,
-	): void {
-		component.onChange(async (value) => {
-			(this.plugin.settings as IIndexable)[settingsKey] = value;
-			this.plugin.saveSettings().then(() => {
-        		if (settingsKey === 'desiredAnnotations') {
-          			this.plugin.settings.parsedSettings.desiredAnnotations = this.plugin.settings.parseCommaSeparatedStringToArray(value);
-        		}
-				if (cb) {
-					cb(value);
-				}
-			});
-		});
-	}
+    addValueChangeCallback<T extends HTMLTextAreaElement | HTMLInputElement>(
+        component: AbstractTextComponent<T> | DropdownComponent,
+        settingsKey: string,
+        cb?: (value: string) => void,
+    ): void {
+        component.onChange(async (value) => {
+            (this.plugin.settings as IIndexable)[settingsKey] = value;
+            this.plugin.saveSettings().then(() => {
+                if (settingsKey === 'desiredAnnotations') {
+                    this.plugin.settings.parsedSettings.desiredAnnotations = this.plugin.settings.parseCommaSeparatedStringToArray(value);
+                }
+                if (cb) {
+                    cb(value);
+                }
+            });
+        });
+    }
 
-	buildValueInput<T extends HTMLTextAreaElement | HTMLInputElement>(
-		component: AbstractTextComponent<T> | DropdownComponent,
-		settingsKey: string,
-		cb?: (value: string) => void,
-	): void {
-		component.setValue((this.plugin.settings as IIndexable)[settingsKey]);
-		this.addValueChangeCallback(component, settingsKey, cb);
-	}
+    buildValueInput<T extends HTMLTextAreaElement | HTMLInputElement>(
+        component: AbstractTextComponent<T> | DropdownComponent,
+        settingsKey: string,
+        cb?: (value: string) => void,
+    ): void {
+        component.setValue((this.plugin.settings as IIndexable)[settingsKey]);
+        this.addValueChangeCallback(component, settingsKey, cb);
+    }
 
-	display(): void {
-		const { containerEl } = this;
+    display(): void {
+        const { containerEl } = this;
 
-		containerEl.empty();
+        containerEl.empty();
 
-		new Setting(containerEl)
-			.setName('Use structuring headlines')
-			.setDesc(
-				'If disabled, no structuring headlines will be shown. Just the annotations in the specified template style.',
-			)
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.useStructuringHeadlines).onChange((value) => {
-					this.plugin.settings.useStructuringHeadlines = value;
-					this.plugin.saveData(this.plugin.settings);
-				}),
-			);
+        new Setting(containerEl)
+            .setName('Use structuring headlines')
+            .setDesc(
+                'If disabled, no structuring headlines will be shown. Just the annotations in the specified template style.',
+            )
+            .addToggle((toggle) =>
+                toggle.setValue(this.plugin.settings.useStructuringHeadlines).onChange((value) => {
+                    this.plugin.settings.useStructuringHeadlines = value;
+                    this.plugin.saveData(this.plugin.settings);
+                }),
+            );
 
         // Setting: Folder name instead of file name
-		new Setting(containerEl)
-			.setName('Use Folder Name')
-			.setDesc(
-				'If enabled, uses the PDF\'s folder name (instead of the PDF-Filename) for sorting',
-			)
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.useFolderNames).onChange((value) => {
-					this.plugin.settings.useFolderNames = value;
-					this.plugin.saveData(this.plugin.settings);
+        new Setting(containerEl)
+            .setName('Use Folder Name')
+            .setDesc(
+                'If enabled, uses the PDF\'s folder name (instead of the PDF-Filename) for sorting',
+            )
+            .addToggle((toggle) =>
+                toggle.setValue(this.plugin.settings.useFolderNames).onChange((value) => {
+                    this.plugin.settings.useFolderNames = value;
+                    this.plugin.saveData(this.plugin.settings);
 
-				}),
-			);
+                }),
+            );
 
 
         // Setting: use 1st line as Topic
-		new Setting(containerEl)
-			.setName('Sort by Topic')
-			.setDesc(
-				'If enabled, uses the notes first line as Topic for primary sorting',
-			)
-			.addToggle((toggle) =>
-				toggle.setValue(this.plugin.settings.sortByTopic).onChange((value) => {
-					this.plugin.settings.sortByTopic = value;
-					this.plugin.saveData(this.plugin.settings);
-				}),
-			);
+        new Setting(containerEl)
+            .setName('Sort by Topic')
+            .setDesc(
+                'If enabled, uses the notes first line as Topic for primary sorting',
+            )
+            .addToggle((toggle) =>
+                toggle.setValue(this.plugin.settings.sortByTopic).onChange((value) => {
+                    this.plugin.settings.sortByTopic = value;
+                    this.plugin.saveData(this.plugin.settings);
+                }),
+            );
 
 
         // PAGES between which the plugin will be enabled
-		containerEl.createEl('h3', { text: 'Pages to extract' });
+        containerEl.createEl('h3', { text: 'Pages to extract' });
         // PAGE min:
         new Setting(containerEl)
             .setName('1st page')
@@ -413,31 +413,31 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
             );
 
 
-    	containerEl.createEl('h3', { text: 'Desired annotations' });
-    	const desiredAnnotationsInstructionsEl = containerEl.createEl('p');
-    	desiredAnnotationsInstructionsEl.append(
-	      createSpan({
-        	text:
-    	      'You can specify which types of annotations should be extracted by the plugin. ' +
-	          'List the types exactly as listed here, separated by commas. ' +
-        	  'The plugin supports the following types of annotations: '
-    	  }),
-	    );
+        containerEl.createEl('h3', { text: 'Desired annotations' });
+        const desiredAnnotationsInstructionsEl = containerEl.createEl('p');
+        desiredAnnotationsInstructionsEl.append(
+          createSpan({
+            text:
+              'You can specify which types of annotations should be extracted by the plugin. ' +
+              'List the types exactly as listed here, separated by commas. ' +
+              'The plugin supports the following types of annotations: '
+          }),
+        );
 
-	    const desiredAnnotationsVariableUl = containerEl.createEl('ul');
-    	Object.entries(SUPPORTED_ANNOTS).forEach((variableData) => {
-			const [key, description] = variableData,
-	        	desiredAnnotationsVariableItem = desiredAnnotationsVariableUl.createEl('li');
+        const desiredAnnotationsVariableUl = containerEl.createEl('ul');
+        Object.entries(SUPPORTED_ANNOTS).forEach((variableData) => {
+            const [key, description] = variableData,
+                desiredAnnotationsVariableItem = desiredAnnotationsVariableUl.createEl('li');
 
-	        desiredAnnotationsVariableItem.createEl('span', {
-	        	cls: 'text-monospace',
-	        	text: key,
-	      	});
+            desiredAnnotationsVariableItem.createEl('span', {
+                cls: 'text-monospace',
+                text: key,
+            });
 
-	        desiredAnnotationsVariableItem.createEl('span', {
-	            text: description ? ` — ${description}` : '',
-	        });
-	    });
+            desiredAnnotationsVariableItem.createEl('span', {
+                text: description ? ` — ${description}` : '',
+            });
+        });
 
     new Setting(containerEl)
       .setName('The following types of annotations should be extracted:')
@@ -447,78 +447,78 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
         this.buildValueInput(input, 'desiredAnnotations');
       });
 
-		containerEl.createEl('h3', { text: 'Template settings' });
-		const templateInstructionsEl = containerEl.createEl('p');
-		templateInstructionsEl.append(
-			createSpan({
-				text:
-					'The following settings determine how the highlights and notes created by ' +
-					'the plugin will be rendered. There are four types that you can specify, ' +
-					'because you might want to have other templates for highlights and notes ' +
-					'which include links to external files. Templates are interpreted using ',
-			}),
-		);
-		templateInstructionsEl.append(
-			createEl('a', {
-				text: 'Handlebars',
-				href: 'https://handlebarsjs.com/guide/expressions.html',
-			}),
-		);
-		templateInstructionsEl.append(
-			createSpan({
-				text: ' syntax. The following variables are available:',
-			}),
-		);
+        containerEl.createEl('h3', { text: 'Template settings' });
+        const templateInstructionsEl = containerEl.createEl('p');
+        templateInstructionsEl.append(
+            createSpan({
+                text:
+                    'The following settings determine how the highlights and notes created by ' +
+                    'the plugin will be rendered. There are four types that you can specify, ' +
+                    'because you might want to have other templates for highlights and notes ' +
+                    'which include links to external files. Templates are interpreted using ',
+            }),
+        );
+        templateInstructionsEl.append(
+            createEl('a', {
+                text: 'Handlebars',
+                href: 'https://handlebarsjs.com/guide/expressions.html',
+            }),
+        );
+        templateInstructionsEl.append(
+            createSpan({
+                text: ' syntax. The following variables are available:',
+            }),
+        );
 
-		const templateVariableUl = containerEl.createEl('ul');
-		Object.entries(TEMPLATE_VARIABLES).forEach((variableData) => {
-			const [key, description] = variableData,
-				templateVariableItem = templateVariableUl.createEl('li');
+        const templateVariableUl = containerEl.createEl('ul');
+        Object.entries(TEMPLATE_VARIABLES).forEach((variableData) => {
+            const [key, description] = variableData,
+                templateVariableItem = templateVariableUl.createEl('li');
 
-			templateVariableItem.createEl('span', {
-				cls: 'text-monospace',
-				text: '{{' + key + '}}',
-			});
+            templateVariableItem.createEl('span', {
+                cls: 'text-monospace',
+                text: '{{' + key + '}}',
+            });
 
-			templateVariableItem.createEl('span', {
-				text: description ? ` — ${description}` : '',
-			});
-		});
+            templateVariableItem.createEl('span', {
+                text: description ? ` — ${description}` : '',
+            });
+        });
 
-		new Setting(containerEl)
-			.setName('Template for notes of PDFs outside Obsidian:')
-			.addTextArea((input) => {
-				input.inputEl.style.width = '100%';
-				input.inputEl.style.height = '5em';
-				this.buildValueInput(input, 'noteTemplateExternalPDFs')
-			});
-		new Setting(containerEl)
-			.setName('Template for notes of PDFs inside Obsidian:')
-			.addTextArea((input) => {
-				input.inputEl.style.width = '100%';
-				input.inputEl.style.height = '5em';
-				this.buildValueInput(input, 'noteTemplateInternalPDFs');
-			}
+        new Setting(containerEl)
+            .setName('Template for notes of PDFs outside Obsidian:')
+            .addTextArea((input) => {
+                input.inputEl.style.width = '100%';
+                input.inputEl.style.height = '5em';
+                this.buildValueInput(input, 'noteTemplateExternalPDFs')
+            });
+        new Setting(containerEl)
+            .setName('Template for notes of PDFs inside Obsidian:')
+            .addTextArea((input) => {
+                input.inputEl.style.width = '100%';
+                input.inputEl.style.height = '5em';
+                this.buildValueInput(input, 'noteTemplateInternalPDFs');
+            }
 
-			);
-		new Setting(containerEl)
-			.setName('Template for highlights of PDFs outside Obsidian:')
-			.addTextArea((input) => {
-				input.inputEl.style.width = '100%';
-				input.inputEl.style.height = '5em';
-				this.buildValueInput(input, 'highlightTemplateExternalPDFs')
-			});
-		new Setting(containerEl)
-			.setName('Template for highlights of PDFs inside Obsidian:')
-			.addTextArea((input) => {
-				input.inputEl.style.width = '100%';
-				input.inputEl.style.height = '5em';
-				this.buildValueInput(input, 'highlightTemplateInternalPDFs');
-			});
+            );
+        new Setting(containerEl)
+            .setName('Template for highlights of PDFs outside Obsidian:')
+            .addTextArea((input) => {
+                input.inputEl.style.width = '100%';
+                input.inputEl.style.height = '5em';
+                this.buildValueInput(input, 'highlightTemplateExternalPDFs')
+            });
+        new Setting(containerEl)
+            .setName('Template for highlights of PDFs inside Obsidian:')
+            .addTextArea((input) => {
+                input.inputEl.style.width = '100%';
+                input.inputEl.style.height = '5em';
+                this.buildValueInput(input, 'highlightTemplateInternalPDFs');
+            });
 
 
-		containerEl.createEl('h3', { text: 'PDF annotations extraction settings' });
-		containerEl.createEl('h4', { text: 'LEVELS: Colors and tolerances' });
+        containerEl.createEl('h3', { text: 'PDF annotations extraction settings' });
+        containerEl.createEl('h4', { text: 'LEVELS: Colors and tolerances' });
         // LEVELS: RGB VALUES, HUE TOLERANCE, LUMI TOLERANCE
         // LEVEL 1: Color
         new Setting(containerEl)
@@ -612,7 +612,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 
 
         // FORMATS
-		containerEl.createEl('h4', { text: 'LEVELS: Formatting' });
+        containerEl.createEl('h4', { text: 'LEVELS: Formatting' });
         // Level 1
         new Setting(containerEl)
             .setName('Format: Level 1')
@@ -705,7 +705,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 
 
         // ICONS
-		containerEl.createEl('h4', { text: 'LEVELS: Icons' });
+        containerEl.createEl('h4', { text: 'LEVELS: Icons' });
         // Level 1
         new Setting(containerEl)
             .setName('Icons: Level 1')
@@ -850,7 +850,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 
 
         // PREAMBLES
-		containerEl.createEl('h4', { text: 'FILES: Preambles' });
+        containerEl.createEl('h4', { text: 'FILES: Preambles' });
         // File's beginning
         new Setting(containerEl)
             .setName('Preambles: File beginning')
@@ -934,5 +934,5 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
             );
 
 
-	}
+    }
 }

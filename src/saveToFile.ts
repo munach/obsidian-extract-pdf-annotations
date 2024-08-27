@@ -5,11 +5,11 @@ export async function saveDataToFile(filePath: string, dataStr: string): Promise
     let l_return = false;
     try {
         const fileExists = await this.app.vault.adapter.exists(filePath);
-		if (fileExists) {// Append data to existing data
-			await this.appendDataToFile(filePath, dataStr);
-		} else {// Create new file with data
-			await this.app.vault.create(filePath, dataStr);
-		}
+        if (fileExists) {// Append data to existing data
+            await this.appendDataToFile(filePath, dataStr);
+        } else {// Create new file with data
+            await this.app.vault.create(filePath, dataStr);
+        }
 
         // Open file  (no: done where saveDataToFile is called)
         //await this.app.workspace.openLinkText(filePath, '', true);
