@@ -144,22 +144,20 @@ export class PDFAnnotationPluginSetting {
         this.begin_prb = `---
 MOC: []
 Source: \"[[{fileName}]]\"
-Projets:
-Notes liées:
 Date: \" {dateTime}\"
 tags:
     - \"#Type/Note/Info\"
 ---`;
         this.pdf_f_prb = `
 ---
-## *Infos note*
+## *Note infos*
 ### *Références*
 - [[{fileName}]]
 
-### *Liens*
+### *Links*
 -
 
-### *Concepts clés / Synthèse*
+### *Keys concepts*
 -
 
 ---
@@ -169,10 +167,10 @@ style:nestedOrderedList
 \`\`\`
 ---
 `;
-        this.perso_prb = "### Synthèse perso";
-        this.conds_prb = "### Format condensé";
-        this.detal_prb = "### Format détaillé";
-        this.no_an_prb = "- **Aucune annotation**";
+        this.perso_prb = "### Personal summary";
+        this.conds_prb = "### Condensed format";
+        this.detal_prb = "### Detailed format";
+        this.no_an_prb = "- **No annotation**";
 
     }// end of constructor
 
