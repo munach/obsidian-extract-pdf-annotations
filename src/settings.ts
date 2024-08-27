@@ -14,6 +14,16 @@ export const TEMPLATE_VARIABLES = {
     body_highlightedText: 'Body of annotation if any, otherwise highlighted text from PDF'
 };
 
+export const SUPPORTED_ANNOTS = {
+  Text: 'Text-Annotation (Note)',
+  Highlight: 'Highlighted text',
+  Underline: 'Underlined text',
+  Squiggly: "Squiggly underlined text",
+  FreeText: "Free text added to the pdf"
+};
+
+export const ANNOTS_TREATED_AS_HIGHLIGHTS = ['Highlight', 'Underline', 'Squiggly'];
+
 export class PDFAnnotationPluginSetting {
 	public useStructuringHeadlines: boolean;
 	public useFolderNames: boolean;
@@ -32,6 +42,11 @@ export class PDFAnnotationPluginSetting {
     public ext_fl_suf: string;
     public ext_es_tog: boolean;
     public ext_es_suf: string;
+    // Desired annotations
+	public desiredAnnotations: string;
+	public parsedSettings: {
+		desiredAnnotations: string[];
+	}
     // Template
 	public noteTemplateExternalPDFs: string;
 	public noteTemplateInternalPDFs: string;
@@ -88,6 +103,10 @@ export class PDFAnnotationPluginSetting {
         this.ext_fl_suf= "(ext mm)",
         this.ext_es_tog= false,
         this.ext_es_suf= "(ext mm essential)"
+        this.desiredAnnotations = "Text, Highlight, Underline";
+        this.parsedSettings = {
+          desiredAnnotations: this.parseCommaSeparatedStringToArray(this.desiredAnnotations)
+        };
 		this.noteTemplateExternalPDFs =
 			'{{body_highlightedText}}';
 		this.noteTemplateInternalPDFs =
@@ -154,7 +173,13 @@ style:nestedOrderedList
         this.conds_prb = "### Format condensé";
         this.detal_prb = "### Format détaillé";
         this.no_an_prb = "- **Aucune annotation**";
-	}
+
+	}// end of constructor
+
+
+    public parseCommaSeparatedStringToArray(desiredAnnotations: string): string[] {
+        return desiredAnnotations.split(',').map((item) => item.trim());
+    }
 }
 
 
@@ -175,6 +200,9 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 		component.onChange(async (value) => {
 			(this.plugin.settings as IIndexable)[settingsKey] = value;
 			this.plugin.saveSettings().then(() => {
+        		if (settingsKey === 'desiredAnnotations') {
+          			this.plugin.settings.parsedSettings.desiredAnnotations = this.plugin.settings.parseCommaSeparatedStringToArray(value);
+        		}
 				if (cb) {
 					cb(value);
 				}
@@ -384,6 +412,40 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
                 }),
             );
 
+
+    	containerEl.createEl('h3', { text: 'Desired annotations' });
+    	const desiredAnnotationsInstructionsEl = containerEl.createEl('p');
+    	desiredAnnotationsInstructionsEl.append(
+	      createSpan({
+        	text:
+    	      'You can specify which types of annotations should be extracted by the plugin. ' +
+	          'List the types exactly as listed here, separated by commas. ' +
+        	  'The plugin supports the following types of annotations: '
+    	  }),
+	    );
+
+	    const desiredAnnotationsVariableUl = containerEl.createEl('ul');
+    	Object.entries(SUPPORTED_ANNOTS).forEach((variableData) => {
+			const [key, description] = variableData,
+	        	desiredAnnotationsVariableItem = desiredAnnotationsVariableUl.createEl('li');
+
+	        desiredAnnotationsVariableItem.createEl('span', {
+	        	cls: 'text-monospace',
+	        	text: key,
+	      	});
+
+	        desiredAnnotationsVariableItem.createEl('span', {
+	            text: description ? ` — ${description}` : '',
+	        });
+	    });
+
+    new Setting(containerEl)
+      .setName('The following types of annotations should be extracted:')
+      .addTextArea((input) => {
+        input.inputEl.style.width = '100%';
+        input.inputEl.style.height = '10em';
+        this.buildValueInput(input, 'desiredAnnotations');
+      });
 
 		containerEl.createEl('h3', { text: 'Template settings' });
 		const templateInstructionsEl = containerEl.createEl('p');

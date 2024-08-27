@@ -17,7 +17,7 @@ import convert from 'color-convert';    // For color conversion
 // Local modules
 import { loadPDFFile } from 'src/extractHighlight';
 import { saveDataToFile } from 'src/saveToFile';
-import { PDFAnnotationPluginSetting, PDFAnnotationPluginSettingTab } from 'src/settings';
+import { ANNOTS_TREATED_AS_HIGHLIGHTS, PDFAnnotationPluginSetting, PDFAnnotationPluginSettingTab } from 'src/settings';
 import { IIndexable, PDFFile } from 'src/types';
 
 
@@ -337,7 +337,7 @@ mindmap-plugin: basic
         }
 
 
-		grandtotal.forEach((a) => {
+		grandtotal.forEach((anno) => {
             // PROCESS EACH ANNOTATION
 
 			// print main Title when Topic changes (and settings allow)
@@ -345,8 +345,8 @@ mindmap-plugin: basic
 				// ➡️ Structuring headlines will be shown
 
 				if (this.settings.sortByTopic) {
-					if (topic != a.topic) {
-						topic = a.topic
+					if (topic != anno.topic) {
+						topic = anno.topic
                     currentFileName = ''
                     text += `\n# ${topic}\n`;
 					}
@@ -354,11 +354,11 @@ mindmap-plugin: basic
 
 				// ➡️ NEW FILE ?
 				if (this.settings.useFolderNames) {
-	                if (currentFileName != a.folder) {
+	                if (currentFileName != anno.folder) {
 						new_file = true;
 					}
 				} else {
-	                if (currentFileName != a.file.name) {
+	                if (currentFileName != anno.file.name) {
 						new_file = true
 					}
 				}
@@ -367,8 +367,8 @@ mindmap-plugin: basic
 					// Print annotations
 					if(!first_time) {
 						// Add preamble and annotations
-						text += this.buildPreamble(a.file.name, i_isForObsMindmap, i_isForExtMindmap);
-						text += this.buildAnnotations(i_isForObsMindmap, i_isForExtMindmap, a.file.name, text_cd, text_dt)
+						text += this.buildPreamble(anno.file.name, i_isForObsMindmap, i_isForExtMindmap);
+						text += this.buildAnnotations(i_isForObsMindmap, i_isForExtMindmap, anno.file.name, text_cd, text_dt)
 						// Reset detailed-/condensed-text variables
 						text_cd = "";
 						text_dt = "";
@@ -376,14 +376,14 @@ mindmap-plugin: basic
 					else{// 1st file
 						first_time = false;
 						// Replace file name
-						text = text.replace('{fileName}', a.file.name);
+						text = text.replace('{fileName}', anno.file.name);
 					}
 
 					// Update file name
 					if (this.settings.useFolderNames) {
-						currentFileName = a.folder;
+						currentFileName = anno.folder;
 					} else {
-						currentFileName = a.file.name;
+						currentFileName = anno.file.name;
 					}
 
 					new_file = false;
@@ -392,10 +392,10 @@ mindmap-plugin: basic
 
 
 			// ➡️ PAGE NB: Add page number if needed
-			if ((l_pageNumber != a.pageNumber) && (i_isForObsMindmap == false) && (i_isForExtMindmap == false))
+			if ((l_pageNumber != anno.pageNumber) && (i_isForObsMindmap == false) && (i_isForExtMindmap == false))
 			{// Annotations on a different page
-				text_dt += "\n#### Page " + a.pageNumber + "\n";
-				l_pageNumber = a.pageNumber;
+				text_dt += "\n#### Page " + anno.pageNumber + "\n";
+				l_pageNumber = anno.pageNumber;
 				// In case of a page change, do not add a line before a level 1 title
 				l_title_lvl1 = title_lvl1;
 			}
@@ -403,14 +403,18 @@ mindmap-plugin: basic
 
 
 			// ➡️ COLORS: Set variables depending on color
+			l_annoToReport = true;
 				// Get current annotation's color hue & lumi
-			let annotColor    = convert.rgb.hsl(a.color);
+			let annotColor: [number, number, number] = [-1, -1, -1]
+			if(anno.color != null) {
+				annotColor = convert.rgb.hsl(anno.color);
+			}
+			// else: Cannot get annotation's color: use the impossible color
 			let annotColorHue = annotColor[0];
 			let annotColorLum = annotColor[2];
 			l_note_sfx        = ""
 
 				// Test if current annotation color is recognized
-			l_annoToReport = true;
 			if( (Math.abs((100*(annotColorHue-color_lvl1Hue))/color_maxHue) <= this.settings.hueTol)  &&
 				(Math.abs((100*(annotColorLum-color_lvl1Lum))/color_maxLum) <= this.settings.LumiTol) )
 			{// Color for LEVEL 1
@@ -422,7 +426,7 @@ mindmap-plugin: basic
 				{   l_levelIcon = lvl1_icon; }
 				else {
 					l_levelIcon = ext_lvl1_icon;
-					l_note_sfx  = " (p." + a.pageNumber + ")";
+					l_note_sfx  = " (p." + anno.pageNumber + ")";
 				}
 			}
 			else if( (Math.abs((100*(annotColorHue-color_lvl2Hue))/color_maxHue) <= this.settings.hueTol)  &&
@@ -499,17 +503,19 @@ mindmap-plugin: basic
 			// ➡️ ANNOTATION: Add current annotation to detailed/condensed strings
 			if (l_annoToReport) {// Annotation to report
 				let l_details = "";
-				if (a.subtype == 'Text') {  // ▶️ Annotation: Note
+					// ▶️ Annotation: Highlight or underline
+				if (ANNOTS_TREATED_AS_HIGHLIGHTS.includes(anno.subtype)) {
 					if (isExternalFile) {
-						l_details = this.getContentForNoteFromExternalPDF(a)
+						l_details = this.getContentForHighlightFromExternalPDF(anno)
 					} else {
-						l_details = this.getContentForNoteFromInternalPDF(a)
+						l_details = this.getContentForHighlightFromInternalPDF(anno)
 					}
-				} else {                    // ▶️ Annotation: Highlight or underline
+				} else {
+					// ▶️ Annotation: Note
 					if (isExternalFile) {
-						l_details = this.getContentForHighlightFromExternalPDF(a)
+						l_details = this.getContentForNoteFromExternalPDF(anno)
 					} else {
-						l_details = this.getContentForHighlightFromInternalPDF(a)
+						l_details = this.getContentForNoteFromInternalPDF(anno)
 					}
 				}
 
@@ -576,28 +582,28 @@ mindmap-plugin: basic
 					else
 					{   text_cd += '\n'+title_lvl1; }
 
-					// Highlight, and not text(=Note)
-					if (a.subtype != 'Text')
+					// Not text(=Note)
+					if (anno.subtype != 'Text')
 					{   l_levelFormat = ""; }
 				}
 				else {// ▶️ Not level 1
 					if ((i_isForObsMindmap == false) && (i_isForExtMindmap == false))
 					{   text_dt += "> "; }
 
-					/*if (a.subtype == 'Text')    // Note
+					/*if (anno.subtype == 'Text')    // Note
 					{   text_cd += "- "; }
-					else                        // Highlight, and not text(=Note)*/
+					else                        // Not text(=Note)*/
 					{   text_cd += l_levelPrefix; }
 				}
 
-                if (a.subtype == 'Text') {  // ▶️ Note
+                if (anno.subtype == 'Text') {  // ▶️ Note
                     if ((i_isForObsMindmap == false) && (i_isForExtMindmap == false))
                     {   text_dt += l_levelFormat + note_preamb + note_format + l_levelIcon + l_details + note_format + l_levelFormat + l_note_sfx + "\n"; }
                     if((i_isForExtMindmap == false))
                     {   text_cd += l_levelFormat + note_preamb + note_format + l_levelIcon + l_details + note_format + l_levelFormat + l_note_sfx + "\n";}
                     else
                     {   text_cd += note_preamb + l_levelIcon + l_details + l_note_sfx + "\n";}
-                } else {                    // ▶️ Annotation: Highlight or underline
+                } else {                    // ▶️ Annotation: Highlight, Underline, Squiggly or Free text
                     if (i_isForObsMindmap == false)
                     {   text_dt += l_levelIcon + l_levelFormat + l_details + l_levelFormat + l_note_sfx + "\n"; }
                     if((i_isForExtMindmap == false))
@@ -626,9 +632,10 @@ mindmap-plugin: basic
 		const pdfjsLib = await loadPdfJs()
 		const containingFolder = file.parent.name;
 		const grandtotal = [] // array that will contain all fetched Annotations
+		const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
 		console.log('loading from file ', file)
 		const content = await this.app.vault.readBinary(file)
-		const pages = await loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, containingFolder, grandtotal)
+		const pages = await loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, containingFolder, grandtotal, desiredAnnotations)
 		this.sort(grandtotal)
 
         // Get file name
@@ -789,7 +796,8 @@ mindmap-plugin: basic
 				const encodedFilePath = encodeURI('file://' + filePathWithoutQuotes)
 				const file: PDFFile = new PDFFile(fileName, binaryContent, extension, encodedFilePath);
 				const containingFolder = filePathWithSlashs.slice(0, filePathWithSlashs.lastIndexOf('/'));
-				pages = await loadPDFFile(file, this.settings.page_min, this.settings.page_max, pdfjsLib, containingFolder, grandtotal)
+				const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
+				pages = await loadPDFFile(file, this.settings.page_min, this.settings.page_max, pdfjsLib, containingFolder, grandtotal, desiredAnnotations)
 			} else {
 				console.log('Data in clipboard is no file.');
 			}
@@ -880,6 +888,7 @@ mindmap-plugin: basic
 				// editor.replaceSelection('Extracting PDF Comments from ' + folder.name + '\n')
 
 				const promises = [] // when all Promises will be resolved.
+				const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
 
 				Vault.recurseChildren(folder, async (file) => {
 					// visit all Childern of parent folder of current active File
@@ -887,7 +896,7 @@ mindmap-plugin: basic
 						if (file.extension === 'pdf') {
                             promises.push(
                             	this.app.vault.readBinary(file).then((content) =>
-                            		loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, file.parent.name, grandtotal))
+									loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, file.parent.name, grandtotal, desiredAnnotations))
 							)
 						}
 					}
@@ -919,6 +928,7 @@ mindmap-plugin: basic
 				// editor.replaceSelection('Extracting PDF Comments from ' + folder.name + '\n')
 
                 const promises = [] // when all Promises will be resolved.
+				const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
 
                 Vault.recurseChildren(folder, async (file) => {
                     // visit all Childern of parent folder of current active File
@@ -926,7 +936,7 @@ mindmap-plugin: basic
                         if (file.extension === 'pdf') {
                             promises.push(
                             	this.app.vault.readBinary(file).then((content) =>
-                            		loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, file.parent.name, grandtotal))
+                            		loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, file.parent.name, grandtotal, desiredAnnotations))
 							)
                         }
                     }
@@ -953,6 +963,7 @@ mindmap-plugin: basic
 				// editor.replaceSelection('Extracting PDF Comments from ' + folder.name + '\n')
 
                 const promises = [] // when all Promises will be resolved.
+				const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
 
                 Vault.recurseChildren(folder, async (file) => {
                     // visit all Childern of parent folder of current active File
@@ -960,7 +971,7 @@ mindmap-plugin: basic
 						if (file.extension === 'pdf') {
                             promises.push(
                             	this.app.vault.readBinary(file).then((content) =>
-                            		loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, file.parent.name, grandtotal))
+                            		loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, file.parent.name, grandtotal, desiredAnnotations))
 							)
 						}
 					}
@@ -987,6 +998,7 @@ mindmap-plugin: basic
 				// editor.replaceSelection('Extracting PDF Comments from ' + folder.name + '\n')
 
                 const promises = [] // when all Promises will be resolved.
+				const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
 
                 Vault.recurseChildren(folder, async (file) => {
                     // visit all Childern of parent folder of current active File
@@ -994,7 +1006,7 @@ mindmap-plugin: basic
                         if (file.extension === 'pdf') {
                             promises.push(
                             	this.app.vault.readBinary(file).then((content) =>
-                            		loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, file.parent.name, grandtotal))
+                            		loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, file.parent.name, grandtotal, desiredAnnotations))
 							)
                         }
                     }
@@ -1023,6 +1035,7 @@ mindmap-plugin: basic
 				// editor.replaceSelection('Extracting PDF Comments from ' + folder.name + '\n')
 
                 const promises = [] // when all Promises will be resolved.
+				const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
 
                 Vault.recurseChildren(folder, async (file) => {
                     // visit all Childern of parent folder of current active File
@@ -1030,7 +1043,7 @@ mindmap-plugin: basic
                         if (file.extension === 'pdf') {
                             promises.push(
                             	this.app.vault.readBinary(file).then((content) =>
-                            		loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, file.parent.name, grandtotal))
+                            		loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, file.parent.name, grandtotal, desiredAnnotations))
 							)
                         }
                     }
@@ -1055,6 +1068,7 @@ mindmap-plugin: basic
 					'useStructuringHeadlines',
 					'useFolderNames',
 					'sortByTopic',
+					'desiredAnnotations',
 					'noteTemplateExternalPDFs',
 					'noteTemplateInternalPDFs',
 					'highlightTemplateExternalPDFs',
@@ -1107,6 +1121,9 @@ mindmap-plugin: basic
 						(this.settings as IIndexable)[setting] = loadedSettings[setting];
 					}
 				});
+				this.settings.parsedSettings = {
+					desiredAnnotations: this.settings.parseCommaSeparatedStringToArray(this.settings.desiredAnnotations)
+				};
 			}
 		})();
 	}

@@ -1,7 +1,7 @@
 import { PDFFile } from 'src/types';
+import { ANNOTS_TREATED_AS_HIGHLIGHTS } from './settings';
 
 
-const SUPPORTED_ANNOTS = ['Text', 'Highlight', 'Underline'];
 const COEFF_CRCT_LOW = 0;
 const COEFF_CRCT_HIGH = 2;
 
@@ -20,7 +20,8 @@ function searchQuad(minx: number, maxx: number, miny: number, maxy: number, item
 		} else {                                          // else, calculate proporation end to get the expected length
         const lenc = Math.floor(x.str.length * (maxx - x.transform[4]) / x.width) - start
 			return txt + x.str.substr(start, lenc)
-      }}, '')
+		}
+	}, '')
 	return mycontent.trim()
 }
 
@@ -47,14 +48,14 @@ export function extractHighlight(annot: any, items: any) {
 
 
 // load the PDFpage, then get all Annotations
-// we look only at SUPPORTED_ANNOTS (Text, Underline, Highlight)
-// if its a underline or highlight, extract Highlight of the Annotation
+// we look only at desiredAnnotations from the user's settings
+// if its a underline, squiggle or highlight, extract Highlight of the Annotation
 // accumulate all annotations in the array total
-async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: string, total: object[]) {
+async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: string, total: object[], desiredAnnotations: string[]) {
 	let annotations = await page.getAnnotations()
 
 	annotations = annotations.filter(function (anno) {
-		return SUPPORTED_ANNOTS.indexOf(anno.subtype) >= 0;
+		return desiredAnnotations.indexOf(anno.subtype) >= 0;
 	});
 
 	const content: TextContent = await page.getTextContent({ normalizeWhitespace: true })
@@ -70,7 +71,7 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
 
 
 	annotations.map(async function (anno) {
-		if (anno.subtype == 'Highlight' || anno.subtype == 'Underline') {
+		if (ANNOTS_TREATED_AS_HIGHLIGHTS.includes(anno.subtype)) {
 			anno.highlightedText = extractHighlight(anno, content.items)
 		}
 		anno.folder = containingFolder
@@ -88,7 +89,7 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
 }
 
 
-export async function loadPDFFile(file: PDFFile, page_min: number, page_max: number, pdfjsLib, containingFolder: string, total: object[]) {
+export async function loadPDFFile(file: PDFFile, page_min: number, page_max: number, pdfjsLib, containingFolder: string, total: object[], desiredAnnotations: string[]) {
 	const pdf: PDFDocumentProxy = await pdfjsLib.getDocument(file.content).promise
 
 	  	// Set first and last page to load annotations
@@ -99,7 +100,7 @@ export async function loadPDFFile(file: PDFFile, page_min: number, page_max: num
 
 		for (let i = page_min_ok; i <= page_max_ok; i++) {
 		const page = await pdf.getPage(i)
-		await loadPage(page, i, file, containingFolder, total)
+		await loadPage(page, i, file, containingFolder, total, desiredAnnotations)
 	}
 
 	if ((page_min == 0) && (page_max == 0)) {
