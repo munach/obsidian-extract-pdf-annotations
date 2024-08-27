@@ -367,8 +367,8 @@ mindmap-plugin: basic
 					// Print annotations
 					if(!first_time) {
 						// Add preamble and annotations
-						text += this.buildPreamble(currentFileName, i_isForObsMindmap, i_isForExtMindmap);
-						text += this.buildAnnotations(i_isForObsMindmap, i_isForExtMindmap, currentFileName, text_cd, text_dt)
+						text += this.buildPreamble(a.file.name, i_isForObsMindmap, i_isForExtMindmap);
+						text += this.buildAnnotations(i_isForObsMindmap, i_isForExtMindmap, a.file.name, text_cd, text_dt)
 						// Reset detailed-/condensed-text variables
 						text_cd = "";
 						text_dt = "";
@@ -376,7 +376,7 @@ mindmap-plugin: basic
 					else{// 1st file
 						first_time = false;
 						// Replace file name
-						text.replace('{fileName}', currentFileName);
+						text = text.replace('{fileName}', a.file.name);
 					}
 
 					// Update file name
@@ -692,10 +692,18 @@ mindmap-plugin: basic
 		this.sort(grandtotal)
 
 		// Get input file name
-			// Find the last occurrence of "/"
-		let lastSlashIndex = clipText.lastIndexOf("/");
-			// Extract the part after the last "/"
-		const fileName = clipText.substring(lastSlashIndex + 1);
+			// Find the last occurrence of "/" or "\"
+		let lastSlashIndex_1 = clipText.lastIndexOf("/");
+		let lastSlashIndex_2 = clipText.lastIndexOf("\\");
+		let lastSlashIndex = Math.max(lastSlashIndex_1, lastSlashIndex_2);
+			// Extract the part after the last "/" or "\"
+		let fileName = clipText.substring(lastSlashIndex + 1);
+		// Remove all extra double quotes
+		fileName = fileName.replace(/"/g, '');
+		if (fileName.endsWith(".pdf")) {
+			// Remove the extension in name
+			fileName = fileName.slice(0, -4);
+		}
 
         // Set output file name
 		let filePath = ""
@@ -717,7 +725,7 @@ mindmap-plugin: basic
 		// Add page number in file name in case part of the PDF is loaded
 		if (pages[0] != 0) {
 			// Only part of the PDF is loaded
-			filePath += `p ${pages[0]}-${pages[1]}`;
+			filePath += `, p ${pages[0]}-${pages[1]}`;
 		}
 
         // First file: detailed & condensed versions
@@ -821,7 +829,7 @@ mindmap-plugin: basic
 		// Command when the PDF path is in the clipboard
 		this.addCommand({
 			id: 'extract-annotations-single-from-clipboard-path',
-			name: 'Extract PDF Annotations: On single file from path in clipboard',
+			name: 'Extract PDF Annotations: On single file from path in clipboard 📋',
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				// The following is executed when calling from a .md file
 				let clipText = ""
@@ -833,6 +841,7 @@ mindmap-plugin: basic
 				try {
 					if(clipText != "") {
 						// Check that the clipboard indeed contains a pdf file
+						//  => Do not check in case of "extension masked" option in File explorer
 						// const extIndex = clipText.lastIndexOf(".");
 						// const extName = clipText.substring(extIndex + 1);
 						// if(extName.toLowerCase() === '.pdf') {
@@ -843,10 +852,11 @@ mindmap-plugin: basic
 						// else {
 						// 	console.log("Extract PDF: Not a pdf file in the clipboard");
 						// }
-						// Do not check in case of "extension masked" option in File explorer
-						const {pages, grandtotal} = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
-						this.sort(grandtotal)
-						editor.replaceSelection(this.format(grandtotal, false, false, true, true, false))
+						// const {pages, grandtotal} = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
+						// this.sort(grandtotal)
+						// editor.replaceSelection(this.format(grandtotal, false, false, true, true, false))
+
+						this.loadSinglePDFFileClipboard(clipText);
 					}
 				} catch (error) {
 					console.error("Extract PDF: Failed to process the PDF:", error);

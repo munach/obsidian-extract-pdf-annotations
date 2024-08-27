@@ -18,13 +18,25 @@ export class PDFAnnotationPluginSetting {
 	public useStructuringHeadlines: boolean;
 	public useFolderNames: boolean;
 	public sortByTopic: boolean;
+    // Page between which the plugin will be enabled
+    public page_min: number;
+    public page_max: number;
+    // Mindmaps
+    public mm_fl_tog: boolean;
+    public mm_fl_suf: string;
+    public mm_preamb: boolean;
+    public mm_es_tog: boolean;
+    public mm_es_suf: string;
+    // External mindmaps
+    public ext_fl_tog: boolean;
+    public ext_fl_suf: string;
+    public ext_es_tog: boolean;
+    public ext_es_suf: string;
+    // Template
 	public noteTemplateExternalPDFs: string;
 	public noteTemplateInternalPDFs: string;
 	public highlightTemplateExternalPDFs: string;
 	public highlightTemplateInternalPDFs: string;
-    // Page between which the plugin will be enabled
-    public page_min: number;
-    public page_max: number;
     // Colors
     public level1RGB: number[];
     public level2RGB: number[];
@@ -60,22 +72,22 @@ export class PDFAnnotationPluginSetting {
     public conds_prb: string;
     public detal_prb: string;
     public no_an_prb: string;
-    // Mindmaps
-    public mm_preamb: boolean;
-    public mm_fl_tog: boolean;
-    public mm_fl_suf: string;
-    public mm_es_tog: boolean;
-    public mm_es_suf: string;
-    // External mindmaps
-    public ext_fl_tog: boolean;
-    public ext_fl_suf: string;
-    public ext_es_tog: boolean;
-    public ext_es_suf: string;
 
 	constructor() {
 		this.useStructuringHeadlines = true;
-		this.useFolderNames = true;
-		this.sortByTopic = true;
+		this.useFolderNames = false;
+		this.sortByTopic = false;
+        this.page_min = 0;
+        this.page_max = 0;
+        this.mm_fl_tog = true;
+        this.mm_fl_suf = "(mm)";
+        this.mm_preamb = true;
+        this.mm_es_tog = false;
+        this.mm_es_suf = "(mm essential)";
+        this.ext_fl_tog= false,
+        this.ext_fl_suf= "(ext mm)",
+        this.ext_es_tog= false,
+        this.ext_es_suf= "(ext mm essential)"
 		this.noteTemplateExternalPDFs =
 			'{{body_highlightedText}}';
 		this.noteTemplateInternalPDFs =
@@ -84,8 +96,6 @@ export class PDFAnnotationPluginSetting {
 			'{{body_highlightedText}}';
 		this.highlightTemplateInternalPDFs =
 			'{{body_highlightedText}}';
-        this.page_min = 0;
-        this.page_max = 0;
         this.level1RGB = [255, 173, 91];
         this.level2RGB = [255, 255, 0];
         this.level3RGB = [209, 223, 235];
@@ -114,7 +124,7 @@ export class PDFAnnotationPluginSetting {
         // Other emojis: ⚫⚪🟣🟤❔
         this.begin_prb = `---
 MOC: []
-Source: [[{fileName}]]
+Source: \"[[{fileName}]]\"
 Projets:
 Notes liées:
 Date: \" {dateTime}\"
@@ -144,15 +154,6 @@ style:nestedOrderedList
         this.conds_prb = "### Format condensé";
         this.detal_prb = "### Format détaillé";
         this.no_an_prb = "- **Aucune annotation**";
-        this.mm_preamb = true;
-        this.mm_fl_tog = true;
-        this.mm_fl_suf = "(mm)";
-        this.mm_es_tog = false;
-        this.mm_es_suf = "(mm essential)";
-        this.ext_fl_tog = false;
-        this.ext_fl_suf = "(ext mm)";
-        this.ext_es_tog = false;
-        this.ext_es_suf = "(ext mm essential)";
 	}
 }
 
@@ -235,6 +236,155 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 				}),
 			);
 
+
+        // PAGES between which the plugin will be enabled
+		containerEl.createEl('h3', { text: 'Pages to extract' });
+        // PAGE min:
+        new Setting(containerEl)
+            .setName('1st page')
+            .setDesc('First page to extract annotations from. \nDefault: 0 (i.e. first page)')
+            .addText(text => text
+                .setValue(this.plugin.settings.page_min.toString())
+                .onChange(async (value) => {
+                    this.plugin.settings.page_min = parseInt(value);
+                    await this.plugin.saveData(this.plugin.settings);
+                }),
+            );
+
+        // PAGE max:
+        new Setting(containerEl)
+            .setName('Last page')
+            .setDesc('Last page to extract annotations up to. \nDefault: 0 (i.e. last page)')
+            .addText(text => text
+                .setValue(this.plugin.settings.page_max.toString())
+                .onChange(async (value) => {
+                    this.plugin.settings.page_max = parseInt(value);
+                    await this.plugin.saveData(this.plugin.settings);
+                }),
+            );
+
+
+        // MINDMAPS
+        containerEl.createEl('h3', { text: 'Mindmaps to generate' });
+        // Full Obsidian mindmap toggle
+        new Setting(containerEl)
+            .setName('From PDF: Generate full Obsidian mindmap')
+            .setDesc('If enabled, generate the full mindmap for Obsidian when calling the plugin from a PDF file',)
+            .addToggle((toggle) =>
+                toggle.setValue(this.plugin.settings.mm_fl_tog).onChange((value) => {
+                    this.plugin.settings.mm_fl_tog = value;
+                    this.plugin.saveData(this.plugin.settings);
+
+                }),
+            );
+
+
+        // Full Obsidian mindmap file's suffixe
+        new Setting(containerEl)
+            .setName('File suffixes: Full Obsidian mindmap')
+            .setDesc('File\'s suffixe for the Obsidian mindmap file.\nDefault: (mm)')
+            .addText(text => text
+                .setValue(this.plugin.settings.mm_fl_suf)
+                .onChange(async (value) => {
+                    this.plugin.settings.mm_fl_suf = value;
+                    await this.plugin.saveData(this.plugin.settings);
+                }),
+            );
+
+
+        // Mindmap preamble
+        new Setting(containerEl)
+            .setName('Obsidian mindmap: Add a level')
+            .setDesc('If enabled, add a level containing all nodes to save space',)
+            .addToggle((toggle) =>
+                toggle.setValue(this.plugin.settings.mm_preamb).onChange((value) => {
+                    this.plugin.settings.mm_preamb = value;
+                    this.plugin.saveData(this.plugin.settings);
+
+                }),
+            );
+
+
+        // Essential mindmap toggle
+        new Setting(containerEl)
+            .setName('From PDF: Generate essentials Obsidian mindmap')
+            .setDesc('If enabled, generate the Obsidian mindmap with essentials (special levels) annotations when calling the plugin from a PDF file',)
+            .addToggle((toggle) =>
+                toggle.setValue(this.plugin.settings.mm_es_tog).onChange((value) => {
+                    this.plugin.settings.mm_es_tog = value;
+                    this.plugin.saveData(this.plugin.settings);
+
+                }),
+            );
+
+
+        // Mindmap of essentials file's suffixe
+        new Setting(containerEl)
+            .setName('File suffixes: Obsidian Mindmap of essentials')
+            .setDesc('File\'s suffixe for the Obsidian mindmap with only essentials (special levels) annotations.\nDefault: (mm essential)')
+            .addText(text => text
+                .setValue(this.plugin.settings.mm_es_suf)
+                .onChange(async (value) => {
+                    this.plugin.settings.mm_es_suf = value;
+                    await this.plugin.saveData(this.plugin.settings);
+                }),
+            );
+
+
+
+        // EXTERNAL MINDMAPS
+        // Full external-mindmap toggle
+        new Setting(containerEl)
+            .setName('From PDF: Generate full file for external mindmap')
+            .setDesc('If enabled, generate the full file for external mindmap when calling the plugin from a PDF file',)
+            .addToggle((toggle) =>
+                toggle.setValue(this.plugin.settings.ext_fl_tog).onChange((value) => {
+                    this.plugin.settings.ext_fl_tog = value;
+                    this.plugin.saveData(this.plugin.settings);
+
+                }),
+            );
+
+
+        // Full external-mindmap file's suffixe
+        new Setting(containerEl)
+            .setName('File suffixes: Full external-mindmap')
+            .setDesc('File\'s suffixe for the external-mindmap file.\nDefault: (ext mm)')
+            .addText(text => text
+                .setValue(this.plugin.settings.ext_fl_suf)
+                .onChange(async (value) => {
+                    this.plugin.settings.ext_fl_suf = value;
+                    await this.plugin.saveData(this.plugin.settings);
+                }),
+            );
+
+
+        // Essential external mindmap toggle
+        new Setting(containerEl)
+            .setName('From PDF: Generate essentials file for external mindmap')
+            .setDesc('If enabled, generate the file for external mindmap with essentials (special levels) annotations when calling the plugin from a PDF file',)
+            .addToggle((toggle) =>
+                toggle.setValue(this.plugin.settings.ext_es_tog).onChange((value) => {
+                    this.plugin.settings.ext_es_tog = value;
+                    this.plugin.saveData(this.plugin.settings);
+
+                }),
+            );
+
+
+        // Mindmap of essentials file's suffixe
+        new Setting(containerEl)
+            .setName('File suffixes: File for external mindmap of essentials')
+            .setDesc('File\'s suffixe for the external-mindmap with only essentials (special levels) annotations.\nDefault: (ext mm essential)')
+            .addText(text => text
+                .setValue(this.plugin.settings.ext_es_suf)
+                .onChange(async (value) => {
+                    this.plugin.settings.ext_es_suf = value;
+                    await this.plugin.saveData(this.plugin.settings);
+                }),
+            );
+
+
 		containerEl.createEl('h3', { text: 'Template settings' });
 		const templateInstructionsEl = containerEl.createEl('p');
 		templateInstructionsEl.append(
@@ -306,32 +456,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 
 
 		containerEl.createEl('h3', { text: 'PDF annotations extraction settings' });
-        // PAGES between which the plugin will be enabled
-        // PAGE min:
-        new Setting(containerEl)
-            .setName('1st page')
-            .setDesc('First page to extract annotations from. \nDefault: 0 (i.e. first page)')
-            .addText(text => text
-                .setValue(this.plugin.settings.page_min.toString())
-                .onChange(async (value) => {
-                    this.plugin.settings.page_min = parseInt(value);
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-        // PAGE max:
-        new Setting(containerEl)
-            .setName('Last page')
-            .setDesc('Last page to extract annotations up to. \nDefault: 0 (i.e. last page)')
-            .addText(text => text
-                .setValue(this.plugin.settings.page_max.toString())
-                .onChange(async (value) => {
-                    this.plugin.settings.page_max = parseInt(value);
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
+		containerEl.createEl('h4', { text: 'LEVELS: Colors and tolerances' });
         // LEVELS: RGB VALUES, HUE TOLERANCE, LUMI TOLERANCE
         // LEVEL 1: Color
         new Setting(containerEl)
@@ -425,6 +550,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 
 
         // FORMATS
+		containerEl.createEl('h4', { text: 'LEVELS: Formatting' });
         // Level 1
         new Setting(containerEl)
             .setName('Format: Level 1')
@@ -517,6 +643,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 
 
         // ICONS
+		containerEl.createEl('h4', { text: 'LEVELS: Icons' });
         // Level 1
         new Setting(containerEl)
             .setName('Icons: Level 1')
@@ -661,6 +788,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 
 
         // PREAMBLES
+		containerEl.createEl('h4', { text: 'FILES: Preambles' });
         // File's beginning
         new Setting(containerEl)
             .setName('Preambles: File beginning')
@@ -691,6 +819,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
             });
 
 
+        containerEl.createEl('h4', { text: 'TITLES: Preambles' });
         // Manual personal annotations preamble
         new Setting(containerEl)
             .setName('Preambles: Manual personal annotations')
@@ -735,130 +864,9 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
             .setName('Preambles: No annotation')
             .setDesc('Preamble in case there is no annotation.\nDefault: - **Aucune annotation**')
             .addText(text => text
-                .setValue(this.plugin.settings.conds_prb)
+                .setValue(this.plugin.settings.no_an_prb)
                 .onChange(async (value) => {
-                    this.plugin.settings.conds_prb = value;
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
-
-        // MINDMAPS
-        // Full Obsidian mindmap toggle
-        new Setting(containerEl)
-            .setName('From PDF: Generate full Obsidian mindmap')
-            .setDesc('If enabled, generate the full mindmap for Obsidian when calling the plugin from a PDF file',)
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.mm_fl_tog).onChange((value) => {
-                    this.plugin.settings.mm_fl_tog = value;
-                    this.plugin.saveData(this.plugin.settings);
-
-                }),
-            );
-
-
-        // Full Obsidian mindmap file's suffixe
-        new Setting(containerEl)
-            .setName('File suffixes: Full Obsidian mindmap')
-            .setDesc('File\'s suffixe for the Obsidian mindmap file.\nDefault: (mm)')
-            .addText(text => text
-                .setValue(this.plugin.settings.mm_fl_suf)
-                .onChange(async (value) => {
-                    this.plugin.settings.mm_fl_suf = value;
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
-        // Mindmap preamble
-        new Setting(containerEl)
-            .setName('Obsidian mindmap: Add a level')
-            .setDesc('If enabled, add a level containing all nodes to save space',)
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.mm_preamb).onChange((value) => {
-                    this.plugin.settings.mm_preamb = value;
-                    this.plugin.saveData(this.plugin.settings);
-
-                }),
-            );
-
-
-        // Essential mindmap toggle
-        new Setting(containerEl)
-            .setName('From PDF: Generate essentials Obsidian mindmap')
-            .setDesc('If enabled, generate the Obsidian mindmap with essentials (special levels) annotations when calling the plugin from a PDF file',)
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.mm_es_tog).onChange((value) => {
-                    this.plugin.settings.mm_es_tog = value;
-                    this.plugin.saveData(this.plugin.settings);
-
-                }),
-            );
-
-
-        // Mindmap of essentials file's suffixe
-        new Setting(containerEl)
-            .setName('File suffixes: Obsidian Mindmap of essentials')
-            .setDesc('File\'s suffixe for the Obsidian mindmap with only essentials (special levels) annotations.\nDefault: (mm essential)')
-            .addText(text => text
-                .setValue(this.plugin.settings.mm_es_suf)
-                .onChange(async (value) => {
-                    this.plugin.settings.mm_es_suf = value;
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
-
-        // EXTERNAL MINDMAPS
-        // Full external-mindmap toggle
-        new Setting(containerEl)
-            .setName('From PDF: Generate full file for external mindmap')
-            .setDesc('If enabled, generate the full file for external mindmap when calling the plugin from a PDF file',)
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.ext_fl_tog).onChange((value) => {
-                    this.plugin.settings.ext_fl_tog = value;
-                    this.plugin.saveData(this.plugin.settings);
-
-                }),
-            );
-
-
-        // Full external-mindmap file's suffixe
-        new Setting(containerEl)
-            .setName('File suffixes: Full external-mindmap')
-            .setDesc('File\'s suffixe for the external-mindmap file.\nDefault: (ext mm)')
-            .addText(text => text
-                .setValue(this.plugin.settings.ext_fl_suf)
-                .onChange(async (value) => {
-                    this.plugin.settings.ext_fl_suf = value;
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
-        // Essential external mindmap toggle
-        new Setting(containerEl)
-            .setName('From PDF: Generate essentials file for external mindmap')
-            .setDesc('If enabled, generate the file for external mindmap with essentials (special levels) annotations when calling the plugin from a PDF file',)
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.ext_es_tog).onChange((value) => {
-                    this.plugin.settings.ext_es_tog = value;
-                    this.plugin.saveData(this.plugin.settings);
-
-                }),
-            );
-
-
-        // Mindmap of essentials file's suffixe
-        new Setting(containerEl)
-            .setName('File suffixes: File for external mindmap of essentials')
-            .setDesc('File\'s suffixe for the external-mindmap with only essentials (special levels) annotations.\nDefault: (ext mm essential)')
-            .addText(text => text
-                .setValue(this.plugin.settings.ext_es_suf)
-                .onChange(async (value) => {
-                    this.plugin.settings.ext_es_suf = value;
+                    this.plugin.settings.no_an_prb = value;
                     await this.plugin.saveData(this.plugin.settings);
                 }),
             );
