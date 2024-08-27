@@ -105,16 +105,16 @@ export class PDFAnnotationPluginSetting {
         this.ext_es_suf= "(ext mm essential)"
         this.desiredAnnotations = "Text, Highlight, Underline";
         this.parsedSettings = {
-          desiredAnnotations: this.parseCommaSeparatedStringToArray(this.desiredAnnotations)
+            desiredAnnotations: this.parseCommaSeparatedStringToArray(this.desiredAnnotations)
         };
         this.noteTemplateExternalPDFs =
-            '{{body_highlightedText}}';
+            '{{body_highlightedText}} noted by {{author}} at page {{pageNumber}} on {{filepath}}';
         this.noteTemplateInternalPDFs =
-            '{{body_highlightedText}}';
+            '{{body_highlightedText}} noted by {{author}} at page {{pageNumber}} on [[{{filepath}}]]';
         this.highlightTemplateExternalPDFs =
-            '{{body_highlightedText}}';
+            '{{highlightedText}} // {{body}} highlighted by {{author}} at page {{pageNumber}} on {{filepath}}';
         this.highlightTemplateInternalPDFs =
-            '{{body_highlightedText}}';
+            '{{highlightedText}} // {{body}} highlighted by {{author}} at page {{pageNumber}} on [[{{filepath}}]]';
         this.level1RGB = [255, 173, 91];
         this.level2RGB = [255, 255, 0];
         this.level3RGB = [209, 223, 235];
@@ -157,10 +157,10 @@ tags:
 - [[{fileName}]]
 
 ### *Liens*
-- 
+-
 
 ### *Concepts clés / Synthèse*
-- 
+-
 
 ---
 \`\`\`table-of-contents
