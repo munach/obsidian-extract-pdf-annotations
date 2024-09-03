@@ -25,7 +25,7 @@ import { IIndexable, PDFFile } from 'src/types';
 // Formatting
 const title_lvl1 = "##### ";
 const lvl2_prefix = "- ";
-const lvl3_prefix = "   - ";
+const lvl3_prefix = "\t- ";
 const sumr_prefix = "- ";
 const impt_prefix = "- ";
 
@@ -901,10 +901,6 @@ mindmap-plugin: basic
                         }
                     }
                 })
-
-
-                // TODO: Problem, only the last one is processed !
-
 
                 await Promise.all(promises)
                 this.sort(grandtotal)
