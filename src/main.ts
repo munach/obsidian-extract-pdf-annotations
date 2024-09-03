@@ -538,23 +538,33 @@ mindmap-plugin: basic
                     if( (l_details.includes('\r\n'))    ||
                         (l_details.includes('\n\r'))    )
                     {// There is/are carriage return(s) to remove
-                        // Replace \r\n
+                        // Replace \r\n -> remove
                         let l_note = l_details.split('\r\n');
                         l_details = "";
                         for (let i = 0; i < l_note.length; i++) {
                             l_details += l_note[i];
+                            // Add a space to avoid concatenating 2 words into 1
+                            // (except if the last char is "-")
+                            if( (i < l_note.length-1)       &&
+                                (!l_details.endsWith("-"))  )
+                            { l_details += " "; }
                         }
-                        // Replace \n\r
+                        // Replace \n\r -> remove
                         l_note = l_details.split('\n\r');
                         l_details = "";
                         for (let i = 0; i < l_note.length; i++) {
-                            l_details += l_note[i];
+                            l_details += (l_note[i] + " ");
+                            // Add a space to avoid concatenating 2 words into 1
+                            // (except if the last char is "-")
+                            if( (i < l_note.length-1)       &&
+                                (!l_details.endsWith("-"))  )
+                            { l_details += " "; }
                         }
                     }
                     else if((l_details.includes('\r'))  ||
                             (l_details.includes('\n'))  )
                     {// There is/are carriage return(s) to process
-                        // Replace \r
+                        // Replace \r -> <br>
                         let l_note = l_details.split('\r');
                         l_details = "";
                         for (let i = 0; i < l_note.length; i++) {
@@ -562,7 +572,7 @@ mindmap-plugin: basic
                             if(i < l_note.length-1)
                             {   l_details += "<br>"; }
                         }
-                        // Replace \n
+                        // Replace \n -> <br>
                         l_note = l_details.split('\n');
                         l_details = "";
                         for (let i = 0; i < l_note.length; i++) {
