@@ -26,6 +26,7 @@ export class PDFAnnotationPluginSetting {
   public useStructuringHeadlines: boolean;
   public useFolderNames: boolean;
   public sortByTopic: boolean;
+  public exportPath: string;
   public desiredAnnotations: string;
   public noteTemplateExternalPDFs: string;
   public noteTemplateInternalPDFs: string;
@@ -39,6 +40,7 @@ export class PDFAnnotationPluginSetting {
     this.useStructuringHeadlines = true;
     this.useFolderNames = true;
     this.sortByTopic = true;
+    this.exportPath = '';
     this.desiredAnnotations = "Text, Highlight, Underline";
     this.noteTemplateExternalPDFs =
       '{{body}}\n' +
@@ -150,6 +152,11 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
           this.plugin.saveData(this.plugin.settings);
         }),
       );
+    
+    new Setting(containerEl)
+      .setName('Notes export path')
+      .setDesc('The path to which the notes, including the extracted annotations, will be exported. The path should be relative to the vault root. Paths must end with a \'/\'. Leave blank to export to the vault root.')
+      .addText((input) => this.buildValueInput(input, 'exportPath'));
 
     containerEl.createEl('h3', { text: 'Desired annotations' });
     const desiredAnnotationsInstructionsEl = containerEl.createEl('p');

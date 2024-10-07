@@ -112,6 +112,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		const containingFolder = file.parent.name;
 		const grandtotal = [] // array that will contain all fetched Annotations
 		const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
+		const exportPath = this.settings.exportPath;
 		console.log('loading from file ', file)
 		const content = await this.app.vault.readBinary(file)
 		await loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), pdfjsLib, containingFolder, grandtotal, desiredAnnotations)
@@ -120,8 +121,8 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 		let filePath = file.name.replace(".pdf", ".md");
 		filePath = "Annotations for " + filePath;
-		await this.saveHighlightsToFile(filePath, finalMarkdown);
-		await this.app.workspace.openLinkText(filePath, '', true);
+		await this.saveHighlightsToFile(exportPath + filePath, finalMarkdown);
+		await this.app.workspace.openLinkText(exportPath + filePath, '', true);
 	}
 
 	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePathFromClipboard: string) {
@@ -228,6 +229,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 					'useStructuringHeadlines',
 					'useFolderNames',
 					'sortByTopic',
+					'exportPath',
 					'desiredAnnotations',
 					'noteTemplateExternalPDFs',
 					'noteTemplateInternalPDFs',
