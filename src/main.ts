@@ -2,7 +2,7 @@ import {
 	compile as compileTemplate,
 	TemplateDelegate as Template
 } from 'handlebars';
-import { Editor, FileSystemAdapter, loadPdfJs, MarkdownView, Plugin, TFile, Vault } from 'obsidian';
+import { Editor, FileSystemAdapter, loadPdfJs, MarkdownView, Plugin, TFile, Vault, Notice } from 'obsidian';
 import { loadPDFFile } from 'src/extractHighlight';
 import { ANNOTS_TREATED_AS_HIGHLIGHTS, PDFAnnotationPluginSetting, PDFAnnotationPluginSettingTab } from 'src/settings';
 import { IIndexable, PDFFile } from 'src/types';
@@ -121,8 +121,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 		let filePath = file.name.replace(".pdf", ".md");
 		filePath = "Annotations for " + filePath;
-		await this.saveHighlightsToFile(exportPath + filePath, finalMarkdown);
-		await this.app.workspace.openLinkText(exportPath + filePath, '', true);
+		await this.saveHighlightsToFileAndOpenIt(exportPath + filePath, finalMarkdown);
 	}
 
 	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePathFromClipboard: string) {
@@ -321,12 +320,18 @@ export default class PDFAnnotationPlugin extends Plugin {
 		);
 	}
 
-	async saveHighlightsToFile(filePath: string, mdString: string) {
+	async saveHighlightsToFileAndOpenIt(filePath: string, mdString: string) {
 		const fileExists = await this.app.vault.adapter.exists(filePath);
 		if (fileExists) {
 			await this.appendHighlightsToFile(filePath, mdString);
 		} else {
-			await this.app.vault.create(filePath, mdString);
+			try {
+				await this.app.vault.create(filePath, mdString);
+				await this.app.workspace.openLinkText(filePath, '', true);
+			} catch (error) {
+				console.error(error);
+				new Notice('Error creating note with annotations, because the notes export path is invalid. Please check the file path in the settings. Folders must exist.');
+			}
 		}
 	}
 
