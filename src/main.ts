@@ -11,7 +11,7 @@ import {
     compile as compileTemplate,
     TemplateDelegate as Template
 } from 'handlebars';
-import { Editor, FileSystemAdapter, loadPdfJs, MarkdownView, Plugin, TFile, Vault } from 'obsidian';
+import { Editor, FileSystemAdapter, loadPdfJs, MarkdownView, Plugin, TFile, Vault, Notice } from 'obsidian';
 import convert from 'color-convert';    // For color conversion
 
 // Local modules
@@ -1208,14 +1208,20 @@ mindmap-plugin: basic
         );
     }
 
-    async saveHighlightsToFile(filePath: string, mdString: string) {
-        const fileExists = await this.app.vault.adapter.exists(filePath);
-        if (fileExists) {
-            await this.appendHighlightsToFile(filePath, mdString);
-        } else {
-            await this.app.vault.create(filePath, mdString);
-        }
-    }
+	async saveHighlightsToFileAndOpenIt(filePath: string, mdString: string) {
+		const fileExists = await this.app.vault.adapter.exists(filePath);
+		if (fileExists) {
+			await this.appendHighlightsToFile(filePath, mdString);
+		} else {
+			try {
+				await this.app.vault.create(filePath, mdString);
+				await this.app.workspace.openLinkText(filePath, '', true);
+			} catch (error) {
+				console.error(error);
+				new Notice('Error creating note with annotations, because the notes export path is invalid. Please check the file path in the settings. Folders must exist.');
+			}
+		}
+	}
 
     async appendHighlightsToFile(filePath: string, note: string) {
         let existingContent = await this.app.vault.adapter.read(filePath);

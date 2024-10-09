@@ -28,6 +28,7 @@ export class PDFAnnotationPluginSetting {
     public useStructuringHeadlines: boolean;
     public useFolderNames: boolean;
     public sortByTopic: boolean;
+  public exportPath: string;
     // Page between which the plugin will be enabled
     public page_min: number;
     public page_max: number;
@@ -103,6 +104,7 @@ export class PDFAnnotationPluginSetting {
         this.ext_fl_suf= "(ext mm)",
         this.ext_es_tog= false,
         this.ext_es_suf= "(ext mm essential)"
+    this.exportPath = '';
         this.desiredAnnotations = "Text, Highlight, Underline";
         this.parsedSettings = {
             desiredAnnotations: this.parseCommaSeparatedStringToArray(this.desiredAnnotations)
@@ -248,19 +250,17 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
                 }),
             );
 
-
-        // Setting: use 1st line as Topic
-        new Setting(containerEl)
-            .setName('Sort by Topic')
-            .setDesc(
-                'If enabled, uses the notes first line as Topic for primary sorting',
-            )
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.sortByTopic).onChange((value) => {
-                    this.plugin.settings.sortByTopic = value;
-                    this.plugin.saveData(this.plugin.settings);
-                }),
-            );
+    new Setting(containerEl)
+      .setName('Sort by Topic')
+      .setDesc(
+        'If enabled, uses the notes first line as Topic for primary sorting',
+      )
+      .addToggle((toggle) =>
+        toggle.setValue(this.plugin.settings.sortByTopic).onChange((value) => {
+          this.plugin.settings.sortByTopic = value;
+          this.plugin.saveData(this.plugin.settings);
+        }),
+      );
 
 
         // PAGES between which the plugin will be enabled

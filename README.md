@@ -23,7 +23,7 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 
 ### Commands
 * `Extract PDF Annotations` Works when editing a markdown note. Searches all PDF files in current Folder for annotations, and inserts them at the current position of the open note. 
-* `Extract PDF Annotations on single file` Works while displaying a PDF file inside the Obisidan PDF-Viewer. Extracts annotations from this file and writes them to a note.
+* `Extract PDF Annotations on single file` Works while displaying a PDF file inside the Obsidian PDF-Viewer. Extracts annotations from this file and writes them to a note.
 * `Extract PDF Annotations from single file from path in clipboard` Works when editing a markdown note. Looks for a file path of a PDF in clipboard, extracts annotations from it and inserts them at the current position of the open note. This command can be used for external PDF files, which are not part of the Obsidian Vault. Helpful, if you do not want to copy your PDFs inside your vault.
 
 ### Plugin Settings:
@@ -31,6 +31,7 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 * Use structuring headlines or not, if you only want to display annotations in the specified template
 * Use the first line of the comment as 'Topic' (and sort accordingly), or not
 * Use folder name or PDF-Filename for sorting
+* Specify the export path for the command `Extract PDF Annotations on single file`
 * Select your desired annotation types that should be extracted from the PDF, if it includes other types that you don't need
 * Template settings for different types of notes: notes from internal or external PDFs and highlights from internal or external PDFs. The distinction between internal and external exists, if one wants to use different links (internal `[[]]` links vs. external `file://` links). The following template variables are available and can be used by following the [Handlebars]('https://handlebarsjs.com/guide/expressions.html') syntax: 
   - {{highlightedText}}: 'Highlighted text from PDF',
@@ -43,6 +44,7 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 	- {{body_highlightedText}}: 'Body of annotation if any, otherwise highlighted text from PDF'
 
 ## Versions
+1.5.0 add setting for export path
 
 1.4.0 add support for squiggle annotations
 
