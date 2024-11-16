@@ -28,7 +28,7 @@ export class PDFAnnotationPluginSetting {
     public useStructuringHeadlines: boolean;
     public useFolderNames: boolean;
     public sortByTopic: boolean;
-  public exportPath: string;
+    public exportPath: string;
     // Page between which the plugin will be enabled
     public page_min: number;
     public page_max: number;
@@ -45,9 +45,6 @@ export class PDFAnnotationPluginSetting {
     public ext_es_suf: string;
     // Desired annotations
     public desiredAnnotations: string;
-    public parsedSettings: {
-        desiredAnnotations: string[];
-    }
     // Template
     public noteTemplateExternalPDFs: string;
     public noteTemplateInternalPDFs: string;
@@ -88,6 +85,9 @@ export class PDFAnnotationPluginSetting {
     public conds_prb: string;
     public detal_prb: string;
     public no_an_prb: string;
+    public parsedSettings: {
+        desiredAnnotations: string[];
+    }
 
     constructor() {
         this.useStructuringHeadlines = true;
@@ -104,11 +104,8 @@ export class PDFAnnotationPluginSetting {
         this.ext_fl_suf= "(ext mm)",
         this.ext_es_tog= false,
         this.ext_es_suf= "(ext mm essential)"
-    this.exportPath = '';
+        this.exportPath = '';
         this.desiredAnnotations = "Text, Highlight, Underline";
-        this.parsedSettings = {
-            desiredAnnotations: this.parseCommaSeparatedStringToArray(this.desiredAnnotations)
-        };
         this.noteTemplateExternalPDFs =
             '{{body_highlightedText}} noted by {{author}} at page {{pageNumber}} on {{filepath}}';
         this.noteTemplateInternalPDFs =
@@ -157,10 +154,10 @@ tags:
 - [[{fileName}]]
 
 ### *Links*
-- 
+-
 
 ### *Keys concepts*
-- 
+-
 
 ---
 \`\`\`table-of-contents
@@ -174,6 +171,9 @@ style:nestedOrderedList
         this.detal_prb = "### Detailed format";
         this.no_an_prb = "- **No annotation**";
 
+        this.parsedSettings = {
+            desiredAnnotations: this.parseCommaSeparatedStringToArray(this.desiredAnnotations)
+        };
     }// end of constructor
 
 
@@ -288,6 +288,13 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
                     await this.plugin.saveData(this.plugin.settings);
                 }),
             );
+
+
+        // Export path
+        new Setting(containerEl)
+            .setName('Notes export path')
+            .setDesc('The path to which the notes, including the extracted annotations, will be exported. The path should be relative to the vault root. Paths must end with a \'/\'. Leave blank to export to the vault root.')
+            .addText((input) => this.buildValueInput(input, 'exportPath'));
 
 
         // MINDMAPS

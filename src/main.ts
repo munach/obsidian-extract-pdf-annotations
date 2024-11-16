@@ -643,15 +643,17 @@ mindmap-plugin: basic
         const containingFolder = file.parent.name;
         const grandtotal = [] // array that will contain all fetched Annotations
         const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
+		const exportPath = this.settings.exportPath;
         console.log('loading from file ', file)
         const content = await this.app.vault.readBinary(file)
         const pages = await loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), this.settings.page_min, this.settings.page_max, pdfjsLib, containingFolder, grandtotal, desiredAnnotations)
         this.sort(grandtotal)
 
-        // Get file name
-        //let filePath = file.name.replace(".pdf", ".md");
+        // Get file name/path
         let filePath = file.path.replace(".pdf", "");
-        // filePath = "Annotations for " + filePath;
+        if(exportPath != "") { // Export in the export path
+            filePath = exportPath + file.name.replace(".pdf", "");
+        }
 
         // Add page number in file name in case part of the PDF is loaded
         if (pages[0] != 0) {
@@ -722,10 +724,16 @@ mindmap-plugin: basic
             fileName = fileName.slice(0, -4);
         }
 
-        // Set output file name
+
+        // Get output file path
         let filePath = ""
+		const exportPath = this.settings.exportPath;
         const file = this.app.workspace.getActiveFile();
-        if (file != null) {
+
+        if(exportPath != "") { // Export in the export path
+            filePath = exportPath;
+        }
+        else if (file != null) {
             // Get the current's file path
             filePath = file.path;
             // Remove file name in the path
@@ -737,6 +745,8 @@ mindmap-plugin: basic
             }
         }
         // else: no file opened: the file will be created in the vaulter's root
+
+        // Set file pah/name
         filePath += fileName
 
         // Add page number in file name in case part of the PDF is loaded
@@ -1074,6 +1084,7 @@ mindmap-plugin: basic
                     'useStructuringHeadlines',
                     'useFolderNames',
                     'sortByTopic',
+					'exportPath',
                     'desiredAnnotations',
                     'noteTemplateExternalPDFs',
                     'noteTemplateInternalPDFs',
