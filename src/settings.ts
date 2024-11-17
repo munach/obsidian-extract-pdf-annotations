@@ -85,6 +85,10 @@ export class PDFAnnotationPluginSetting {
     public conds_prb: string;
     public detal_prb: string;
     public no_an_prb: string;
+    // Link to page/file
+    public lnk_tog: boolean;
+    public lnk_cmd: string;
+
     public parsedSettings: {
         desiredAnnotations: string[];
     }
@@ -106,13 +110,10 @@ export class PDFAnnotationPluginSetting {
         this.ext_es_suf= "(ext mm essential)"
         this.exportPath = '';
         this.desiredAnnotations = "Text, Highlight, Underline";
-        this.noteTemplateExternalPDFs =
-            '{{body_highlightedText}} noted by {{author}} at page {{pageNumber}} on {{filepath}}';
-        this.noteTemplateInternalPDFs =
-            '{{body_highlightedText}} noted by {{author}} at page {{pageNumber}} on [[{{filepath}}]]';
-        this.highlightTemplateExternalPDFs =
-            '{{highlightedText}} // {{body}} highlighted by {{author}} at page {{pageNumber}} on {{filepath}}';
-        this.highlightTemplateInternalPDFs =
+        this.noteTemplateExternalPDFs = "{{body_highlightedText}} [🔗]()";
+        this.noteTemplateInternalPDFs = "{{body_highlightedText}} [🔗]()";
+        this.highlightTemplateExternalPDFs = "{{body_highlightedText}} [🔗]()";
+        this.highlightTemplateInternalPDFs = "{{body_highlightedText}} [🔗]()";
             '{{highlightedText}} // {{body}} highlighted by {{author}} at page {{pageNumber}} on [[{{filepath}}]]';
         this.level1RGB = [255, 173, 91];
         this.level2RGB = [255, 255, 0];
@@ -166,10 +167,12 @@ style:nestedOrderedList
 \`\`\`
 ---
 `;
-        this.perso_prb = "### Personal summary";
-        this.conds_prb = "### Condensed format";
-        this.detal_prb = "### Detailed format";
-        this.no_an_prb = "- **No annotation**";
+        this.perso_prb  = "### Personal summary";
+        this.conds_prb  = "### Condensed format";
+        this.detal_prb  = "### Detailed format";
+        this.no_an_prb  = "- **No annotation**";
+        this.lnk_tog    = false;
+        this.lnk_cmd    = "[🔗](obsidian://shell-commands?execute=CMD_ID_FROM_SHELL_COMMANDS&_page_number={{page_number}}&_file_path={{file_path}})";
 
         this.parsedSettings = {
             desiredAnnotations: this.parseCommaSeparatedStringToArray(this.desiredAnnotations)
@@ -939,5 +942,49 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
             );
 
 
+        // COMMAND-LINK
+        containerEl.createEl('h4', { text: 'LINK: Command' });
+        containerEl.createEl('span', { text:
+'You can add here a command so that a link is created at the beginning of each annotation to open the PDF file at the annotation\'s page.\
+To do this:'});
+        containerEl.createEl('li', { text: 'Install the Shell commands plugin.'});
+        const l_shell = containerEl.createEl('li', { text: 'Create a new shell command with the path to a PDF viewer that accepts the page number as argument, such as PDF XChange Editor.'});
+        const l_nested_01 = l_shell.createEl('ul');
+        l_nested_01.createEl('li', { text: 'This shell command may look like this: "YOUR_PATH_TO_PDFXEdit.exe" /A "page={{_page_number}}" "{{_file_path}}"'});
+        const l_var = containerEl.createEl('li', { text: 'Create variables for this shell command in the "Variables" tab:'});
+        const l_nested_02 = l_var.createEl('ul');
+        l_nested_02.createEl('li', { text: 'page_number'});
+        l_nested_02.createEl('li', { text: 'file_path'});
+        containerEl.createEl('li', { text: 'Copy the shell command by clicking on 🔗.'});
+        containerEl.createEl('li', { text: 'Paste it below in "Command to add", adding {{page_number}} and {{file_path}} where needed.'});
+        containerEl.createEl('li', { text: 'Set "Add the command link"'});
+
+        // Link command toggle
+        new Setting(containerEl)
+            .setName('Link-command: Add the command link')
+            .setDesc('If enabled, a link will be added to annotations as indicated below',)
+            .addToggle((toggle) =>
+                toggle.setValue(this.plugin.settings.lnk_tog).onChange((value) => {
+                    this.plugin.settings.lnk_tog = value;
+                    this.plugin.saveData(this.plugin.settings);
+
+                }),
+            );
+
+
+        // Full external-mindmap file's suffixe
+        new Setting(containerEl)
+            .setName('Link-command: Command to add')
+            .setDesc('Command to add to the link so that (for instance) the PDF file is opened at the specified page. \
+Use {{page_number}} where the page should be placed, and \
+{{file_path}} where the PDF file name/path should be placed. \
+Eg.: [🔗](obsidian://shell-commands?execute=CMD_ID_FROM_SHELL_COMMANDS&_page_number={{page_number}}&_file_path={{file_path}})')
+            .addTextArea(text => text
+                .setValue(this.plugin.settings.lnk_cmd)
+                .onChange(async (value) => {
+                    this.plugin.settings.lnk_cmd = value;
+                    await this.plugin.saveData(this.plugin.settings);
+                }),
+            );
     }
 }

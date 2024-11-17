@@ -1131,7 +1131,9 @@ mindmap-plugin: basic
                     'ext_fl_tog',
                     'ext_fl_suf',
                     'ext_es_tog',
-                    'ext_es_suf'
+                    'ext_es_suf',
+                    'lnk_tog',
+                    'lnk_cmd'
                 ];
                 toLoad.forEach((setting) => {
                     if (setting in loadedSettings) {
@@ -1196,25 +1198,65 @@ mindmap-plugin: basic
 
 
     getContentForNoteFromExternalPDF(annotation: any): string {
-        return this.noteFromExternalPDFsTemplate(
+        let l_cmd = "";
+
+        if(this.settings.lnk_tog) { // Add the command
+            let anno = this.getTemplateVariablesForAnnotation(annotation)
+            l_cmd = this.settings.lnk_cmd
+                .replace(/{{page_number}}/g,anno.pageNumber.toString())
+                .replace(/{{file_path}}/g,  anno.filepath)              +
+                " "
+        }
+
+        return l_cmd+this.noteFromExternalPDFsTemplate(
             this.getTemplateVariablesForAnnotation(annotation),
         );
     }
 
     getContentForNoteFromInternalPDF(annotation: any): string {
-        return this.noteFromInternalPDFsTemplate(
+        let l_cmd = "";
+
+        if(this.settings.lnk_tog) { // Add the command
+            let anno = this.getTemplateVariablesForAnnotation(annotation)
+            l_cmd = this.settings.lnk_cmd
+                .replace(/{{page_number}}/g,anno.pageNumber.toString())
+                .replace(/{{file_path}}/g,  anno.filepath)              +
+                " "
+        }
+
+        return l_cmd+this.noteFromInternalPDFsTemplate(
             this.getTemplateVariablesForAnnotation(annotation),
         );
     }
 
     getContentForHighlightFromExternalPDF(annotation: any): string {
-        return this.highlightFromExternalPDFsTemplate(
+        let l_cmd = "";
+
+        if(this.settings.lnk_tog) { // Add the command
+            let anno = this.getTemplateVariablesForAnnotation(annotation)
+            l_cmd = this.settings.lnk_cmd
+                .replace(/{{page_number}}/g,anno.pageNumber.toString())
+                .replace(/{{file_path}}/g,  anno.filepath)              +
+                " "
+        }
+
+        return l_cmd+this.highlightFromExternalPDFsTemplate(
             this.getTemplateVariablesForAnnotation(annotation),
         );
     }
 
     getContentForHighlightFromInternalPDF(annotation: any): string {
-        return this.highlightFromInternalPDFsTemplate(
+        let l_cmd = "";
+
+        if(this.settings.lnk_tog) { // Add the command
+            let anno = this.getTemplateVariablesForAnnotation(annotation)
+            l_cmd = this.settings.lnk_cmd
+                .replace(/{{page_number}}/g,anno.pageNumber.toString())
+                .replace(/{{file_path}}/g,  anno.filepath)              +
+                " "
+        }
+
+        return l_cmd+this.highlightFromInternalPDFsTemplate(
             this.getTemplateVariablesForAnnotation(annotation),
         );
     }
