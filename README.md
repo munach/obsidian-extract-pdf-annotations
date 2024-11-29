@@ -34,14 +34,14 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 * Specify the export path for the command `Extract PDF Annotations on single file`
 * Select your desired annotation types that should be extracted from the PDF, if it includes other types that you don't need
 * Template settings for different types of notes: notes from internal or external PDFs and highlights from internal or external PDFs. The distinction between internal and external exists, if one wants to use different links (internal `[[]]` links vs. external `file://` links). The following template variables are available and can be used by following the [Handlebars]('https://handlebarsjs.com/guide/expressions.html') syntax: 
-  - {{highlightedText}}: 'Highlighted text from PDF',
+	- {{highlightedText}}: 'Highlighted text from PDF',
 	- {{folder}}: 'Folder of PDF file',
 	- {{file}}: 'Binary content of file',
 	- {{filepath}}: 'Path of PDF file',
 	- {{pageNumber}}: 'Page number of annotation with reference to PDF pages',
 	- {{author}}: 'Author of annotation',
 	- {{body}}: 'Body of annotation'
-	- {{body_highlightedText}}: 'Body of annotation if any, otherwise highlighted text from PDF'
+	- {{bodyOrHighlightedText}}: 'Body of annotation if any, otherwise highlighted text from PDF'
 
 ## Versions
 1.5.0 add setting for export path

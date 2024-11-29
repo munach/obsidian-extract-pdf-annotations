@@ -1190,7 +1190,7 @@ mindmap-plugin: basic
             pageNumber: annotation.pageNumber,
             author: annotation.author,
             body: annotation.body,
-            body_highlightedText: annotation.body_highlightedText,
+            bodyOrHighlightedText: annotation.bodyOrHighlightedText,
         };
 
         return { annotation: annotation, ...shortcuts };

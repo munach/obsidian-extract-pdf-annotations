@@ -81,9 +81,9 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
         anno.author = anno.titleObj.str
         anno.body = anno.contentsObj.str
         if(anno.body)
-        { anno.body_highlightedText = anno.body}
+        { anno.bodyOrHighlightedText = anno.body}
         else
-        { anno.body_highlightedText = anno.highlightedText}
+        { anno.bodyOrHighlightedText = anno.highlightedText}
         total.push(anno)
     });
 }

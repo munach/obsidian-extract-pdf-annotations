@@ -11,7 +11,7 @@ export const TEMPLATE_VARIABLES = {
     pageNumber: 'Page number of annotation with reference to PDF pages',
     author: 'Author of annotation',
     body: 'Body of annotation',
-    body_highlightedText: 'Body of annotation if any, otherwise highlighted text from PDF'
+    bodyOrHighlightedText: 'Body of annotation if any, otherwise highlighted text from PDF'
 };
 
 export const SUPPORTED_ANNOTS = {
@@ -110,10 +110,10 @@ export class PDFAnnotationPluginSetting {
         this.ext_es_suf= "(ext mm essential)"
         this.exportPath = '';
         this.desiredAnnotations = "Text, Highlight, Underline";
-        this.noteTemplateExternalPDFs = "{{body_highlightedText}} [🔗]()";
-        this.noteTemplateInternalPDFs = "{{body_highlightedText}} [🔗]()";
-        this.highlightTemplateExternalPDFs = "{{body_highlightedText}} [🔗]()";
-        this.highlightTemplateInternalPDFs = "{{body_highlightedText}} [🔗]()";
+        this.noteTemplateExternalPDFs = "{{bodyOrHighlightedText}} [🔗]()";
+        this.noteTemplateInternalPDFs = "{{bodyOrHighlightedText}} [🔗]()";
+        this.highlightTemplateExternalPDFs = "{{bodyOrHighlightedText}} [🔗]()";
+        this.highlightTemplateInternalPDFs = "{{bodyOrHighlightedText}} [🔗]()";
             '{{highlightedText}} // {{body}} highlighted by {{author}} at page {{pageNumber}} on [[{{filepath}}]]';
         this.level1RGB = [255, 173, 91];
         this.level2RGB = [255, 255, 0];
