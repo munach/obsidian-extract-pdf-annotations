@@ -23,7 +23,7 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 
 ### Commands
 * `Extract PDF Annotations` Works when editing a markdown note. Searches all PDF files in current Folder for annotations, and inserts them at the current position of the open note. 
-* `Extract PDF Annotations on single file` Works while displaying a PDF file inside the Obsidian PDF-Viewer. Extracts annotations from this file and writes them to a note.
+* `Extract PDF Annotations on single file` Works while displaying a PDF file inside the Obsidian PDF-Viewer. Extracts annotations from this file and writes them to a note with the same name as the PDF.
 * `Extract PDF Annotations from single file from path in clipboard` Works when editing a markdown note. Looks for a file path of a PDF in clipboard, extracts annotations from it and inserts them at the current position of the open note. This command can be used for external PDF files, which are not part of the Obsidian Vault. Helpful, if you do not want to copy your PDFs inside your vault.
 
 ### Plugin Settings:
