@@ -44,6 +44,8 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 	- {{bodyOrHighlightedText}}: 'Body of annotation if any, otherwise highlighted text from PDF'
 
 ## Versions
+1.6.0 add color export options
+
 1.5.0 add setting for export path
 
 1.4.0 add support for squiggle annotations
