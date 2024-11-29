@@ -12,13 +12,7 @@
 	"author": "",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/codemirror": "^5.60.15",
-		"@types/dom-to-image": "^2.6.7",
-		"@types/estree": "^1.0.5",
 		"@types/node": "^18.19.44",
-		"@types/randomcolor": "^0.5.9",
-		"@types/resolve": "^1.20.6",
-		"@types/tern": "^0.23.9",
 		"@typescript-eslint/eslint-plugin": "^5.55.0",
 		"@typescript-eslint/parser": "^5.55.0",
 		"builtin-modules": "^3.3.0",
