@@ -1,12 +1,3 @@
-// npm install obsidian
-// npm install color-convert
-//
-// To run:
-//      npm install -g typescript
-//      npm install --save-dev @types/codemirror @types/dom-to-image @types/estree @types/node @types/randomcolor @types/resolve @types/tern
-//      npm run build
-
-
 import {
     compile as compileTemplate,
     TemplateDelegate as Template
