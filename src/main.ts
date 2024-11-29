@@ -11,59 +11,52 @@ import { saveDataToFile } from 'src/saveToFile';
 import { ANNOTS_TREATED_AS_HIGHLIGHTS, PDFAnnotationPluginSetting, PDFAnnotationPluginSettingTab } from 'src/settings';
 import { IIndexable, PDFFile } from 'src/types';
 
-
-
-// Formatting
-const title_lvl1 = "##### ";
-const lvl2_prefix = "- ";
-const lvl3_prefix = "\t- ";
-const sumr_prefix = "- ";
-const impt_prefix = "- ";
-
-
-function getColorName(i_RGB: number[])
-{
-    let l_HSL = convert.rgb.hsl(i_RGB);
-    let l_hue = l_HSL[0];
-    let l_return = "";
-
-    if( (l_hue  <= 20) )
-    { l_return = "Red"; }
-    else if (   (l_hue >   20)  &&
-                (l_hue <=  55)  )
-    { l_return = "Orange"; }
-    else if (   (l_hue >   55)  &&
-                (l_hue <=  70)  )
-    { l_return = "Yellow"; }
-    else if (   (l_hue >   70)   &&
-                (l_hue <= 160)   )
-    { l_return = "Green"; }
-    else if (   (l_hue >  160)   &&
-                (l_hue <= 195)   )
-    { l_return = "Cyan"; }
-    else if (   (l_hue >  195)   &&
-                (l_hue <= 240)   )
-    { l_return = "Blue"; }
-    else if (   (l_hue >  240)   &&
-                (l_hue <= 270)   )
-    { l_return = "Indigo"; }
-    else if (   (l_hue >  270)   &&
-                (l_hue <= 300)   )
-    { l_return = "Violet"; }
-    else if (   (l_hue >  300)   &&
-                (l_hue <= 330)   )
-    { l_return = "Magenta"; }
-    else
-    { l_return = "Red"; }
-
-    return l_return;
-}
-
-
-
 import * as fs from 'fs';
 
 
+
+// Formatting
+const TITLE_LVL1 = "##### ";
+const LVL2_PREFIX = "- ";
+const LVL3_PREFIX = "\t- ";
+const SUMR_PREFIX = "- ";
+const IMPT_PREFIX = "- ";
+
+
+function getColorName(rgb: number[])
+{
+    const hue = convert.rgb.hsl(rgb)[0];
+    let colorName = "";
+    if( (hue  <= 20) )
+    { colorName = "Red"; }
+    else if (   (hue >   20)  &&
+                (hue <=  55)  )
+    { colorName = "Orange"; }
+    else if (   (hue >   55)  &&
+                (hue <=  70)  )
+    { colorName = "Yellow"; }
+    else if (   (hue >   70)   &&
+                (hue <= 160)   )
+    { colorName = "Green"; }
+    else if (   (hue >  160)   &&
+                (hue <= 195)   )
+    { colorName = "Cyan"; }
+    else if (   (hue >  195)   &&
+                (hue <= 240)   )
+    { colorName = "Blue"; }
+    else if (   (hue >  240)   &&
+                (hue <= 270)   )
+    { colorName = "Indigo"; }
+    else if (   (hue >  270)   &&
+                (hue <= 300)   )
+    { colorName = "Violet"; }
+    else if (   (hue >  300)   &&
+                (hue <= 330)   )
+    { colorName = "Magenta"; }
+    else
+    { colorName = "Red"; }
+    return colorName;
+}
 
 export default class PDFAnnotationPlugin extends Plugin {
 
@@ -136,20 +129,20 @@ export default class PDFAnnotationPlugin extends Plugin {
         const ext_sumr_icon   = this.settings.ext_sumr_icon+" ";
         const ext_impt_icon   = this.settings.ext_impt_icon+" ";
 
-        let l_title_lvl1 = "\n"+title_lvl1;
-        let l_lvl2_prefix = lvl2_prefix;
-        let l_lvl3_prefix = lvl3_prefix;
-        let l_sumr_prefix = sumr_prefix;
-        let l_impt_prefix = impt_prefix;
+        let l_title_lvl1 = "\n"+TITLE_LVL1;
+        let l_lvl2_prefix = LVL2_PREFIX;
+        let l_lvl3_prefix = LVL3_PREFIX;
+        let l_sumr_prefix = SUMR_PREFIX;
+        let l_impt_prefix = IMPT_PREFIX;
 
         let text          = "";
 
         if (i_isForExtMindmap) {
             l_title_lvl1  = "\n"
-            l_lvl2_prefix = "   " + lvl2_prefix.substring(0, lvl2_prefix.length - 2);
-            l_lvl3_prefix = "   " + lvl3_prefix.substring(0, lvl3_prefix.length - 2);
-            l_sumr_prefix = "   " + sumr_prefix.substring(0, sumr_prefix.length - 2);
-            l_impt_prefix = "   " + impt_prefix.substring(0, impt_prefix.length - 2);
+            l_lvl2_prefix = "   " + LVL2_PREFIX.substring(0, LVL2_PREFIX.length - 2);
+            l_lvl3_prefix = "   " + LVL3_PREFIX.substring(0, LVL3_PREFIX.length - 2);
+            l_sumr_prefix = "   " + SUMR_PREFIX.substring(0, SUMR_PREFIX.length - 2);
+            l_impt_prefix = "   " + IMPT_PREFIX.substring(0, IMPT_PREFIX.length - 2);
         }
 
         // ▶️ File preamble:
@@ -235,13 +228,10 @@ export default class PDFAnnotationPlugin extends Plugin {
         // now iterate over the annotations printing topics, then folder, then comments...
         let text = ''
         let topic = ''
-        if (i_isForObsMindmap == false) { var text_dt = ''; }
+        let text_dt = '';
         let text_cd         = '';
         //let text_3 = '';
         let currentFileName = '';
-        //let currentFolder = ''
-        let currentFolderName = "";
-        //let currentFullPath = "";
         let new_file        = false;
         let first_time      = true;
         let l_pageNumber    = 0;
@@ -287,19 +277,19 @@ export default class PDFAnnotationPlugin extends Plugin {
         let l_levelFormat = "";
         let l_levelIcon = "";
         let l_annoToReport = true;
-        let l_title_lvl1 = "\n"+title_lvl1;
+        let l_title_lvl1 = "\n"+TITLE_LVL1;
         let l_note_sfx = "";
 
-        let l_lvl2_prefix = lvl2_prefix;
-        let l_lvl3_prefix = lvl3_prefix;
-        let l_sumr_prefix = sumr_prefix;
-        let l_impt_prefix = impt_prefix;
+        let l_lvl2_prefix = LVL2_PREFIX;
+        let l_lvl3_prefix = LVL3_PREFIX;
+        let l_sumr_prefix = SUMR_PREFIX;
+        let l_impt_prefix = IMPT_PREFIX;
         if (i_isForExtMindmap) {
             l_title_lvl1  = "\n"
-            l_lvl2_prefix = "   " + lvl2_prefix.substring(0, lvl2_prefix.length - 2);
-            l_lvl3_prefix = "   " + lvl3_prefix.substring(0, lvl3_prefix.length - 2);
-            l_sumr_prefix = "   " + sumr_prefix.substring(0, sumr_prefix.length - 2);
-            l_impt_prefix = "   " + impt_prefix.substring(0, impt_prefix.length - 2);
+            l_lvl2_prefix = "   " + LVL2_PREFIX.substring(0, LVL2_PREFIX.length - 2);
+            l_lvl3_prefix = "   " + LVL3_PREFIX.substring(0, LVL3_PREFIX.length - 2);
+            l_sumr_prefix = "   " + SUMR_PREFIX.substring(0, SUMR_PREFIX.length - 2);
+            l_impt_prefix = "   " + IMPT_PREFIX.substring(0, IMPT_PREFIX.length - 2);
         }
 
         // console.log("all annots", grandtotal)
@@ -388,7 +378,7 @@ mindmap-plugin: basic
                 text_dt += "\n#### Page " + anno.pageNumber + "\n";
                 l_pageNumber = anno.pageNumber;
                 // In case of a page change, do not add a line before a level 1 title
-                l_title_lvl1 = title_lvl1;
+                l_title_lvl1 = TITLE_LVL1;
             }
             //else: Same page, nothing to do
 
@@ -401,8 +391,8 @@ mindmap-plugin: basic
                 annotColor = convert.rgb.hsl(anno.color);
             }
             // else: Cannot get annotation's color: use the impossible color
-            let annotColorHue = annotColor[0];
-            let annotColorLum = annotColor[2];
+            const annotColorHue = annotColor[0];
+            const annotColorLum = annotColor[2];
             l_note_sfx        = ""
 
                 // Test if current annotation color is recognized
@@ -581,7 +571,7 @@ mindmap-plugin: basic
                     if(i_isForExtMindmap)
                     {   text_cd += l_title_lvl1;}
                     else
-                    {   text_cd += '\n'+title_lvl1; }
+                    {   text_cd += '\n'+TITLE_LVL1; }
 
                     // Not text(=Note)
                     if (anno.subtype != 'Text')
@@ -654,7 +644,7 @@ mindmap-plugin: basic
 
         // First file: detailed & condensed versions
             // File name
-        let l_fileName_1 = filePath + ".md";
+        const l_fileName_1 = filePath + ".md";
             // Generate annotations
         let finalMarkdown = this.format(grandtotal, false, false, true, true, false)
             // Save annotations in file
@@ -664,7 +654,7 @@ mindmap-plugin: basic
 
         // Second file: Obsidian mindmap, full version
         if(this.settings.mm_fl_tog) {
-            let l_fileName_2 = filePath + " " + this.settings.mm_fl_suf + ".md";
+            const l_fileName_2 = filePath + " " + this.settings.mm_fl_suf + ".md";
             finalMarkdown = this.format(grandtotal, true, false, true, true, false)
             await saveDataToFile(l_fileName_2, finalMarkdown);
             await this.app.workspace.openLinkText(l_fileName_2, '', true);
@@ -673,7 +663,7 @@ mindmap-plugin: basic
         // Third file: Obsidian mindmap, essentials version
         if(this.settings.mm_es_tog) {
             //let l_fileName_3 = filePath + " (mindmap essential).md";
-            let l_fileName_3 = filePath + " " + this.settings.mm_es_suf + ".md";
+            const l_fileName_3 = filePath + " " + this.settings.mm_es_suf + ".md";
             finalMarkdown = this.format(grandtotal, true, false, false, false, false)
             await saveDataToFile(l_fileName_3, finalMarkdown);
             await this.app.workspace.openLinkText(l_fileName_3, '', true);
@@ -681,7 +671,7 @@ mindmap-plugin: basic
 
         // Fourth file: External mindmap, full version
         if(this.settings.ext_fl_tog) {
-            let l_fileName_4 = filePath + " " + this.settings.ext_fl_suf + ".md";
+            const l_fileName_4 = filePath + " " + this.settings.ext_fl_suf + ".md";
             finalMarkdown = this.format(grandtotal, false, true, true, true, false)
             await saveDataToFile(l_fileName_4, finalMarkdown);
             await this.app.workspace.openLinkText(l_fileName_4, '', true);
@@ -689,7 +679,7 @@ mindmap-plugin: basic
 
         // Fifth file: External mindmap, essentials version
         if(this.settings.ext_es_tog) {
-            let l_fileName_5 = filePath + " " + this.settings.ext_es_suf + ".md";
+            const l_fileName_5 = filePath + " " + this.settings.ext_es_suf + ".md";
             finalMarkdown = this.format(grandtotal, false, true, false, false, false)
             await saveDataToFile(l_fileName_5, finalMarkdown);
             await this.app.workspace.openLinkText(l_fileName_5, '', true);
@@ -703,8 +693,8 @@ mindmap-plugin: basic
 
         // Get input file name
             // Find the last occurrence of "/" or "\"
-        let lastSlashIndex_1 = clipText.lastIndexOf("/");
-        let lastSlashIndex_2 = clipText.lastIndexOf("\\");
+        const lastSlashIndex_1 = clipText.lastIndexOf("/");
+        const lastSlashIndex_2 = clipText.lastIndexOf("\\");
         let lastSlashIndex = Math.max(lastSlashIndex_1, lastSlashIndex_2);
             // Extract the part after the last "/" or "\"
         let fileName = clipText.substring(lastSlashIndex + 1);
@@ -748,7 +738,7 @@ mindmap-plugin: basic
 
         // First file: detailed & condensed versions
             // File name
-        let l_fileName_1 = filePath + ".md";
+        const l_fileName_1 = filePath + ".md";
             // Generate annotations
         let finalMarkdown = this.format(grandtotal, false, false, true, true, false)
             // Save annotations in file
@@ -758,7 +748,7 @@ mindmap-plugin: basic
 
         // Second file: Obsidian mindmap, full version
         if(this.settings.mm_fl_tog) {
-            let l_fileName_2 = filePath + " " + this.settings.mm_fl_suf + ".md";
+            const l_fileName_2 = filePath + " " + this.settings.mm_fl_suf + ".md";
             finalMarkdown = this.format(grandtotal, true, false, true, true, false)
             await saveDataToFile(l_fileName_2, finalMarkdown);
             await this.app.workspace.openLinkText(l_fileName_2, '', true);
@@ -767,7 +757,7 @@ mindmap-plugin: basic
         // Third file: Obsidian mindmap, essentials version
         if(this.settings.mm_es_tog) {
             //let l_fileName_3 = filePath + " (mindmap essential).md";
-            let l_fileName_3 = filePath + " " + this.settings.mm_es_suf + ".md";
+            const l_fileName_3 = filePath + " " + this.settings.mm_es_suf + ".md";
             finalMarkdown = this.format(grandtotal, true, false, false, false, false)
             await saveDataToFile(l_fileName_3, finalMarkdown);
             await this.app.workspace.openLinkText(l_fileName_3, '', true);
@@ -775,7 +765,7 @@ mindmap-plugin: basic
 
         // Fourth file: External mindmap, full version
         if(this.settings.ext_fl_tog) {
-            let l_fileName_4 = filePath + " " + this.settings.ext_fl_suf + ".md";
+            const l_fileName_4 = filePath + " " + this.settings.ext_fl_suf + ".md";
             finalMarkdown = this.format(grandtotal, false, true, true, true, false)
             await saveDataToFile(l_fileName_4, finalMarkdown);
             await this.app.workspace.openLinkText(l_fileName_4, '', true);
@@ -783,7 +773,7 @@ mindmap-plugin: basic
 
         // Fifth file: External mindmap, essentials version
         if(this.settings.ext_es_tog) {
-            let l_fileName_5 = filePath + " " + this.settings.ext_es_suf + ".md";
+            const l_fileName_5 = filePath + " " + this.settings.ext_es_suf + ".md";
             finalMarkdown = this.format(grandtotal, false, true, false, false, false)
             await saveDataToFile(l_fileName_5, finalMarkdown);
             await this.app.workspace.openLinkText(l_fileName_5, '', true);
@@ -1172,7 +1162,7 @@ mindmap-plugin: basic
         );
     }
 
-    getTemplateVariablesForAnnotation(annotation: any): Record<string, any> {
+    getTemplateVariablesForAnnotation(annotation): Record<string, any> {
         const shortcuts = {
             highlightedText: annotation.highlightedText,
             folder: annotation.folder,
@@ -1188,11 +1178,11 @@ mindmap-plugin: basic
     }
 
 
-    getContentForNoteFromExternalPDF(annotation: any): string {
+    getContentForNoteFromExternalPDF(annotation): string {
         let l_cmd = "";
 
         if(this.settings.lnk_tog) { // Add the command
-            let anno = this.getTemplateVariablesForAnnotation(annotation)
+            const anno = this.getTemplateVariablesForAnnotation(annotation)
             l_cmd = this.settings.lnk_cmd
                 .replace(/{{page_number}}/g,anno.pageNumber.toString())
                 .replace(/{{file_path}}/g,  anno.filepath)              +
@@ -1204,11 +1194,11 @@ mindmap-plugin: basic
         );
     }
 
-    getContentForNoteFromInternalPDF(annotation: any): string {
+    getContentForNoteFromInternalPDF(annotation): string {
         let l_cmd = "";
 
         if(this.settings.lnk_tog) { // Add the command
-            let anno = this.getTemplateVariablesForAnnotation(annotation)
+            const anno = this.getTemplateVariablesForAnnotation(annotation)
             l_cmd = this.settings.lnk_cmd
                 .replace(/{{page_number}}/g,anno.pageNumber.toString())
                 .replace(/{{file_path}}/g,  anno.filepath)              +
@@ -1220,11 +1210,11 @@ mindmap-plugin: basic
         );
     }
 
-    getContentForHighlightFromExternalPDF(annotation: any): string {
+    getContentForHighlightFromExternalPDF(annotation): string {
         let l_cmd = "";
 
         if(this.settings.lnk_tog) { // Add the command
-            let anno = this.getTemplateVariablesForAnnotation(annotation)
+            const anno = this.getTemplateVariablesForAnnotation(annotation)
             l_cmd = this.settings.lnk_cmd
                 .replace(/{{page_number}}/g,anno.pageNumber.toString())
                 .replace(/{{file_path}}/g,  anno.filepath)              +
@@ -1236,11 +1226,11 @@ mindmap-plugin: basic
         );
     }
 
-    getContentForHighlightFromInternalPDF(annotation: any): string {
+    getContentForHighlightFromInternalPDF(annotation): string {
         let l_cmd = "";
 
         if(this.settings.lnk_tog) { // Add the command
-            let anno = this.getTemplateVariablesForAnnotation(annotation)
+            const anno = this.getTemplateVariablesForAnnotation(annotation)
             l_cmd = this.settings.lnk_cmd
                 .replace(/{{page_number}}/g,anno.pageNumber.toString())
                 .replace(/{{file_path}}/g,  anno.filepath)              +

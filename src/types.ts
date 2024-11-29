@@ -26,7 +26,7 @@ export class PDFFile {
     }
 
     public static convertTFileToPDFFile(tFile: TFile, binaryContent: ArrayBuffer): PDFFile {
-        let pdfFile = new PDFFile(tFile.name, binaryContent, tFile.extension, tFile.path);
+        const pdfFile = new PDFFile(tFile.name, binaryContent, tFile.extension, tFile.path);
         return pdfFile
     }
 }
