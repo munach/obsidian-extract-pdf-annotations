@@ -11,11 +11,11 @@ Assume we have in a folder in our Vault containing PDF files, e.g:
 
 ![vault_folder](https://github.com/munach/obsidian-pdf-annotations/blob/master/img/vault_folder.jpg?raw=true)
 
-and we have highlighted the Julia Hello World Programm with a note 'Hello World':
+and we have highlighted the Julia Hello World Programm in the `Julia Language Tutorial.pdf` with a note 'Hello World':
 
 ![pdf_note](https://github.com/munach/obsidian-pdf-annotations/blob/master/img/pdf_note.jpg?raw=true)
 
-In the editor (e.g. \_Extract) we run the plugin's command  `Extract PDF Annotations` (Hotkey Ctrl-P for all Commands). This will fetch all annotations in the PDF files in the current folder and sort them by *Topic*:
+In the editor mode of a note (e.g. \_Extract.md) we run the plugin's command  `Extract PDF Annotations` (Hotkey `CTRL+P` for all Commands). This will fetch all annotations in the PDF files in the current folder and sort them by *Topic*:
 
 ![extracted_annotations](https://github.com/munach/obsidian-pdf-annotations/blob/master/img/extracted_annotations.jpg?raw=true)
 
@@ -23,8 +23,8 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 
 ### Commands
 * `Extract PDF Annotations` Works when editing a markdown note. Searches all PDF files in current Folder for annotations, and inserts them at the current position of the open note. 
-* `Extract PDF Annotations on single file` Works while displaying a PDF file inside the Obsidian PDF-Viewer. Extracts annotations from this file and writes them to a note with the same name as the PDF.
 * `Extract PDF Annotations from single file from path in clipboard` Works when editing a markdown note. Looks for a file path of a PDF in clipboard, extracts annotations from it and inserts them at the current position of the open note. This command can be used for external PDF files, which are not part of the Obsidian Vault. Helpful, if you do not want to copy your PDFs inside your vault.
+* `Extract PDF Annotations on single file` Works while displaying a PDF file inside the Obsidian PDF-Viewer. Extracts annotations from this file and writes them to a note with the same name as the PDF.
 
 ### Plugin Settings:
 
