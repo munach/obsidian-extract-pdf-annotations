@@ -32,17 +32,6 @@ export class PDFAnnotationPluginSetting {
     // Page between which the plugin will be enabled
     public page_min: number;
     public page_max: number;
-    // Mindmaps
-    public mm_fl_tog: boolean;
-    public mm_fl_suf: string;
-    public mm_preamb: boolean;
-    public mm_es_tog: boolean;
-    public mm_es_suf: string;
-    // External mindmaps
-    public ext_fl_tog: boolean;
-    public ext_fl_suf: string;
-    public ext_es_tog: boolean;
-    public ext_es_suf: string;
     // Desired annotations
     public desiredAnnotations: string;
     // Template
@@ -99,15 +88,6 @@ export class PDFAnnotationPluginSetting {
         this.sortByTopic = false;
         this.page_min = 0;
         this.page_max = 0;
-        this.mm_fl_tog = true;
-        this.mm_fl_suf = "(mm)";
-        this.mm_preamb = true;
-        this.mm_es_tog = false;
-        this.mm_es_suf = "(mm essential)";
-        this.ext_fl_tog= false,
-        this.ext_fl_suf= "(ext mm)",
-        this.ext_es_tog= false,
-        this.ext_es_suf= "(ext mm essential)"
         this.exportPath = '';
         this.desiredAnnotations = "Text, Highlight, Underline";
         this.noteTemplateExternalPDFs = "{{bodyOrHighlightedText}} [🔗]()";
@@ -298,127 +278,6 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
             .setName('Notes export path')
             .setDesc('The path to which the notes, including the extracted annotations, will be exported. The path should be relative to the vault root. Paths must end with a \'/\'. Leave blank to export to the vault root.')
             .addText((input) => this.buildValueInput(input, 'exportPath'));
-
-
-        // MINDMAPS
-        containerEl.createEl('h3', { text: 'Mindmaps to generate' });
-        // Full Obsidian mindmap toggle
-        new Setting(containerEl)
-            .setName('From PDF: Generate full Obsidian mindmap')
-            .setDesc('If enabled, generate the full mindmap for Obsidian when calling the plugin from a PDF file',)
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.mm_fl_tog).onChange((value) => {
-                    this.plugin.settings.mm_fl_tog = value;
-                    this.plugin.saveData(this.plugin.settings);
-
-                }),
-            );
-
-
-        // Full Obsidian mindmap file's suffixe
-        new Setting(containerEl)
-            .setName('File suffixes: Full Obsidian mindmap')
-            .setDesc('File\'s suffixe for the Obsidian mindmap file.\nDefault: (mm)')
-            .addText(text => text
-                .setValue(this.plugin.settings.mm_fl_suf)
-                .onChange(async (value) => {
-                    this.plugin.settings.mm_fl_suf = value;
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
-        // Mindmap preamble
-        new Setting(containerEl)
-            .setName('Obsidian mindmap: Add a level')
-            .setDesc('If enabled, add a level containing all nodes to save space',)
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.mm_preamb).onChange((value) => {
-                    this.plugin.settings.mm_preamb = value;
-                    this.plugin.saveData(this.plugin.settings);
-
-                }),
-            );
-
-
-        // Essential mindmap toggle
-        new Setting(containerEl)
-            .setName('From PDF: Generate essentials Obsidian mindmap')
-            .setDesc('If enabled, generate the Obsidian mindmap with essentials (special levels) annotations when calling the plugin from a PDF file',)
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.mm_es_tog).onChange((value) => {
-                    this.plugin.settings.mm_es_tog = value;
-                    this.plugin.saveData(this.plugin.settings);
-
-                }),
-            );
-
-
-        // Mindmap of essentials file's suffixe
-        new Setting(containerEl)
-            .setName('File suffixes: Obsidian Mindmap of essentials')
-            .setDesc('File\'s suffixe for the Obsidian mindmap with only essentials (special levels) annotations.\nDefault: (mm essential)')
-            .addText(text => text
-                .setValue(this.plugin.settings.mm_es_suf)
-                .onChange(async (value) => {
-                    this.plugin.settings.mm_es_suf = value;
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
-
-        // EXTERNAL MINDMAPS
-        // Full external-mindmap toggle
-        new Setting(containerEl)
-            .setName('From PDF: Generate full file for external mindmap')
-            .setDesc('If enabled, generate the full file for external mindmap when calling the plugin from a PDF file',)
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.ext_fl_tog).onChange((value) => {
-                    this.plugin.settings.ext_fl_tog = value;
-                    this.plugin.saveData(this.plugin.settings);
-
-                }),
-            );
-
-
-        // Full external-mindmap file's suffixe
-        new Setting(containerEl)
-            .setName('File suffixes: Full external-mindmap')
-            .setDesc('File\'s suffixe for the external-mindmap file.\nDefault: (ext mm)')
-            .addText(text => text
-                .setValue(this.plugin.settings.ext_fl_suf)
-                .onChange(async (value) => {
-                    this.plugin.settings.ext_fl_suf = value;
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
-        // Essential external mindmap toggle
-        new Setting(containerEl)
-            .setName('From PDF: Generate essentials file for external mindmap')
-            .setDesc('If enabled, generate the file for external mindmap with essentials (special levels) annotations when calling the plugin from a PDF file',)
-            .addToggle((toggle) =>
-                toggle.setValue(this.plugin.settings.ext_es_tog).onChange((value) => {
-                    this.plugin.settings.ext_es_tog = value;
-                    this.plugin.saveData(this.plugin.settings);
-
-                }),
-            );
-
-
-        // Mindmap of essentials file's suffixe
-        new Setting(containerEl)
-            .setName('File suffixes: File for external mindmap of essentials')
-            .setDesc('File\'s suffixe for the external-mindmap with only essentials (special levels) annotations.\nDefault: (ext mm essential)')
-            .addText(text => text
-                .setValue(this.plugin.settings.ext_es_suf)
-                .onChange(async (value) => {
-                    this.plugin.settings.ext_es_suf = value;
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
 
 
         containerEl.createEl('h3', { text: 'Desired annotations' });
@@ -779,71 +638,6 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
             );
 
 
-        // External mindmap: Level 1
-        new Setting(containerEl)
-            .setName('Icons (ext. mm): Level 1')
-            .setDesc('Indicate the icon for level 1 annotations for external mindmap.\nDefault: 📌')
-            .addText(text => text
-                .setValue(this.plugin.settings.ext_lvl1_icon)
-                .onChange(async (value) => {
-                    this.plugin.settings.ext_lvl1_icon = value + " ";
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
-        // External mindmap: Level 2
-        new Setting(containerEl)
-            .setName('Icons (ext. mm): Level 2')
-            .setDesc('Indicate the icon for level 2 annotations for external mindmaps.\nDefault: [None]')
-            .addText(text => text
-                .setValue(this.plugin.settings.ext_lvl2_icon)
-                .onChange(async (value) => {
-                    this.plugin.settings.ext_lvl2_icon = value + " ";
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
-        // External mindmap: Level 3
-        new Setting(containerEl)
-            .setName('Icons (ext. mm): Level 3')
-            .setDesc('Indicate the icon for level 3 annotations for external mindmaps.\nDefault: 🔷')
-            .addText(text => text
-                .setValue(this.plugin.settings.ext_lvl3_icon)
-                .onChange(async (value) => {
-                    this.plugin.settings.ext_lvl3_icon = value + " ";
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
-        // External mindmap: Summmary
-        new Setting(containerEl)
-            .setName('Icons (ext. mm): Summary')
-            .setDesc('Indicate the icon for summaries annotations for external mindmaps.\nDefault: 📝')
-            .addText(text => text
-                .setValue(this.plugin.settings.ext_sumr_icon)
-                .onChange(async (value) => {
-                    this.plugin.settings.ext_sumr_icon = value + " ";
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
-        // External mindmap: Important
-        new Setting(containerEl)
-            .setName('Icons (ext. mm): Important')
-            .setDesc('Indicate the icon for important annotations for external mindmaps.\nDefault: ⚠️')
-            .addText(text => text
-                .setValue(this.plugin.settings.ext_impt_icon)
-                .onChange(async (value) => {
-                    this.plugin.settings.ext_impt_icon = value + " ";
-                    await this.plugin.saveData(this.plugin.settings);
-                }),
-            );
-
-
         // Unknown
         new Setting(containerEl)
             .setName('Icons: Unknown')
@@ -971,8 +765,6 @@ To do this:'});
                 }),
             );
 
-
-        // Full external-mindmap file's suffixe
         new Setting(containerEl)
             .setName('Link-command: Command to add')
             .setDesc('Command to add to the link so that (for instance) the PDF file is opened at the specified page. \
