@@ -123,10 +123,10 @@ export class PDFAnnotationPluginSetting {
         // Other emojis: ⚫⚪🟣🟤❔
         this.begin_prb = `---
 MOC: []
-Source: \"[[{fileName}]]\"
-Date: \" {dateTime}\"
+Source: "[[{fileName}]]"
+Date: "{dateTime}"
 tags:
-    - \"#Type/Note/Info\"
+    - "#Type/Note/Info"
 ---`;
         this.pdf_f_prb = `
 ---
@@ -656,7 +656,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
         // File's beginning
         new Setting(containerEl)
             .setName('Preambles: File beginning')
-            .setDesc('Text inserted at the file\'s beginning. \nThe marker {dateTime} will be replaced by\nthe date/Time in \"DD/MM/YYYY @HH:mm\" format')
+            .setDesc('Text inserted at the file\'s beginning. \nThe marker {dateTime} will be replaced by\nthe date/Time in "DD/MM/YYYY @HH:mm" format')
             .addTextArea(text => {
                 text.inputEl.style.width = '100%'
                 text.inputEl.style.height = '200px'

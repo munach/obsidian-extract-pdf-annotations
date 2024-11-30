@@ -131,6 +131,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		let text = "";
 
 		// ▶️ File preamble:
+        //TODO: Fix for multiple files -> Use folder name
 		text += "### [[" + currentFileName + "]]\n";
 
 		// ▶️ Formatting presentation:
@@ -269,11 +270,6 @@ export default class PDFAnnotationPlugin extends Plugin {
 		const lvl3_icon = this.settings.lvl3_icon + " ";
 		const sumr_icon = this.settings.sumr_icon + " ";
 		const impt_icon = this.settings.impt_icon + " ";
-		const ext_lvl1_icon = this.settings.ext_lvl1_icon + " ";
-		const ext_lvl2_icon = this.settings.ext_lvl2_icon + " ";
-		const ext_lvl3_icon = this.settings.ext_lvl3_icon + " ";
-		const ext_sumr_icon = this.settings.ext_sumr_icon + " ";
-		const ext_impt_icon = this.settings.ext_impt_icon + " ";
 		const unkn_icon = this.settings.unkn_icon + " ";
 
 		let l_levelPrefix = "";
@@ -772,8 +768,8 @@ export default class PDFAnnotationPlugin extends Plugin {
 				const filePathWithSlashs: string =
 					filePathWithoutQuotes.replace(/\\/g, "/");
 				const filePathSplits: string[] = filePathWithSlashs.split("/");
-				const fileName = filePathSplits.last();
-				const extension = fileName.split(".").last();
+				const fileName = filePathSplits.last() || "UNDEFINED";
+				const extension = fileName.split(".").last() || "pdf";
 				const encodedFilePath = encodeURI(
 					"file://" + filePathWithoutQuotes
 				);
