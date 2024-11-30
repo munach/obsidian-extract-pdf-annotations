@@ -2,7 +2,8 @@
 root = true
 
 [*]
-charset = utf-8
+charset = utf-
+end_of_line = lf
 insert_final_newline = true
 indent_style = tab
 indent_size = 4
