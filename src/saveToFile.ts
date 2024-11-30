@@ -1,5 +1,4 @@
 // Used to write data to file.
-import { TFile, TFolder } from 'obsidian';
 
 export async function saveDataToFile(filePath: string, dataStr: string): Promise<boolean> {
     let l_return = false;
