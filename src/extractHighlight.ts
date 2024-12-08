@@ -71,12 +71,19 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
 		if (ANNOTS_TREATED_AS_HIGHLIGHTS.includes(anno.subtype)) {
 			anno.highlightedText = extractHighlight(anno, content.items)
 		}
-		anno.folder = containingFolder
-		anno.file = file
-		anno.filepath = file.path		// we need a direct string property in the templates 
-		anno.pageNumber = pagenum
-		anno.author = anno.titleObj.str
-		anno.body = anno.contentsObj.str
+		if (anno.subtype == 'Highlight') { 
+          if (!anno.contentsObj.str.includes('#')) {
+            console.log(`Skipping… ` + anno.subtype + ` ` + anno.contentsObj.str)
+            return;
+          }
+        }
+        anno.folder = containingFolder;
+        anno.file = file;
+        anno.filepath = file.path;
+        anno.pageNumber = pagenum;
+        anno.author = anno.titleObj.str;
+        anno.body = anno.contentsObj.str + ` [[` + file.path + `#page=` + pagenum + `&annotation=` + anno.id + `|(` + pagenum +`)]]`;
+        anno.reference = anno.id;
 		total.push(anno)
 	});
 }
