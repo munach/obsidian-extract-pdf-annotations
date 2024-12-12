@@ -43,6 +43,8 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 	- {{body}}: 'Body of annotation'
 
 ## Versions
+1.6.0 use new version of pdf.js
+
 1.5.0 add setting for export path
 
 1.4.0 add support for squiggle annotations
