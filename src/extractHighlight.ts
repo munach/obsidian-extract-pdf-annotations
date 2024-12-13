@@ -1,7 +1,7 @@
 import { PDFFile } from 'src/types';
 import { ANNOTS_TREATED_AS_HIGHLIGHTS } from './settings';
-import * as pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs';
-import * as pdfjs from 'pdfjs-dist';
+import * as extracthighlights from "node_modules/extracthighlights-dist/build/extracthighlights";
+import * as extracthighlightsWorker from "node_modules/extracthighlights-dist/build/extracthighlights.worker.entry";
 
 // return text between min and max, x and y
 function searchQuad(minx: number, maxx: number, miny: number, maxy: number, items: any) {
@@ -50,6 +50,20 @@ export function extractHighlight(annot: any, items: any) {
 // if its a underline, squiggle or highlight, extract Highlight of the Annotation 
 // accumulate all annotations in the array total
 async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: string, total: object[], desiredAnnotations: string[]) {
+	var scale = 1;
+	var viewport = page.getViewport(scale);
+	// @ts-ignore
+	var canvas = document.createElement('canvas');
+	var context = canvas.getContext('2d');
+	canvas.height = viewport.height;
+	canvas.width = viewport.width;
+
+	var renderContext = {
+		canvasContext: context,
+		viewport: viewport
+	};
+
+	
 	let annotations = await page.getAnnotations()
 	console.log(annotations);
 	annotations = annotations.filter(function (anno) {
@@ -67,6 +81,7 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
 		return 0
 	})
 
+	await page.render(renderContext, annotations);
 
 	annotations.map(async function (anno) {
 		if (ANNOTS_TREATED_AS_HIGHLIGHTS.includes(anno.subtype)) {
@@ -80,13 +95,15 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
 		anno.body = anno.contentsObj.str
 		total.push(anno)
 	});
+
+	canvas = null;
 }
 
 
 export async function loadPDFFile(file: PDFFile, pdfjsLib, containingFolder: string, total: object[], desiredAnnotations: string[]) {
+	extracthighlights.GlobalWorkerOptions.workerSrcHighlights = extracthighlightsWorker;
 	//console.log(pdfjsLib);
-	pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
-	const pdf = await pdfjs.getDocument(file.content).promise;
+	const pdf = await extracthighlights.getDocument(file.content).promise;
 	for (let i = 1; i <= pdf.numPages; i++) {
 		const page = await pdf.getPage(i)
 		await loadPage(page, i, file, containingFolder, total, desiredAnnotations)
