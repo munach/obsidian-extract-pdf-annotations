@@ -6,6 +6,7 @@ import { Editor, FileSystemAdapter, loadPdfJs, MarkdownView, Plugin, TFile, Vaul
 import { loadPDFFile } from 'src/extractHighlight';
 import { ANNOTS_TREATED_AS_HIGHLIGHTS, PDFAnnotationPluginSetting, PDFAnnotationPluginSettingTab } from 'src/settings';
 import { IIndexable, PDFFile } from 'src/types';
+import * as pdfjs from 'pdfjs-dist';
 
 import * as fs from 'fs';
 
@@ -109,6 +110,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 	async loadSinglePDFFile(file: TFile) {
 		const pdfjsLib = await loadPdfJs()
+		//pdfjs.GlobalWorkerOptions.workerSrc = pdfjsworker;
 		const containingFolder = file.parent.name;
 		const grandtotal = [] // array that will contain all fetched Annotations
 		const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
@@ -155,7 +157,6 @@ export default class PDFAnnotationPlugin extends Plugin {
 	async onload() {
 		this.loadSettings();
 		this.addSettingTab(new PDFAnnotationPluginSettingTab(this.app, this));
-
 
 		this.addCommand({
 			id: 'extract-annotations-single',
