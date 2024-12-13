@@ -6,7 +6,6 @@ import { Editor, FileSystemAdapter, loadPdfJs, MarkdownView, Plugin, TFile, Vaul
 import { loadPDFFile } from 'src/extractHighlight';
 import { ANNOTS_TREATED_AS_HIGHLIGHTS, PDFAnnotationPluginSetting, PDFAnnotationPluginSettingTab } from 'src/settings';
 import { IIndexable, PDFFile } from 'src/types';
-import * as pdfjs from 'pdfjs-dist';
 
 import * as fs from 'fs';
 
