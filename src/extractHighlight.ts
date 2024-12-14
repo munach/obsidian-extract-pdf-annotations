@@ -1,5 +1,5 @@
 import { PDFFile } from 'src/types';
-import { ANNOTS_TREATED_AS_HIGHLIGHTS } from './settings';
+import { ANNOTS_TREATED_AS_HIGHLIGHTS } from 'src/settings';
 
 
 // return text between min and max, x and y
