@@ -9,7 +9,8 @@ export const TEMPLATE_VARIABLES = {
   filepath: 'Path of PDF file',
   pageNumber: 'Page number of annotation with reference to PDF pages',
   author: 'Author of annotation',
-  body: 'Body of annotation'
+  body: 'Body of annotation',
+  reference: "ID of annotation"
 };
 
 export const SUPPORTED_ANNOTS = {

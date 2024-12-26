@@ -65,6 +65,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		let currentFolder = ''
 		// console.log("all annots", grandtotal)
 		grandtotal.forEach((anno) => {
+			// Das ist aus meiner Sicht überflüssig
 			// print main Title when Topic changes (and settings allow)
 			if (this.settings.useStructuringHeadlines) {
 				if (this.settings.sortByTopic) {
@@ -88,6 +89,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				}
 			}
 
+			// Hier müsste die Routine zur Einrückung von Header-Zeilen eingefügt werden
 			if (ANNOTS_TREATED_AS_HIGHLIGHTS.includes(anno.subtype)) {
 				if (isExternalFile) {
 					text += this.getContentForHighlightFromExternalPDF(anno)
@@ -289,7 +291,8 @@ export default class PDFAnnotationPlugin extends Plugin {
 			filepath: annotation.filepath,
 			pageNumber: annotation.pageNumber,
 			author: annotation.author,
-			body: annotation.body
+			body: annotation.body,
+			id: annotation.reference
 		};
 
 		return { annotation: annotation, ...shortcuts };
