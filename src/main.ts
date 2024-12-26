@@ -63,6 +63,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		let text = ''
 		let topic = ''
 		let currentFolder = ''
+		let indentLevel = 0;
 		// console.log("all annots", grandtotal)
 		grandtotal.forEach((anno) => {
 			// Das ist aus meiner Sicht überflüssig
@@ -73,6 +74,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 						topic = anno.topic
 						currentFolder = ''
 						text += `# ${topic}\n`
+						indentLevel = 0;
 					}
 				}
 
@@ -80,30 +82,48 @@ export default class PDFAnnotationPlugin extends Plugin {
 					if (currentFolder != anno.folder) {
 						currentFolder = anno.folder
 						text += `## ${currentFolder}\n`
+						indentLevel = 0;
 					}
 				} else {
 					if (currentFolder != anno.file.name) {
 						currentFolder = anno.file.name
 						text += `## ${currentFolder}\n`
+						indentLevel = 0;
 					}
 				}
 			}
 
 			// Hier müsste die Routine zur Einrückung von Header-Zeilen eingefügt werden
+			let content = '';
 			if (ANNOTS_TREATED_AS_HIGHLIGHTS.includes(anno.subtype)) {
 				if (isExternalFile) {
-					text += this.getContentForHighlightFromExternalPDF(anno)
+					content += this.getContentForHighlightFromExternalPDF(anno)
 				} else {
-					text += this.getContentForHighlightFromInternalPDF(anno)
+					content += this.getContentForHighlightFromInternalPDF(anno)
 				}
 			} else {
 				if (isExternalFile) {
-					text += this.getContentForNoteFromExternalPDF(anno)
+					content += this.getContentForNoteFromExternalPDF(anno)
 				} else {
-					text += this.getContentForNoteFromInternalPDF(anno)
+					content += this.getContentForNoteFromInternalPDF(anno)
 				}
 			}
-		})
+
+			// Check for hastags and add tabs
+			if (content.match(/#+\s/)) {
+				const lines = content.split('\n');
+				content = lines.map(line => {
+					const match = line.match(/#+\s/);
+					const hashtagCount = match ? match[0].length - 1 : 0;
+					indentLevel = hashtagCount;
+					return '\t'.repeat(hashtagCount) + line + 'hashtagCount = ' + hashtagCount;
+				}).join('\n');
+			} else {
+				const lines = content.split('\n');
+				content = lines.map(line => '\t'.repeat(indentLevel) + line + 'indentLevel = ' + indentLevel).join('\n');
+			}
+			text += content;
+		});
 
 		if (grandtotal.length == 0) return '*No Annotations*'
 		else return text
