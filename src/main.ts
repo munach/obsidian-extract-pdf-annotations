@@ -115,9 +115,9 @@ export default class PDFAnnotationPlugin extends Plugin {
 					const match = content.match(/(?<=\s)#+(?=\s)/);				
 					var hashtagCount = match ? match[0].length : 0;
 					indentLevel = hashtagCount;
-					content = '\t'.repeat(hashtagCount - 1) + content + 'hashtagCount = ' + hashtagCount + '\n';
+					content = '\t'.repeat(hashtagCount - 1) + content + '\n';
 				} else {
-					content = '\t'.repeat(indentLevel) + content + 'indentLevel = ' + indentLevel + '\n';
+					content = '\t'.repeat(indentLevel) + content + '\n';
 				}
 			}
 			text += content;

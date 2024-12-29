@@ -25,23 +25,32 @@ function searchQuad(minx: number, maxx: number, miny: number, maxy: number, item
 
 // iterate over all QuadPoints and join retrieved lines 
 export function extractHighlight(annot: any, items: any) {
-	const highlight = annot.quadPoints.reduce((txt: string, quad: any) => {
-		const minx = quad.reduce((prev: number, curr: any) => Math.min(prev, curr.x), quad[0].x)
-		const maxx = quad.reduce((prev: number, curr: any) => Math.max(prev, curr.x), quad[0].x)
-		const miny = quad.reduce((prev: number, curr: any) => Math.min(prev, curr.y), quad[0].y)
-		const maxy = quad.reduce((prev: number, curr: any) => Math.max(prev, curr.y), quad[0].y)
-		const res = searchQuad(minx, maxx, miny, maxy, items)
-		if (txt.substring(txt.length - 1) != '-') {
-			return txt + ' ' + res    // concatenate lines by 'blank' 
-		} else if (txt.substring(txt.length - 2).toLowerCase() == txt.substring(txt.length - 2) &&  // end by lowercase-
-			res.substring(0, 1).toLowerCase() == res.substring(0, 1)) {						 // and start with lowercase
-			return txt.substring(0, txt.length - 1) + res	// remove hyphon
-		} else {
-			return txt + res							// keep hyphon 
-		}
-	}, '');
-	return highlight
+  const highlight = annot.quadPoints.reduce((txt: string, quad: Float32Array) => {
+    if (quad.length === 0) {console.log('Quad is empty'); return txt;} // Skip if quad is empty
+
+    const xValues = [quad[0], quad[2], quad[4], quad[6]];
+    const yValues = [quad[1], quad[3], quad[5], quad[7]];
+
+    const minx = Math.min(...xValues);
+    const maxx = Math.max(...xValues);
+    const miny = Math.min(...yValues);
+    const maxy = Math.max(...yValues);
+
+    const res = searchQuad(minx, maxx, miny, maxy, items);
+    console.log("search Quad result (= res): " + res);
+
+    if (txt.substring(txt.length - 1) != '-') {
+      return txt + ' ' + res; // Concatenate lines by 'blank'
+    } else if (txt.substring(txt.length - 2).toLowerCase() == txt.substring(txt.length - 2) && // End by lowercase-
+      res.substring(0, 1).toLowerCase() == res.substring(0, 1)) { // And start with lowercase
+      return txt.substring(0, txt.length - 1) + res; // Remove hyphen
+    } else {
+      return txt + res; // Keep hyphen
+    }
+  }, '');
+  return highlight;
 }
+
 
 
 // load the PDFpage, then get all Annotations
@@ -69,7 +78,10 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
 
 	annotations.map(async function (anno) {
 		if (ANNOTS_TREATED_AS_HIGHLIGHTS.includes(anno.subtype)) {
+			console.log("Considering annotation:");
+			console.dir(anno);
 			anno.highlightedText = extractHighlight(anno, content.items)
+			console.log("Highlighted Text: " + anno.highlightedText);
 		}
 		if (anno.subtype == 'Highlight') { 
           if (!anno.contentsObj.str.includes('#')) {
