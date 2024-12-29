@@ -110,17 +110,15 @@ export default class PDFAnnotationPlugin extends Plugin {
 			}
 
 			// Check for hastags and add tabs
-			if (content.match(/#+\s/)) {
-				const lines = content.split('\n');
-				content = lines.map(line => {
-					const match = line.match(/#+\s/);
-					const hashtagCount = match ? match[0].length - 1 : 0;
+			if (content && content.trim() !== "") {
+				if (content.match(/#+\s/)) {
+					const match = content.match(/(?<=\s)#+(?=\s)/);				
+					var hashtagCount = match ? match[0].length : 0;
 					indentLevel = hashtagCount;
-					return '\t'.repeat(hashtagCount) + line + 'hashtagCount = ' + hashtagCount;
-				}).join('\n');
-			} else {
-				const lines = content.split('\n');
-				content = lines.map(line => '\t'.repeat(indentLevel) + line + 'indentLevel = ' + indentLevel).join('\n');
+					content = '\t'.repeat(hashtagCount - 1) + content + 'hashtagCount = ' + hashtagCount + '\n';
+				} else {
+					content = '\t'.repeat(indentLevel) + content + 'indentLevel = ' + indentLevel + '\n';
+				}
 			}
 			text += content;
 		});
