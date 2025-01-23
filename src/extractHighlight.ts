@@ -77,6 +77,7 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
             return;
           }
         }
+        console.dir(anno);
         anno.folder = containingFolder;
         anno.file = file;
         anno.filepath = file.path;
