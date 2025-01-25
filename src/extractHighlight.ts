@@ -35,9 +35,9 @@ export function extractHighlight(annot: any, items: any) {
 			return txt + ' ' + res    // concatenate lines by 'blank' 
 		} else if (txt.substring(txt.length - 2).toLowerCase() == txt.substring(txt.length - 2) &&  // end by lowercase-
 			res.substring(0, 1).toLowerCase() == res.substring(0, 1)) {						 // and start with lowercase
-			return txt.substring(0, txt.length - 1) + res	// remove hyphon
+			return txt.substring(0, txt.length - 1) + res	// remove hyphen
 		} else {
-			return txt + res							// keep hyphon 
+			return txt + res							// keep hyphen 
 		}
 	}, '');
 	return highlight
@@ -83,7 +83,11 @@ async function loadPage(page, pagenum: number, file: PDFFile, containingFolder: 
         anno.filepath = file.path;
         anno.pageNumber = pagenum;
         anno.author = anno.titleObj.str;
-        anno.body = anno.contentsObj.str + ` [[` + file.path + `#page=` + pagenum + `&annotation=` + anno.id + `|(` + pagenum +`)]]`;
+        if (!anno.highlightedText) {
+        	anno.body = anno.contentsObj.str;
+        } else {
+        	anno.body = anno.highlightedText + ` ` + anno.contentsObj.str;
+        };
         anno.reference = anno.id;
 		total.push(anno)
 	});
