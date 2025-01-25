@@ -116,11 +116,22 @@ export default class PDFAnnotationPlugin extends Plugin {
 					var hashtagCount = match ? match[0].length : 0;
 					indentLevel = hashtagCount;
 					content = '\t'.repeat(hashtagCount - 1) + content + '\n';
+				} else if (content.match(/#Quote/)) {
+						const lines = text.split("\n");
+						const substr = lines[lines.length - 2];
+						console.log("vorletzte Zeile: " + substr);
+  						if (!substr.includes("[\"]")) {
+  							console.log("vorletzte Zeile enthält kein Zitat!");
+  							lines[lines.length - 2] += "%% fold %%";
+  						};
+  						text = lines.join("\n");
+						content = '\t'.repeat(indentLevel + 1) + content + '\n';
+						// text = text.replace(/\n$/, '%%FOLD%%\n');
 				} else {
-					content = '\t'.repeat(indentLevel) + content + '\n';
+						content = '\t'.repeat(indentLevel) + content + '\n';
 				}
-			}
 			text += content;
+			}
 		});
 
 		if (grandtotal.length == 0) return '*No Annotations*'
@@ -310,7 +321,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 			pageNumber: annotation.pageNumber,
 			author: annotation.author,
 			body: annotation.body,
-			id: annotation.reference
+			reference: annotation.reference
 		};
 
 		return { annotation: annotation, ...shortcuts };
