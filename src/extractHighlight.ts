@@ -23,9 +23,22 @@ function searchQuad(minx: number, maxx: number, miny: number, maxy: number, item
 }
 
 
-// iterate over all QuadPoints and join retrieved lines 
+// iterate over all QuadPoints and join retrieved lines
 export function extractHighlight(annot: any, items: any) {
-	const highlight = annot.quadPoints.reduce((txt: string, quad: any) => {
+	const legacyQuadPoints = [];
+	// Recreate legacy quadPoints array, with the form [[{x: 1, y: 2}, {x: 3, y: 4}, {x: 5, y: 6}, {x: 7, y: 8}], ...]
+	// One quad is 4 points (x,y) in the order tL, tR, bL, bR, multiple quads for multiple lines
+	for (let i = 0; i < annot.quadPoints.length / 8; i++) {
+		const oneQuad = [];
+		for (let j = 0; j < 8; j = j + 2) {
+			oneQuad.push({
+				x: annot.quadPoints[j + i * 8],
+				y: annot.quadPoints[j + 1 + i * 8],
+			});
+		}
+	}
+	console.log("legacyQuadPoints", legacyQuadPoints);
+	const highlight = legacyQuadPoints.reduce((txt: string, quad: any) => {
 		const minx = quad.reduce((prev: number, curr: any) => Math.min(prev, curr.x), quad[0].x)
 		const maxx = quad.reduce((prev: number, curr: any) => Math.max(prev, curr.x), quad[0].x)
 		const miny = quad.reduce((prev: number, curr: any) => Math.min(prev, curr.y), quad[0].y)
