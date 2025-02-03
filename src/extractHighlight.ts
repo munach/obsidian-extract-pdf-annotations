@@ -31,11 +31,10 @@ export function extractHighlight(annot: any, items: any) {
 		const miny = quad.reduce((prev: number, curr: any) => Math.min(prev, curr.y), quad[0].y)
 		const maxy = quad.reduce((prev: number, curr: any) => Math.max(prev, curr.y), quad[0].y)
 		const res = searchQuad(minx, maxx, miny, maxy, items)
-		if (txt.substring(txt.length - 1) != '-') {
-		// if the last character of the text is not a hyphen, we concatenate the lines, by adding a blank
 		if (txt == '') {
 			return res
-		}		
+		}
+		// if the last character of the text is not a hyphen, we concatenate the lines, by adding a blank		
 		else if (txt.substring(txt.length - 1) != '-') {
 			return txt + ' ' + res    // concatenate lines by 'blank' 
 		} else if (txt.substring(txt.length - 2).toLowerCase() == txt.substring(txt.length - 2) &&  // end by lowercase-
