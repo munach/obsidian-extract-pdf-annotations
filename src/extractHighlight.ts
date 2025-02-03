@@ -48,6 +48,7 @@ export function extractHighlight(annot: any, items: any) {
 				y: annot.quadPoints[j + 1 + i * 8],
 			});
 		}
+		legacyQuadPoints.push(oneQuad);
 	}
 	const highlight = legacyQuadPoints.reduce((txt: string, quad: any) => {
 		const minx = quad.reduce(
