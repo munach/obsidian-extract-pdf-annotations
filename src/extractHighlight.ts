@@ -31,6 +31,7 @@ export function extractHighlight(annot: any, items: any) {
 		const miny = quad.reduce((prev: number, curr: any) => Math.min(prev, curr.y), quad[0].y)
 		const maxy = quad.reduce((prev: number, curr: any) => Math.max(prev, curr.y), quad[0].y)
 		const res = searchQuad(minx, maxx, miny, maxy, items)
+		// if the text is empty, we return the whole result
 		if (txt == '') {
 			return res
 		}
