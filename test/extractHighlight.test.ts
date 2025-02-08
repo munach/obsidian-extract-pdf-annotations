@@ -23,27 +23,21 @@ describe('extractHighlight - simple text', () => {
 	];
 	test('should extract highlighted text', () => {
     const annot = {
-      quadPoints: [
-        [{x: 70.636, y: 634.118}, {x: 81.304, y: 634.118}, {x: 70.636, y: 622.742}, {x: 81.304, y: 622.742}],
-      ],
+      quadPoints: [70.636, 634.118, 81.304, 634.118, 70.636, 622.742, 81.304, 622.742],
     };
 		const result = extractHighlight(annot, items);
 		expect(result).toBe('1)');
 	});
   test('should extract highlighted text', () => {
     const annot = {
-      quadPoints: [
-        [{x: 71.5, y: 603.974}, {x: 104.188, y: 603.974}, {x: 71.5, y: 595.118}, {x: 104.188, y: 595.118}],
-      ],
+      quadPoints: [71.5, 603.974, 104.188, 603.974, 71.5, 595.118, 104.188, 595.118],
     };
     const result = extractHighlight(annot, items);
     expect(result).toBe('Lesen');
   });
   test('should extract highlighted text', () => { 
     const annot = {
-      quadPoints: [
-        [{x: 52, y: 694.118}, {x: 81.304, y: 694.118}, {x: 52, y: 682.742}, {x: 81.304, y: 682.742}],
-      ],
+      quadPoints: [52, 694.118, 81.304, 694.118, 52, 682.742, 81.304, 682.742],
     };
     const result = extractHighlight(annot, items);
     expect(result).toBe('(S. 1)');
@@ -51,9 +45,7 @@ describe('extractHighlight - simple text', () => {
 
   test('should extract highlighted letter', () => {
     const annot = {
-      quadPoints: [
-        [{x: 71.5, y: 663.974}, {x: 82.816, y: 663.974}, {x: 71.5, y: 653.558}, {x: 82.816, y: 653.558}],
-      ],
+      quadPoints: [71.5, 663.974, 82.816, 663.974, 71.5, 653.558, 82.816, 653.558],
     };
     const result = extractHighlight(annot, items);
     expect(result).toBe('W');
@@ -61,9 +53,7 @@ describe('extractHighlight - simple text', () => {
 
   test('should extract highlighted letter', () => {
     const annot = {
-      quadPoints: [
-        [{x: 82.609, y: 663.974}, {x: 89.281, y: 663.974}, {x: 82.609, y: 653.558}, {x: 89.281, y: 653.558}],
-      ],
+      quadPoints: [82.609, 663.974, 89.281, 663.974, 82.609, 653.558, 89.281, 653.558],
     };
     const result = extractHighlight(annot, items);
     expect(result).toBe('o');
@@ -71,9 +61,7 @@ describe('extractHighlight - simple text', () => {
   
   test('should extract highlighted letter', () => {
     const annot = {
-      quadPoints: [
-        [{x: 89.281, y: 663.974}, {x: 93.445, y: 663.974}, {x: 89.281, y: 653.558}, {x: 93.445, y: 653.558}],
-      ],
+      quadPoints: [89.281, 663.974, 93.445, 663.974, 89.281, 653.558, 93.445, 653.558],
     };
     const result = extractHighlight(annot, items);
     expect(result).toBe('r');
@@ -82,9 +70,7 @@ describe('extractHighlight - simple text', () => {
   
   test('should extract highlighted letter', () => {
     const annot = {
-      quadPoints: [
-        [{x: 93.277, y: 663.974}, {x: 99.949, y: 663.974}, {x: 93.277, y: 653.558}, {x: 99.949, y: 653.558}],
-      ],
+      quadPoints: [93.277, 663.974, 99.949, 663.974, 93.277, 653.558, 99.949, 653.558],
     };
     const result = extractHighlight(annot, items);
     expect(result).toBe('d');
@@ -93,9 +79,7 @@ describe('extractHighlight - simple text', () => {
   
   test('should extract highlighted letter', () => {
     const annot = {
-      quadPoints: [
-        [{x: 99.949, y: 663.974}, {x: 103.273, y: 663.974}, {x: 99.949, y: 653.558}, {x: 103.273, y: 653.558}],
-      ],
+      quadPoints: [99.949, 663.974, 103.273, 663.974, 99.949, 653.558, 103.273, 653.558],
     };
     const result = extractHighlight(annot, items);
     expect(result).toBe(',');
@@ -103,9 +87,7 @@ describe('extractHighlight - simple text', () => {
 
   test('should extract underlined word', () => {
     const annot = {
-      quadPoints: [
-        [{x: 71.5, y: 603.974}, {x: 104.188, y: 603.974}, {x: 71.5, y: 594.118}, {x: 104.188, y: 594.118}],
-      ],
+      quadPoints: [71.5, 603.974, 104.188, 603.974, 71.5, 594.118, 104.188, 594.118],
     };
     const result = extractHighlight(annot, items);
     expect(result).toBe('Word');
@@ -113,9 +95,7 @@ describe('extractHighlight - simple text', () => {
 
   test('should extract underlined letter', () => {
     const annot = {
-      quadPoints: [
-        [{x: 55.996, y: 634.118}, {x: 63.988, y: 634.118}, {x: 55.996, y: 621.742}, {x: 63.988, y: 621.742}],
-      ],
+      quadPoints: [55.996, 634.118, 63.988, 634.118, 55.996, 621.742, 63.988, 621.742],
     };
     const result = extractHighlight(annot, items);
     expect(result).toBe('S');
@@ -123,9 +103,7 @@ describe('extractHighlight - simple text', () => {
 
   test('should extract swiggled letter', () => {
     const annot = {
-      quadPoints: [
-        [{x: 71.5, y: 663.974}, {x: 82.816, y: 663.974}, {x: 71.5, y: 652.558}, {x: 82.816, y: 652.558}],
-      ],
+      quadPoints: [71.5, 663.974, 82.816, 663.974, 71.5, 652.558, 82.816, 652.558],
     };
     const result = extractHighlight(annot, items);
     expect(result).toBe('W');
@@ -133,9 +111,7 @@ describe('extractHighlight - simple text', () => {
 
   test('should extract squiggled word', () => {
     const annot = {
-      quadPoints: [
-        [{x: 71.5, y: 723.974}, {x: 87.508, y: 723.974}, {x: 71.5, y: 714.118}, {x: 87.508, y: 714.118}],
-      ],
+      quadPoints: [71.5, 723.974, 87.508, 723.974, 71.5, 714.118, 87.508, 714.118],
     };
     const result = extractHighlight(annot, items);
     expect(result).toBe('die');
