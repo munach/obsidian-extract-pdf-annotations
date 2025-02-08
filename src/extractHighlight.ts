@@ -68,12 +68,8 @@ export function extractHighlight(annot: any, items: any) {
 			quad[0].y
 		);
 		const res = searchQuad(minx, maxx, miny, maxy, items);
-		// if the text is empty, we return the whole result
-		if (txt == '') {
-			return res
-		}
 		// if the last character of the text is not a hyphen, we concatenate the lines, by adding a blank
-		if (txt.substring(txt.length - 1) != "-") {
+		if (txt != "" && txt.substring(txt.length - 1) != "-") {
 			return txt + " " + res;
 		} else if (
 			txt.substring(txt.length - 2).toLowerCase() ==
@@ -83,7 +79,7 @@ export function extractHighlight(annot: any, items: any) {
 			// and start with lowercase
 			return txt.substring(0, txt.length - 1) + res; // remove hyphon
 		} else {
-			return txt + res; // keep hyphon
+			return txt + res; // keep hyphon or if the previous text is empty, return the whole result
 		}
 	}, "");
 	return highlight;
