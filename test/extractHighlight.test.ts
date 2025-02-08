@@ -43,6 +43,14 @@ describe('extractHighlight - simple text', () => {
     expect(result).toBe('(S. 1)');
   });
 
+  test('should extract highlighted text over multiple lines', () => {
+    const annot = {
+      quadPoints: [93.50800323486328, 723.9739990234375, 100.18000030517578, 723.9739990234375, 93.50800323486328, 715.1179809570312, 100.18000030517578, 715.1179809570312, 52, 694.1179809570312, 63.987998962402344, 694.1179809570312, 52, 682.7420043945312, 63.987998962402344, 682.7420043945312],
+    };
+    const result = extractHighlight(annot, items);
+    expect(result).toBe('e (S');
+  });
+
   test('should extract highlighted letter', () => {
     const annot = {
       quadPoints: [71.5, 663.974, 82.816, 663.974, 71.5, 653.558, 82.816, 653.558],
