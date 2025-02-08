@@ -90,7 +90,7 @@ describe('extractHighlight - simple text', () => {
       quadPoints: [71.5, 603.974, 104.188, 603.974, 71.5, 594.118, 104.188, 594.118],
     };
     const result = extractHighlight(annot, items);
-    expect(result).toBe('Word');
+    expect(result).toBe('Lesen');
   });
 
   test('should extract underlined letter', () => {
