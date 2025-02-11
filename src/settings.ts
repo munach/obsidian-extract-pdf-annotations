@@ -154,9 +154,11 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
       );
     
     new Setting(containerEl)
-      .setName('Notes export path')
-      .setDesc('The path to which the notes, including the extracted annotations, will be exported. The path should be relative to the vault root. Paths must end with a \'/\'. Leave blank to export to the vault root.')
-      .addText((input) => this.buildValueInput(input, 'exportPath'));
+			.setName("Notes export path")
+			.setDesc(
+				"The path to which the notes, including the extracted annotations, will be exported. The path can be dynamic './' to create a note next to the PDF or it should be relative to the vault root. Paths must end with a '/'. Leave blank to export to the vault root."
+			)
+			.addText((input) => this.buildValueInput(input, "exportPath"));
 
     containerEl.createEl('h3', { text: 'Desired annotations' });
     const desiredAnnotationsInstructionsEl = containerEl.createEl('p');
