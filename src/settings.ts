@@ -235,7 +235,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 				this.buildValueInput(input, "highlightTemplateInternalPDFs");
 			});
 
-      new Setting(containerEl)
+		new Setting(containerEl)
 			.setName("Use structuring headlines")
 			.setDesc(
 				"If disabled, no structuring headlines will be shown. Just the annotations in the specified template style."
@@ -276,9 +276,11 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 						this.plugin.saveData(this.plugin.settings);
 					})
 			);
-    
-      containerEl.createEl("h3", { text: "Settings for `Extract PDF Annotations on single file`" });
-      new Setting(containerEl)
+
+		containerEl.createEl("h3", {
+			text: "Settings for `Extract PDF Annotations on single file`",
+		});
+		new Setting(containerEl)
 			.setName("Notes export path")
 			.setDesc(
 				"The path to which the notes, including the extracted annotations, will be exported. The path can be dynamic './' to create a note next to the PDF or it has to be relative to the vault root. Paths must end with a '/'. Leave blank to export to the vault root."
