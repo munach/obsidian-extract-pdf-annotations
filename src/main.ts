@@ -119,15 +119,15 @@ export default class PDFAnnotationPlugin extends Plugin {
 		this.sort(grandtotal)
 		const finalMarkdown = this.format(grandtotal, false)
 
-		let filePathOfExportedNote = "";
-		const fileNameOfExportedNote = this.getResolvedExportName(pdfFile) + '.md';
+		let filePathOfExportNote = "";
+		const fileNameOfExportNote = this.getResolvedExportName(pdfFile) + '.md';
 		// Check if export path should be dynamic=next to PDF (./) or static=from settings (path/)
 		if (exportPath === './') {
-			filePathOfExportedNote = pdfFile.path.replace(pdfFile.name, fileNameOfExportedNote);
+			filePathOfExportNote = pdfFile.path.replace(pdfFile.name, fileNameOfExportNote);
 		} else {
-			filePathOfExportedNote = exportPath + fileNameOfExportedNote;
+			filePathOfExportNote = exportPath + fileNameOfExportNote;
 		}
-		await this.saveHighlightsToFileAndOpenIt(filePathOfExportedNote, finalMarkdown);
+		await this.saveHighlightsToFileAndOpenIt(filePathOfExportNote, finalMarkdown);
 	}
 
 	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePathFromClipboard: string) {
