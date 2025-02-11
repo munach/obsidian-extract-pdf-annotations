@@ -107,21 +107,27 @@ export default class PDFAnnotationPlugin extends Plugin {
 		else return text
 	}
 
-	async loadSinglePDFFile(file: TFile) {
+	async loadSinglePDFFile(pdfFile: TFile) {
 		const pdfjsLib = await loadPdfJs()
-		const containingFolder = file.parent.name;
+		const containingFolder = pdfFile.parent.name;
 		const grandtotal = [] // array that will contain all fetched Annotations
 		const desiredAnnotations = this.settings.parsedSettings.desiredAnnotations;
 		const exportPath = this.settings.exportPath;
-		console.log('loading from file ', file)
-		const content = await this.app.vault.readBinary(file)
-		await loadPDFFile(PDFFile.convertTFileToPDFFile(file, content), pdfjsLib, containingFolder, grandtotal, desiredAnnotations)
+		console.log('loading from file ', pdfFile)
+		const content = await this.app.vault.readBinary(pdfFile)
+		await loadPDFFile(PDFFile.convertTFileToPDFFile(pdfFile, content), pdfjsLib, containingFolder, grandtotal, desiredAnnotations)
 		this.sort(grandtotal)
 		const finalMarkdown = this.format(grandtotal, false)
 
-		let filePath = file.name.replace(".pdf", ".md");
-		filePath = "Annotations for " + filePath;
-		await this.saveHighlightsToFileAndOpenIt(exportPath + filePath, finalMarkdown);
+		let filePathOfExportNote = "";
+		const fileNameOfExportNote = this.getResolvedExportName(pdfFile) + '.md';
+		// Check if export path should be dynamic=next to PDF (./) or static=from settings (path/)
+		if (exportPath === './') {
+			filePathOfExportNote = pdfFile.path.replace(pdfFile.name, fileNameOfExportNote);
+		} else {
+			filePathOfExportNote = exportPath + fileNameOfExportNote;
+		}
+		await this.saveHighlightsToFileAndOpenIt(filePathOfExportNote, finalMarkdown);
 	}
 
 	async loadAnnotationsFromSinglePDFFileFromClipboardPath(filePathFromClipboard: string) {
@@ -229,6 +235,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 					'useFolderNames',
 					'sortByTopic',
 					'exportPath',
+					'exportName',
 					'desiredAnnotations',
 					'noteTemplateExternalPDFs',
 					'noteTemplateInternalPDFs',
@@ -281,6 +288,13 @@ export default class PDFAnnotationPlugin extends Plugin {
 		);
 	}
 
+	get exportNameTemplate(): Template {
+		return compileTemplate(
+			this.settings.exportName,
+			this.templateSettings,
+		);
+	}
+
 	getTemplateVariablesForAnnotation(annotation: any): Record<string, any> {
 		const shortcuts = {
 			highlightedText: annotation.highlightedText,
@@ -293,6 +307,14 @@ export default class PDFAnnotationPlugin extends Plugin {
 		};
 
 		return { annotation: annotation, ...shortcuts };
+	}
+
+	getTemplateVariablesForExportName(file: TFile): Record<string, any> {
+		const shortcuts = {
+			filename: file.basename,
+		};
+		
+		return { file: file, ...shortcuts };
 	}
 
 
@@ -317,6 +339,12 @@ export default class PDFAnnotationPlugin extends Plugin {
 	getContentForHighlightFromInternalPDF(annotation: any): string {
 		return this.highlightFromInternalPDFsTemplate(
 			this.getTemplateVariablesForAnnotation(annotation),
+		);
+	}
+
+	getResolvedExportName(file: TFile): string {
+		return this.exportNameTemplate(
+			this.getTemplateVariablesForExportName(file),
 		);
 	}
 
