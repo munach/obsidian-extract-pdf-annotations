@@ -120,7 +120,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		const finalMarkdown = this.format(grandtotal, false)
 
 		let filePathOfExportedNote = "";
-		const fileNameOfExportedNote = "Annotations for " + pdfFile.name.replace(".pdf", ".md");
+		const fileNameOfExportedNote = this.getResolvedExportName(pdfFile) + '.md';
 		// Check if export path should be dynamic=next to PDF (./) or static=from settings (path/)
 		if (exportPath === './') {
 			filePathOfExportedNote = pdfFile.path.replace(pdfFile.name, fileNameOfExportedNote);
@@ -235,6 +235,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 					'useFolderNames',
 					'sortByTopic',
 					'exportPath',
+					'exportName',
 					'desiredAnnotations',
 					'noteTemplateExternalPDFs',
 					'noteTemplateInternalPDFs',
@@ -287,6 +288,13 @@ export default class PDFAnnotationPlugin extends Plugin {
 		);
 	}
 
+	get exportNameTemplate(): Template {
+		return compileTemplate(
+			this.settings.exportName,
+			this.templateSettings,
+		);
+	}
+
 	getTemplateVariablesForAnnotation(annotation: any): Record<string, any> {
 		const shortcuts = {
 			highlightedText: annotation.highlightedText,
@@ -299,6 +307,14 @@ export default class PDFAnnotationPlugin extends Plugin {
 		};
 
 		return { annotation: annotation, ...shortcuts };
+	}
+
+	getTemplateVariablesForExportName(file: TFile): Record<string, any> {
+		const shortcuts = {
+			filename: file.basename,
+		};
+		
+		return { file: file, ...shortcuts };
 	}
 
 
@@ -323,6 +339,12 @@ export default class PDFAnnotationPlugin extends Plugin {
 	getContentForHighlightFromInternalPDF(annotation: any): string {
 		return this.highlightFromInternalPDFsTemplate(
 			this.getTemplateVariablesForAnnotation(annotation),
+		);
+	}
+
+	getResolvedExportName(file: TFile): string {
+		return this.exportNameTemplate(
+			this.getTemplateVariablesForExportName(file),
 		);
 	}
 
