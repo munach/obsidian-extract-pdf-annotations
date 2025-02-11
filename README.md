@@ -43,6 +43,8 @@ As such, you can relate comments for your topics (here 'Hello World') from sever
 	- {{body}}: 'Body of annotation'
 
 ## Versions
+1.7.0 add settings for dynamic export path (next to PDF) and export name
+
 1.6.0 fix bug after pdfjs api change
 
 1.5.0 add setting for export path
