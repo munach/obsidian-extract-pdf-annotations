@@ -133,55 +133,6 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
-		new Setting(containerEl)
-			.setName("Use structuring headlines")
-			.setDesc(
-				"If disabled, no structuring headlines will be shown. Just the annotations in the specified template style."
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.useStructuringHeadlines)
-					.onChange((value) => {
-						this.plugin.settings.useStructuringHeadlines = value;
-						this.plugin.saveData(this.plugin.settings);
-					})
-			);
-
-		new Setting(containerEl)
-			.setName("Use Folder Name")
-			.setDesc(
-				"If enabled, uses the PDF's folder name (instead of the PDF-Filename) for sorting"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.useFolderNames)
-					.onChange((value) => {
-						this.plugin.settings.useFolderNames = value;
-						this.plugin.saveData(this.plugin.settings);
-					})
-			);
-
-		new Setting(containerEl)
-			.setName("Sort by Topic")
-			.setDesc(
-				"If enabled, uses the notes first line as Topic for primary sorting"
-			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(this.plugin.settings.sortByTopic)
-					.onChange((value) => {
-						this.plugin.settings.sortByTopic = value;
-						this.plugin.saveData(this.plugin.settings);
-					})
-			);
-
-		new Setting(containerEl)
-			.setName("Notes export path")
-			.setDesc(
-				"The path to which the notes, including the extracted annotations, will be exported. The path can be dynamic './' to create a note next to the PDF or it should be relative to the vault root. Paths must end with a '/'. Leave blank to export to the vault root."
-			)
-			.addText((input) => this.buildValueInput(input, "exportPath"));
-
 		containerEl.createEl("h3", { text: "Desired annotations" });
 		const desiredAnnotationsInstructionsEl = containerEl.createEl("p");
 		desiredAnnotationsInstructionsEl.append(
@@ -283,5 +234,55 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 				input.inputEl.style.height = "10em";
 				this.buildValueInput(input, "highlightTemplateInternalPDFs");
 			});
+
+      new Setting(containerEl)
+			.setName("Use structuring headlines")
+			.setDesc(
+				"If disabled, no structuring headlines will be shown. Just the annotations in the specified template style."
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.useStructuringHeadlines)
+					.onChange((value) => {
+						this.plugin.settings.useStructuringHeadlines = value;
+						this.plugin.saveData(this.plugin.settings);
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Use Folder Name")
+			.setDesc(
+				"If enabled, uses the PDF's folder name (instead of the PDF-Filename) for sorting"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.useFolderNames)
+					.onChange((value) => {
+						this.plugin.settings.useFolderNames = value;
+						this.plugin.saveData(this.plugin.settings);
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Sort by Topic")
+			.setDesc(
+				"If enabled, uses the notes first line as Topic for primary sorting"
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.sortByTopic)
+					.onChange((value) => {
+						this.plugin.settings.sortByTopic = value;
+						this.plugin.saveData(this.plugin.settings);
+					})
+			);
+    
+      containerEl.createEl("h3", { text: "Settings for `Extract PDF Annotations on single file`" });
+      new Setting(containerEl)
+			.setName("Notes export path")
+			.setDesc(
+				"The path to which the notes, including the extracted annotations, will be exported. The path can be dynamic './' to create a note next to the PDF or it has to be relative to the vault root. Paths must end with a '/'. Leave blank to export to the vault root."
+			)
+			.addText((input) => this.buildValueInput(input, "exportPath"));
 	}
 }
