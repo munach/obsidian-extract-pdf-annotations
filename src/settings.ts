@@ -299,9 +299,9 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 			)
 			.addText((input) => this.buildValueInput(input, "exportName"));
 		new Setting(containerEl)
-			.setName("One file per annotation")
+			.setName("One note per annotation")
 			.setDesc(
-				"If enabled, every annotation is exported to a separate file."
+				"If enabled, every annotation is exported to a separate note."
 			)
 			.addToggle((toggle) =>
 				toggle
