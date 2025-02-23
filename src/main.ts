@@ -287,6 +287,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 					"highlightTemplateExternalPDFs",
 					"highlightTemplateInternalPDFs",
 					"oneFilePerAnnotation",
+					"oneNotePerAnnotationExportName"
 				];
 				toLoad.forEach((setting) => {
 					if (setting in loadedSettings) {

@@ -44,6 +44,7 @@ export class PDFAnnotationPluginSetting {
 	public highlightTemplateExternalPDFs: string;
 	public highlightTemplateInternalPDFs: string;
 	public oneFilePerAnnotation: boolean;
+	public oneNotePerAnnotationExportName: string;
 	public parsedSettings: {
 		desiredAnnotations: string[];
 	};
@@ -53,7 +54,7 @@ export class PDFAnnotationPluginSetting {
 		this.useFolderNames = true;
 		this.sortByTopic = true;
 		this.exportPath = "";
-		this.exportName = "{{filename}}";
+		this.exportName = "Annotations for {{filename}}";
 		this.desiredAnnotations = "Text, Highlight, Underline";
 		this.noteTemplateExternalPDFs =
 			"{{body}}\n" +
@@ -80,6 +81,7 @@ export class PDFAnnotationPluginSetting {
 			"* *highlighted by {{author}} at page {{pageNumber}} on [[{{filepath}}]]*\n" +
 			"\n";
 		this.oneFilePerAnnotation = false;
+		this.oneNotePerAnnotationExportName = "Annotations for {{filename}}-{{counter}}";
 		this.parsedSettings = {
 			desiredAnnotations: this.parseCommaSeparatedStringToArray(
 				this.desiredAnnotations
@@ -308,8 +310,15 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.oneFilePerAnnotation)
 					.onChange((value) => {
 						this.plugin.settings.oneFilePerAnnotation = value;
+						oneNotePerAnnotationExportName.settingEl.style.display = value ? "block" : "none";
 						this.plugin.saveData(this.plugin.settings);
 					})
 			);
+		let oneNotePerAnnotationExportName = new Setting(containerEl)
+			.setName("One note per annotation - export name")
+			.setDesc(
+				"The name of the notes to which each extracted annotation will be exported. You can use the variable '{{filename}}' to use the PDF's filename and combine it with prefix or suffix. Additionally you should use the variable '{{counter}}' to add the index of the exported annotation."
+			)
+			.addText((input) => this.buildValueInput(input, "oneNotePerAnnotationExportName"));
 	}
 }
