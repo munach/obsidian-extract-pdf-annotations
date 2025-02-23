@@ -78,7 +78,6 @@ export default class PDFAnnotationPlugin extends Plugin {
 		const grandtotal = []; // array that will contain all fetched Annotations
 		const desiredAnnotations =
 			this.settings.parsedSettings.desiredAnnotations;
-		const exportPath = this.settings.exportPath;
 		console.log("loading from file ", pdfFile);
 		const content = await this.app.vault.readBinary(pdfFile);
 		await loadPDFFile(
@@ -94,34 +93,19 @@ export default class PDFAnnotationPlugin extends Plugin {
 		if (this.settings.oneFilePerAnnotation) {
 			grandtotal.forEach((anno, index) => {
 				const note = this.formatter.format([anno], false);
-				const noteFileName =
-					this.getResolvedExportName(pdfFile, index) + ".md";
-				let filePathOfExportNote = "";
-				if (exportPath === "./") {
-					filePathOfExportNote = pdfFile.path.replace(
-						pdfFile.name,
-						noteFileName
-					);
-				} else {
-					filePathOfExportNote = exportPath + noteFileName;
-				}
+				const fileNameOfExportNote =
+					this.getResolvedOneNotePerAnnotationExportName(pdfFile, index) + ".md";
+				const filePathOfExportNote = this.getResolvedExportPath(pdfFile, fileNameOfExportNote);
 				this.saveHighlightsToFileAndOpenIt(filePathOfExportNote, note);
 			});
 		} else {
 			const finalMarkdown = this.formatter.format(grandtotal, false);
-			let filePathOfExportNote = "";
-			const staticCounter = 1;
 			const fileNameOfExportNote =
-				this.getResolvedExportName(pdfFile, staticCounter) + ".md";
-			// Check if export path should be dynamic=next to PDF (./) or static=from settings (path/)
-			if (exportPath === "./") {
-				filePathOfExportNote = pdfFile.path.replace(
-					pdfFile.name,
-					fileNameOfExportNote
-				);
-			} else {
-				filePathOfExportNote = exportPath + fileNameOfExportNote;
-			}
+				this.getResolvedExportName(pdfFile) + ".md";
+			const filePathOfExportNote = this.getResolvedExportPath(
+				pdfFile,
+				fileNameOfExportNote
+			);
 			await this.saveHighlightsToFileAndOpenIt(
 				filePathOfExportNote,
 				finalMarkdown
@@ -315,7 +299,21 @@ export default class PDFAnnotationPlugin extends Plugin {
 		return compileTemplate(this.settings.exportName, this.templateSettings);
 	}
 
+	get oneNotePerAnnotationExportNameTemplate(): Template {
+		return compileTemplate(this.settings.oneNotePerAnnotationExportName, this.templateSettings);
+	}
+
 	getTemplateVariablesForExportName(
+		file: TFile
+	): Record<string, any> {
+		const shortcuts = {
+			filename: file.basename
+		};
+
+		return { file: file, ...shortcuts };
+	}
+
+	getTemplateVariablesForOneNotePerAnnotationExportName(
 		file: TFile,
 		counter: number
 	): Record<string, any> {
@@ -327,10 +325,31 @@ export default class PDFAnnotationPlugin extends Plugin {
 		return { file: file, ...shortcuts };
 	}
 
-	getResolvedExportName(file: TFile, counter): string {
+	getResolvedExportName(file: TFile): string {
 		return this.exportNameTemplate(
-			this.getTemplateVariablesForExportName(file, counter)
+			this.getTemplateVariablesForExportName(file)
 		);
+	}
+
+	getResolvedOneNotePerAnnotationExportName(file: TFile, counter): string {
+		return this.exportNameTemplate(
+			this.getTemplateVariablesForOneNotePerAnnotationExportName(file, counter)
+		);
+	}
+
+	getResolvedExportPath(pdfFile: TFile, fileNameOfExportNote: string): string {
+		const exportPath = this.settings.exportPath;
+		// Check if export path should be dynamic=next to PDF (./) or static=from settings (path/)
+		let filePathOfExportNote = "";
+		if (exportPath === "./") {
+			filePathOfExportNote = pdfFile.path.replace(
+				pdfFile.name,
+				fileNameOfExportNote
+			);
+		} else {
+			filePathOfExportNote = exportPath + fileNameOfExportNote;
+		}
+		return filePathOfExportNote;
 	}
 
 	async saveHighlightsToFileAndOpenIt(filePath: string, mdString: string) {
