@@ -8,10 +8,12 @@ import { ANNOTS_TREATED_AS_HIGHLIGHTS, PDFAnnotationPluginSetting, PDFAnnotation
 import { IIndexable, PDFFile } from 'src/types';
 
 import * as fs from 'fs';
+import { PDFAnnotationPluginFormatter } from './formatter';
 
 export default class PDFAnnotationPlugin extends Plugin {
 
 	public settings: PDFAnnotationPluginSetting;
+	public formatter: PDFAnnotationPluginFormatter;
 
 	// Template compilation options
 	private templateSettings = {
@@ -58,54 +60,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		})
 	}
 
-	format(grandtotal, isExternalFile) {
-		// now iterate over the annotations printing topics, then folder, then comments...
-		let text = ''
-		let topic = ''
-		let currentFolder = ''
-		// console.log("all annots", grandtotal)
-		grandtotal.forEach((anno) => {
-			// print main Title when Topic changes (and settings allow)
-			if (this.settings.useStructuringHeadlines) {
-				if (this.settings.sortByTopic) {
-					if (topic != anno.topic) {
-						topic = anno.topic
-						currentFolder = ''
-						text += `# ${topic}\n`
-					}
-				}
-
-				if (this.settings.useFolderNames) {
-					if (currentFolder != anno.folder) {
-						currentFolder = anno.folder
-						text += `## ${currentFolder}\n`
-					}
-				} else {
-					if (currentFolder != anno.file.name) {
-						currentFolder = anno.file.name
-						text += `## ${currentFolder}\n`
-					}
-				}
-			}
-
-			if (ANNOTS_TREATED_AS_HIGHLIGHTS.includes(anno.subtype)) {
-				if (isExternalFile) {
-					text += this.getContentForHighlightFromExternalPDF(anno)
-				} else {
-					text += this.getContentForHighlightFromInternalPDF(anno)
-				}
-			} else {
-				if (isExternalFile) {
-					text += this.getContentForNoteFromExternalPDF(anno)
-				} else {
-					text += this.getContentForNoteFromInternalPDF(anno)
-				}
-			}
-		})
-
-		if (grandtotal.length == 0) return '*No Annotations*'
-		else return text
-	}
+	
 
 	async loadSinglePDFFile(pdfFile: TFile) {
 		const pdfjsLib = await loadPdfJs()
@@ -117,7 +72,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		const content = await this.app.vault.readBinary(pdfFile)
 		await loadPDFFile(PDFFile.convertTFileToPDFFile(pdfFile, content), pdfjsLib, containingFolder, grandtotal, desiredAnnotations)
 		this.sort(grandtotal)
-		const finalMarkdown = this.format(grandtotal, false)
+		const finalMarkdown = this.formatter.format(grandtotal, false)
 
 		let filePathOfExportNote = "";
 		const fileNameOfExportNote = this.getResolvedExportName(pdfFile) + '.md';
@@ -162,6 +117,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		this.loadSettings();
 		this.addSettingTab(new PDFAnnotationPluginSettingTab(this.app, this));
 
+		this.formatter = new PDFAnnotationPluginFormatter(this.settings);
 
 		this.addCommand({
 			id: 'extract-annotations-single',
@@ -187,7 +143,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				const clipText = await navigator.clipboard.readText()
 				const grandtotal = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText)
 				this.sort(grandtotal)
-				editor.replaceSelection(this.format(grandtotal, true))
+				editor.replaceSelection(this.formatter.format(grandtotal, true))
 			}
 		})
 
@@ -219,7 +175,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				})
 				await Promise.all(promises)
 				this.sort(grandtotal)
-				editor.replaceSelection(this.format(grandtotal, false))
+				editor.replaceSelection(this.formatter.format(grandtotal, false))
 			}
 		})
 	}
@@ -240,7 +196,8 @@ export default class PDFAnnotationPlugin extends Plugin {
 					'noteTemplateExternalPDFs',
 					'noteTemplateInternalPDFs',
 					'highlightTemplateExternalPDFs',
-					'highlightTemplateInternalPDFs'
+					'highlightTemplateInternalPDFs',
+					'oneFilePerAnnotation'
 				];
 				toLoad.forEach((setting) => {
 					if (setting in loadedSettings) {
@@ -260,34 +217,6 @@ export default class PDFAnnotationPlugin extends Plugin {
 
 	onunload() { }
 
-	get noteFromExternalPDFsTemplate(): Template {
-		return compileTemplate(
-			this.settings.noteTemplateExternalPDFs,
-			this.templateSettings,
-		);
-	}
-
-	get noteFromInternalPDFsTemplate(): Template {
-		return compileTemplate(
-			this.settings.noteTemplateInternalPDFs,
-			this.templateSettings,
-		);
-	}
-
-	get highlightFromExternalPDFsTemplate(): Template {
-		return compileTemplate(
-			this.settings.highlightTemplateExternalPDFs,
-			this.templateSettings,
-		);
-	}
-
-	get highlightFromInternalPDFsTemplate(): Template {
-		return compileTemplate(
-			this.settings.highlightTemplateInternalPDFs,
-			this.templateSettings,
-		);
-	}
-
 	get exportNameTemplate(): Template {
 		return compileTemplate(
 			this.settings.exportName,
@@ -295,19 +224,6 @@ export default class PDFAnnotationPlugin extends Plugin {
 		);
 	}
 
-	getTemplateVariablesForAnnotation(annotation: any): Record<string, any> {
-		const shortcuts = {
-			highlightedText: annotation.highlightedText,
-			folder: annotation.folder,
-			file: annotation.file,
-			filepath: annotation.filepath,
-			pageNumber: annotation.pageNumber,
-			author: annotation.author,
-			body: annotation.body
-		};
-
-		return { annotation: annotation, ...shortcuts };
-	}
 
 	getTemplateVariablesForExportName(file: TFile): Record<string, any> {
 		const shortcuts = {
@@ -315,31 +231,6 @@ export default class PDFAnnotationPlugin extends Plugin {
 		};
 		
 		return { file: file, ...shortcuts };
-	}
-
-
-	getContentForNoteFromExternalPDF(annotation: any): string {
-		return this.noteFromExternalPDFsTemplate(
-			this.getTemplateVariablesForAnnotation(annotation),
-		);
-	}
-
-	getContentForNoteFromInternalPDF(annotation: any): string {
-		return this.noteFromInternalPDFsTemplate(
-			this.getTemplateVariablesForAnnotation(annotation),
-		);
-	}
-
-	getContentForHighlightFromExternalPDF(annotation: any): string {
-		return this.highlightFromExternalPDFsTemplate(
-			this.getTemplateVariablesForAnnotation(annotation),
-		);
-	}
-
-	getContentForHighlightFromInternalPDF(annotation: any): string {
-		return this.highlightFromInternalPDFsTemplate(
-			this.getTemplateVariablesForAnnotation(annotation),
-		);
 	}
 
 	getResolvedExportName(file: TFile): string {
