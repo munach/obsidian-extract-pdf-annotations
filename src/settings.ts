@@ -43,7 +43,7 @@ export class PDFAnnotationPluginSetting {
 	public noteTemplateInternalPDFs: string;
 	public highlightTemplateExternalPDFs: string;
 	public highlightTemplateInternalPDFs: string;
-	public oneFilePerAnnotation: boolean;
+	public oneNotePerAnnotation: boolean;
 	public oneNotePerAnnotationExportName: string;
 	public parsedSettings: {
 		desiredAnnotations: string[];
@@ -80,7 +80,7 @@ export class PDFAnnotationPluginSetting {
 			"\n" +
 			"* *highlighted by {{author}} at page {{pageNumber}} on [[{{filepath}}]]*\n" +
 			"\n";
-		this.oneFilePerAnnotation = false;
+		this.oneNotePerAnnotation = false;
 		this.oneNotePerAnnotationExportName = "Annotations for {{filename}}-{{counter}}";
 		this.parsedSettings = {
 			desiredAnnotations: this.parseCommaSeparatedStringToArray(
@@ -307,9 +307,9 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 			)
 			.addToggle((toggle) =>
 				toggle
-					.setValue(this.plugin.settings.oneFilePerAnnotation)
+					.setValue(this.plugin.settings.oneNotePerAnnotation)
 					.onChange((value) => {
-						this.plugin.settings.oneFilePerAnnotation = value;
+						this.plugin.settings.oneNotePerAnnotation = value;
 						oneNotePerAnnotationExportName.settingEl.style.display = value ? "block" : "none";
 						this.plugin.saveData(this.plugin.settings);
 					})

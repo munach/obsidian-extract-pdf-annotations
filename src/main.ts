@@ -90,11 +90,11 @@ export default class PDFAnnotationPlugin extends Plugin {
 		this.sort(grandtotal);
 
 		// Check if one file per annotation should be created
-		if (this.settings.oneFilePerAnnotation) {
+		if (this.settings.oneNotePerAnnotation) {
 			grandtotal.forEach((anno, index) => {
 				const note = this.formatter.format([anno], false);
 				const fileNameOfExportNote =
-					this.getResolvedOneNotePerAnnotationExportName(pdfFile, index) + ".md";
+					this.getResolvedOneNotePerAnnotationExportName(pdfFile, index+1) + ".md";
 				const filePathOfExportNote = this.getResolvedExportPath(pdfFile, fileNameOfExportNote);
 				this.saveHighlightsToFileAndOpenIt(filePathOfExportNote, note);
 			});
@@ -270,7 +270,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 					"noteTemplateInternalPDFs",
 					"highlightTemplateExternalPDFs",
 					"highlightTemplateInternalPDFs",
-					"oneFilePerAnnotation",
+					"oneNotePerAnnotation",
 					"oneNotePerAnnotationExportName"
 				];
 				toLoad.forEach((setting) => {
@@ -332,7 +332,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 	}
 
 	getResolvedOneNotePerAnnotationExportName(file: TFile, counter): string {
-		return this.exportNameTemplate(
+		return this.oneNotePerAnnotationExportNameTemplate(
 			this.getTemplateVariablesForOneNotePerAnnotationExportName(file, counter)
 		);
 	}
