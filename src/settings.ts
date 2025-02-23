@@ -170,7 +170,9 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 				this.buildValueInput(input, "desiredAnnotations");
 			});
 
-		containerEl.createEl("h3", { text: "Template settings" });
+		
+		containerEl.createEl("h3", { text: "Styling settings" });
+		containerEl.createEl("h4", { text: "Template settings" });
 		const templateInstructionsEl = containerEl.createEl("p");
 		templateInstructionsEl.append(
 			createSpan({
@@ -236,7 +238,8 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 				input.inputEl.style.height = "10em";
 				this.buildValueInput(input, "highlightTemplateInternalPDFs");
 			});
-
+		
+		containerEl.createEl("h4", { text: "Structure settings" });
 		new Setting(containerEl)
 			.setName("Use structuring headlines")
 			.setDesc(
