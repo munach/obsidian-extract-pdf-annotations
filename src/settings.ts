@@ -37,12 +37,14 @@ export class PDFAnnotationPluginSetting {
 	public useFolderNames: boolean;
 	public sortByTopic: boolean;
 	public exportPath: string;
-  public exportName: string;
+	public exportName: string;
 	public desiredAnnotations: string;
 	public noteTemplateExternalPDFs: string;
 	public noteTemplateInternalPDFs: string;
 	public highlightTemplateExternalPDFs: string;
 	public highlightTemplateInternalPDFs: string;
+	public oneNotePerAnnotation: boolean;
+	public oneNotePerAnnotationExportName: string;
 	public parsedSettings: {
 		desiredAnnotations: string[];
 	};
@@ -52,7 +54,7 @@ export class PDFAnnotationPluginSetting {
 		this.useFolderNames = true;
 		this.sortByTopic = true;
 		this.exportPath = "";
-		this.exportName = "{{filename}}";
+		this.exportName = "Annotations for {{filename}}";
 		this.desiredAnnotations = "Text, Highlight, Underline";
 		this.noteTemplateExternalPDFs =
 			"{{body}}\n" +
@@ -78,6 +80,8 @@ export class PDFAnnotationPluginSetting {
 			"\n" +
 			"* *highlighted by {{author}} at page {{pageNumber}} on [[{{filepath}}]]*\n" +
 			"\n";
+		this.oneNotePerAnnotation = false;
+		this.oneNotePerAnnotationExportName = "Annotations for {{filename}}-{{counter}}";
 		this.parsedSettings = {
 			desiredAnnotations: this.parseCommaSeparatedStringToArray(
 				this.desiredAnnotations
@@ -170,7 +174,8 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 				this.buildValueInput(input, "desiredAnnotations");
 			});
 
-		containerEl.createEl("h3", { text: "Template settings" });
+		containerEl.createEl("h3", { text: "Styling settings" });
+		containerEl.createEl("h4", { text: "Template settings" });
 		const templateInstructionsEl = containerEl.createEl("p");
 		templateInstructionsEl.append(
 			createSpan({
@@ -237,6 +242,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 				this.buildValueInput(input, "highlightTemplateInternalPDFs");
 			});
 
+		containerEl.createEl("h4", { text: "Structure settings" });
 		new Setting(containerEl)
 			.setName("Use structuring headlines")
 			.setDesc(
@@ -288,11 +294,32 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 				"The path to which the notes, including the extracted annotations, will be exported. The path can be dynamic './' to create a note next to the PDF or it has to be relative to the vault root. Paths must end with a '/'. Leave blank to export to the vault root."
 			)
 			.addText((input) => this.buildValueInput(input, "exportPath"));
-    new Setting(containerEl)
+		new Setting(containerEl)
 			.setName("Notes export name")
 			.setDesc(
 				"The name of the note to which the notes, including the extracted annotations, will be exported. You can use the variable '{{filename}}' to use the PDF's filename and combine it with prefix or suffix. If you don't use the variable all notes will be exported to the same file until you change the name."
 			)
 			.addText((input) => this.buildValueInput(input, "exportName"));
+		new Setting(containerEl)
+			.setName("One note per annotation")
+			.setDesc(
+				"If enabled, every annotation is exported to a separate note."
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.oneNotePerAnnotation)
+					.onChange((value) => {
+						this.plugin.settings.oneNotePerAnnotation = value;
+						oneNotePerAnnotationExportName.settingEl.style.display = value ? "flex" : "none";
+						this.plugin.saveData(this.plugin.settings);
+					})
+			);
+		const oneNotePerAnnotationExportName = new Setting(containerEl)
+			.setName("One note per annotation - export name")
+			.setDesc(
+				"The name of the notes to which each extracted annotation will be exported. You can use the variable '{{filename}}' to use the PDF's filename and combine it with prefix or suffix. Additionally you should use the variable '{{counter}}' to add the index of the exported annotation."
+			)
+			.addText((input) => this.buildValueInput(input, "oneNotePerAnnotationExportName"));
+		oneNotePerAnnotationExportName.settingEl.style.display = this.plugin.settings.oneNotePerAnnotation ? "flex" : "none";
 	}
 }
