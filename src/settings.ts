@@ -310,7 +310,7 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.oneNotePerAnnotation)
 					.onChange((value) => {
 						this.plugin.settings.oneNotePerAnnotation = value;
-						oneNotePerAnnotationExportName.settingEl.style.display = value ? "block" : "none";
+						oneNotePerAnnotationExportName.settingEl.style.display = value ? "flex" : "none";
 						this.plugin.saveData(this.plugin.settings);
 					})
 			);
@@ -320,6 +320,6 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 				"The name of the notes to which each extracted annotation will be exported. You can use the variable '{{filename}}' to use the PDF's filename and combine it with prefix or suffix. Additionally you should use the variable '{{counter}}' to add the index of the exported annotation."
 			)
 			.addText((input) => this.buildValueInput(input, "oneNotePerAnnotationExportName"));
-		oneNotePerAnnotationExportName.settingEl.style.display = this.plugin.settings.oneNotePerAnnotation ? "block" : "none";
+		oneNotePerAnnotationExportName.settingEl.style.display = this.plugin.settings.oneNotePerAnnotation ? "flex" : "none";
 	}
 }
