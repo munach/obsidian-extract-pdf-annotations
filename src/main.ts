@@ -96,7 +96,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				const fileNameOfExportNote =
 					this.getResolvedOneNotePerAnnotationExportName(pdfFile, index+1) + ".md";
 				const filePathOfExportNote = this.getResolvedExportPath(pdfFile, fileNameOfExportNote);
-				this.saveHighlightsToFileAndOpenIt(filePathOfExportNote, note);
+				this.saveHighlightsToFileAndOpenIt(filePathOfExportNote, note, this.settings.overwriteExistingNote);
 			});
 		} else {
 			const finalMarkdown = this.formatter.format(grandtotal, false);
@@ -108,7 +108,8 @@ export default class PDFAnnotationPlugin extends Plugin {
 			);
 			await this.saveHighlightsToFileAndOpenIt(
 				filePathOfExportNote,
-				finalMarkdown
+				finalMarkdown, 
+				this.settings.overwriteExistingNote
 			);
 		}
 	}
@@ -353,10 +354,15 @@ export default class PDFAnnotationPlugin extends Plugin {
 		return filePathOfExportNote;
 	}
 
-	async saveHighlightsToFileAndOpenIt(filePath: string, mdString: string) {
+	async saveHighlightsToFileAndOpenIt(filePath: string, mdString: string, overwriteExistingNote: boolean) {
 		const fileExists = await this.app.vault.adapter.exists(filePath);
 		if (fileExists) {
-			await this.appendHighlightsToFile(filePath, mdString);
+			if (overwriteExistingNote) {
+				await this.app.vault.adapter.write(filePath, mdString);
+			} else {
+				await this.appendHighlightsToFile(filePath, mdString);
+			}
+			await this.app.workspace.openLinkText(filePath, "", true);
 		} else {
 			try {
 				await this.app.vault.create(filePath, mdString);
