@@ -45,6 +45,7 @@ export class PDFAnnotationPluginSetting {
 	public highlightTemplateInternalPDFs: string;
 	public oneNotePerAnnotation: boolean;
 	public oneNotePerAnnotationExportName: string;
+	public overwriteExistingNote: boolean;
 	public parsedSettings: {
 		desiredAnnotations: string[];
 	};
@@ -82,6 +83,7 @@ export class PDFAnnotationPluginSetting {
 			"\n";
 		this.oneNotePerAnnotation = false;
 		this.oneNotePerAnnotationExportName = "Annotations for {{filename}}-{{counter}}";
+		this.overwriteExistingNote = false;
 		this.parsedSettings = {
 			desiredAnnotations: this.parseCommaSeparatedStringToArray(
 				this.desiredAnnotations
@@ -321,5 +323,18 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 			)
 			.addText((input) => this.buildValueInput(input, "oneNotePerAnnotationExportName"));
 		oneNotePerAnnotationExportName.settingEl.style.display = this.plugin.settings.oneNotePerAnnotation ? "flex" : "none";
+		new Setting(containerEl)
+			.setName("Overwrite existing note")
+			.setDesc(
+				"If enabled, the plugin will overwrite the content of an existing note with the same name."
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.overwriteExistingNote)
+					.onChange((value) => {
+						this.plugin.settings.overwriteExistingNote = value;
+						this.plugin.saveData(this.plugin.settings);
+					})
+			);
 	}
 }
