@@ -274,6 +274,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 					"oneNotePerAnnotation",
 					"oneNotePerAnnotationExportName",
 					"overwriteExistingNotes",
+					"extractTagsFromAnnotationsAsObsidianTags",
 				];
 				toLoad.forEach((setting) => {
 					if (setting in loadedSettings) {

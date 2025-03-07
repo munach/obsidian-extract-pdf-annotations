@@ -46,6 +46,7 @@ export class PDFAnnotationPluginSetting {
 	public oneNotePerAnnotation: boolean;
 	public oneNotePerAnnotationExportName: string;
 	public overwriteExistingNote: boolean;
+	public extractTagsFromAnnotationsAsObsidianTags: boolean;
 	public parsedSettings: {
 		desiredAnnotations: string[];
 	};
@@ -84,6 +85,7 @@ export class PDFAnnotationPluginSetting {
 		this.oneNotePerAnnotation = false;
 		this.oneNotePerAnnotationExportName = "Annotations for {{filename}}-{{counter}}";
 		this.overwriteExistingNote = false;
+		this.extractTagsFromAnnotationsAsObsidianTags = false;
 		this.parsedSettings = {
 			desiredAnnotations: this.parseCommaSeparatedStringToArray(
 				this.desiredAnnotations
@@ -333,6 +335,19 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.overwriteExistingNote)
 					.onChange((value) => {
 						this.plugin.settings.overwriteExistingNote = value;
+						this.plugin.saveData(this.plugin.settings);
+					})
+			);
+			new Setting(containerEl)
+			.setName("Extract tags in annotations as Obsidian tags")
+			.setDesc(
+				"If enabled, the plugin will extract tags from the annotations and add them as Obsidian tags to the note's header."
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.extractTagsFromAnnotationsAsObsidianTags)
+					.onChange((value) => {
+						this.plugin.settings.extractTagsFromAnnotationsAsObsidianTags = value;
 						this.plugin.saveData(this.plugin.settings);
 					})
 			);
