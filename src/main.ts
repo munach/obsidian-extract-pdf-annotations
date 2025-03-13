@@ -122,7 +122,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 	private extractTagsFromAnnotationsAndAddHeaderToNote(note: string, annotations: any[]): string {
 		const extractedTagsFromAnnotations = [];
 		annotations.forEach((annotation) => {
-			const tagPattern = /#(\w+)/g;
+			const tagPattern = /#([\wöäü_\/-]*[A-Za-zöäü][\wöäü_\/-]*)/g;
 			let match;
 			while ((match = tagPattern.exec(annotation.body)) !== null) {
 				extractedTagsFromAnnotations.push(match[1]);
