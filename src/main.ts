@@ -296,7 +296,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 					"highlightTemplateInternalPDFs",
 					"oneNotePerAnnotation",
 					"oneNotePerAnnotationExportName",
-					"overwriteExistingNotes",
+					"overwriteExistingNote",
 					"extractTagsFromAnnotationsAsObsidianTags",
 				];
 				toLoad.forEach((setting) => {
