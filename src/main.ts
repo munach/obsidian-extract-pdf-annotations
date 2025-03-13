@@ -119,10 +119,10 @@ export default class PDFAnnotationPlugin extends Plugin {
 	private extractTagsFromAnnotationsAndAddHeaderToNote(note: string, annotations: any[]): string {
 		const extractedTagsFromAnnotations = [];
 		annotations.forEach((annotation) => {
-			const tagPattern = /#\w+/g;
-			const tags = annotation.body.match(tagPattern);
-			if (tags) {
-				extractedTagsFromAnnotations.push(...tags);
+			const tagPattern = /#(\w+)/g;
+			let match;
+			while ((match = tagPattern.exec(annotation.body)) !== null) {
+				extractedTagsFromAnnotations.push(match[1]);
 			}
 		});
 		let obsidianHeaderWithTags = "---\ntags:\n";
