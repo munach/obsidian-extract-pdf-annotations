@@ -127,7 +127,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 		});
 		let obsidianHeaderWithTags = "---\ntags:\n";
 		extractedTagsFromAnnotations.forEach((tag) => {
-			obsidianHeaderWithTags += "\t- " + tag + "\n";
+			obsidianHeaderWithTags += " - " + tag + "\n";
 		});
 		obsidianHeaderWithTags += "---";
 		note = obsidianHeaderWithTags + "\n" + note;
