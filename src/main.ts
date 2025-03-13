@@ -102,13 +102,16 @@ export default class PDFAnnotationPlugin extends Plugin {
 				this.saveHighlightsToFileAndOpenIt(filePathOfExportNote, note, this.settings.overwriteExistingNote);
 			});
 		} else {
-			const finalMarkdown = this.formatter.format(grandtotal, false);
+			let finalMarkdown = this.formatter.format(grandtotal, false);
 			const fileNameOfExportNote =
 				this.getResolvedExportName(pdfFile) + ".md";
 			const filePathOfExportNote = this.getResolvedExportPath(
 				pdfFile,
 				fileNameOfExportNote
 			);
+			if (this.settings.extractTagsFromAnnotationsAsObsidianTags) {
+				finalMarkdown = this.extractTagsFromAnnotationsAndAddHeaderToNote(finalMarkdown, grandtotal);
+			}
 			await this.saveHighlightsToFileAndOpenIt(
 				filePathOfExportNote,
 				finalMarkdown, 
