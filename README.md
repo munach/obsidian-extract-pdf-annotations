@@ -50,6 +50,8 @@ In the editor (e.g. \_Extract) we run the plugin's command  `Extract PDF Annotat
 As such, you can relate comments for your topics (here 'Hello World') from several PDF files.
 
 ## Versions
+1.8.1 add option to extract tags from annotation body and setting to overwrite existing export note
+
 1.8.0 add option to export each extracted annotation to a separate note
 
 1.7.0 add settings for dynamic export path (next to PDF) and export name

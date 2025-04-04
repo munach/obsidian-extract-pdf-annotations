@@ -92,26 +92,49 @@ export default class PDFAnnotationPlugin extends Plugin {
 		// Check if one file per annotation should be created
 		if (this.settings.oneNotePerAnnotation) {
 			grandtotal.forEach((anno, index) => {
-				const note = this.formatter.format([anno], false);
+				let note = this.formatter.format([anno], false);
 				const fileNameOfExportNote =
 					this.getResolvedOneNotePerAnnotationExportName(pdfFile, index+1) + ".md";
 				const filePathOfExportNote = this.getResolvedExportPath(pdfFile, fileNameOfExportNote);
+				if (this.settings.extractTagsFromAnnotationsAsObsidianTags) {
+					note = this.extractTagsFromAnnotationsAndAddHeaderToNote(note, [anno]);
+				}
 				this.saveHighlightsToFileAndOpenIt(filePathOfExportNote, note, this.settings.overwriteExistingNote);
 			});
 		} else {
-			const finalMarkdown = this.formatter.format(grandtotal, false);
+			let finalMarkdown = this.formatter.format(grandtotal, false);
 			const fileNameOfExportNote =
 				this.getResolvedExportName(pdfFile) + ".md";
 			const filePathOfExportNote = this.getResolvedExportPath(
 				pdfFile,
 				fileNameOfExportNote
 			);
+			if (this.settings.extractTagsFromAnnotationsAsObsidianTags) {
+				finalMarkdown = this.extractTagsFromAnnotationsAndAddHeaderToNote(finalMarkdown, grandtotal);
+			}
 			await this.saveHighlightsToFileAndOpenIt(
 				filePathOfExportNote,
 				finalMarkdown, 
 				this.settings.overwriteExistingNote
 			);
 		}
+	}
+	private extractTagsFromAnnotationsAndAddHeaderToNote(note: string, annotations: any[]): string {
+		const extractedTagsFromAnnotations = [];
+		annotations.forEach((annotation) => {
+			const tagPattern = /#([\wöäü_\/-]*[A-Za-zöäü][\wöäü_\/-]*)/g;
+			let match;
+			while ((match = tagPattern.exec(annotation.body)) !== null) {
+				extractedTagsFromAnnotations.push(match[1]);
+			}
+		});
+		let obsidianHeaderWithTags = "---\ntags:\n";
+		extractedTagsFromAnnotations.forEach((tag) => {
+			obsidianHeaderWithTags += " - " + tag + "\n";
+		});
+		obsidianHeaderWithTags += "---";
+		note = obsidianHeaderWithTags + "\n" + note;
+		return note;
 	}
 
 	async loadAnnotationsFromSinglePDFFileFromClipboardPath(
@@ -273,7 +296,8 @@ export default class PDFAnnotationPlugin extends Plugin {
 					"highlightTemplateInternalPDFs",
 					"oneNotePerAnnotation",
 					"oneNotePerAnnotationExportName",
-					"overwriteExistingNotes",
+					"overwriteExistingNote",
+					"extractTagsFromAnnotationsAsObsidianTags",
 				];
 				toLoad.forEach((setting) => {
 					if (setting in loadedSettings) {
