@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-extract-pdf-annotations",
 	"name": "Extract PDF Annotations",
-	"version": "1.8.0",
+	"version": "1.8.1",
 	"minAppVersion": "1.8.7",
 	"description": "Extract PDF Annotations (text, highlight, underline, squiggle, free text, etc.) from files inside and outside the vault and sort them by topics",
 	"author": "Franz Achermann",
