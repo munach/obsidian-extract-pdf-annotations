@@ -240,9 +240,6 @@ export default class PDFAnnotationPlugin extends Plugin {
 					this.settings.parsedSettings.desiredAnnotations;
 
 				const pdfjsLib = await loadPdfJs();
-				editor.replaceSelection(
-					"Extracting PDF Comments from " + folder.name + "\n"
-				);
 
 				const promises = []; // when all Promises will be resolved.
 
