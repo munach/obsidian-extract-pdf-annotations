@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-extract-pdf-annotations",
-	"version": "1.8.2",
+	"version": "1.9.0",
 	"description": "Extract notes and highlights from PDF Files in Obsidian (https://obsidian.md)",
 	"main": "main.js",
 	"scripts": {
@@ -13,21 +13,21 @@
 	"author": "",
 	"license": "MIT",
 	"devDependencies": {
-		"@jest/globals": "^29.7.0",
-		"@types/node": "^22.13.5",
-		"@typescript-eslint/eslint-plugin": "^8.24.1",
-		"@typescript-eslint/parser": "^8.24.1",
-		"builtin-modules": "^4.0.0",
-		"esbuild": "0.25.0",
-		"jest": "^29.7.0",
-		"obsidian": "^1.8.7",
-		"ts-jest": "^29.2.6",
+		"@jest/globals": "^30.0.5",
+		"@types/node": "^24.2.0",
+		"@typescript-eslint/eslint-plugin": "^8.39.0",
+		"@typescript-eslint/parser": "^8.39.0",
+		"builtin-modules": "^5.0.0",
+		"esbuild": "0.25.8",
+		"jest": "^30.0.5",
+		"ts-jest": "^29.4.1",
 		"tslib": "2.8.1",
-		"typescript": "5.7.3"
+		"typescript": "5.9.2"
 	},
 	"dependencies": {
+		"obsidian": "^1.8.7",
 		"@types/pdf": "^0.0.31",
-		"eslint": "^9.21.0",
+		"eslint": "^9.32.0",
 		"handlebars": "^4.7.8"
 	}
 }
