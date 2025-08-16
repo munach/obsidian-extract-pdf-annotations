@@ -24,6 +24,7 @@ export class PDFAnnotationPluginFormatter {
 		let text = "";
 		let topic = "";
 		let currentFolder = "";
+		let indentLevel = 0;
 		// console.log("all annots", grandtotal)
 		grandtotal.forEach((anno) => {
 			// print main Title when Topic changes (and settings allow)
@@ -49,18 +50,43 @@ export class PDFAnnotationPluginFormatter {
 				}
 			}
 
+			let content = '';
 			if (ANNOTS_TREATED_AS_HIGHLIGHTS.includes(anno.subtype)) {
 				if (isExternalFile) {
-					text += this.getContentForHighlightFromExternalPDF(anno);
+					content += this.getContentForHighlightFromExternalPDF(anno);
 				} else {
-					text += this.getContentForHighlightFromInternalPDF(anno);
+					content += this.getContentForHighlightFromInternalPDF(anno);
 				}
 			} else {
 				if (isExternalFile) {
-					text += this.getContentForNoteFromExternalPDF(anno);
+					content += this.getContentForNoteFromExternalPDF(anno);
 				} else {
-					text += this.getContentForNoteFromInternalPDF(anno);
+					content += this.getContentForNoteFromInternalPDF(anno);
 				}
+			}
+
+			// Check for hastags and add tabs
+			if (content && content.trim() !== "") {
+				if (content.match(/#+\s/)) {
+					const match = content.match(/(?<=\s)#+(?=\s)/);				
+					var hashtagCount = match ? match[0].length : 0;
+					indentLevel = hashtagCount;
+					content = '\t'.repeat(hashtagCount - 1) + content + '\n';
+				} else if (content.match(/#Quote/)) {
+						const lines = text.split("\n");
+						const substr = lines[lines.length - 2];
+						console.log("vorletzte Zeile: " + substr);
+  						if (!substr.includes("[\"]")) {
+  							console.log("vorletzte Zeile enthält kein Zitat!");
+  							lines[lines.length - 2] += "%% fold %%";
+  						};
+  						text = lines.join("\n");
+						content = '\t'.repeat(indentLevel + 1) + content + '\n';
+						// text = text.replace(/\n$/, '%%FOLD%%\n');
+				} else {
+						content = '\t'.repeat(indentLevel) + content + '\n';
+				}
+			text += content;
 			}
 		});
 
@@ -105,6 +131,7 @@ export class PDFAnnotationPluginFormatter {
 			pageNumber: annotation.pageNumber,
 			author: annotation.author,
 			body: annotation.body,
+			reference: annotation.reference
 		};
 
 		return { annotation: annotation, ...shortcuts };
