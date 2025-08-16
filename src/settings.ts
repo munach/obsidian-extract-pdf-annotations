@@ -247,10 +247,20 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 				this.buildValueInput(input, "highlightTemplateInternalPDFs");
 			});
 
-    const templateVariableUl = containerEl.createEl('ul');
-    Object.entries(TEMPLATE_VARIABLES).forEach((variableData) => {
-      const [key, description] = variableData,
-        templateVariableItem = templateVariableUl.createEl('li');
+    containerEl.createEl("h4", { text: "Structure settings" });
+		new Setting(containerEl)
+			.setName("Use structuring headlines")
+			.setDesc(
+				"If disabled, no structuring headlines will be shown. Just the annotations in the specified template style."
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.useStructuringHeadlines)
+					.onChange((value) => {
+						this.plugin.settings.useStructuringHeadlines = value;
+						this.plugin.saveData(this.plugin.settings);
+					})
+			);
 
 		new Setting(containerEl)
 			.setName("Use Folder Name")
