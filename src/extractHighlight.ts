@@ -26,8 +26,9 @@ function searchQuad(
 			return txt + x.str.substr(start); //
 		} else {
 			// else, calculate proporation end to get the expected length
+			const exactLength = (x.str.length * (maxx - x.transform[4])) / x.width;
 			const lenc =
-				Math.round((x.str.length * (maxx - x.transform[4])) / x.width) -
+				roundBasedOnLetterWidths(x, start, exactLength) -
 				start;
 			return txt + x.str.substr(start, lenc);
 		}
@@ -68,8 +69,9 @@ export function extractHighlight(annot: any, items: any) {
 			quad[0].y
 		);
 		const res = searchQuad(minx, maxx, miny, maxy, items);
-		if (txt.substring(txt.length - 1) != "-") {
-			return txt + " " + res; // concatenate lines by 'blank'
+		// if the last character of txt (previous lines) is not a hyphen, we concatenate the lines, by adding a blank
+		if (txt != "" && txt.substring(txt.length - 1) != "-") {
+			return txt + " " + res;
 		} else if (
 			txt.substring(txt.length - 2).toLowerCase() ==
 				txt.substring(txt.length - 2) && // end by lowercase-
@@ -78,7 +80,7 @@ export function extractHighlight(annot: any, items: any) {
 			// and start with lowercase
 			return txt.substring(0, txt.length - 1) + res; // remove hyphon
 		} else {
-			return txt + res; // keep hyphon
+			return txt + res; // keep hyphon or if the previous text is empty, return the whole result
 		}
 	}, "");
 	return highlight;
@@ -166,3 +168,31 @@ export async function loadPDFFile(
 		);
 	}
 }
+
+function countWideLetters(str: string): number {
+	const wideLetters = ['w', 'm', 'W', 'M', 'D', 'O', 'Q', 'G', 'S', 'B', 'C', 'P', 'E', 'R', 'A', 'N', 'U', 'V', 'X', 'Y', 'Z', 'K', 'H'];
+	return str.split('').filter(char => wideLetters.includes(char)).length;
+}
+
+function countSlimLetters(str: string): number {
+	const slimLetters = ['i', 'r', 'l', 't', 'f', 'j', 'I', '1', '.', ',', '(', ')', '"', '\''];
+	return str.split('').filter(char => slimLetters.includes(char)).length;
+}
+
+
+function roundBasedOnLetterWidths(x: any, start: number, exactLength: number): number {
+	const mathRounding = Math.round(exactLength);
+	const substrWithMathRounding = x.str.substr(start, mathRounding);
+	let correctRounding = mathRounding;
+
+	if (countWideLetters(substrWithMathRounding) > countSlimLetters(substrWithMathRounding)) {
+		correctRounding = Math.floor(exactLength);
+	} else if (countWideLetters(substrWithMathRounding) < countSlimLetters(substrWithMathRounding)) {
+		correctRounding = Math.ceil(exactLength);
+	} else {
+		correctRounding = mathRounding;
+	}
+
+	return correctRounding;
+}
+
