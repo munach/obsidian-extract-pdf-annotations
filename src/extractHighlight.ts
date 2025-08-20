@@ -1,5 +1,6 @@
 import { PDFFile } from "src/types";
 import { ANNOTS_TREATED_AS_HIGHLIGHTS } from "src/settings";
+import { PDFDocumentProxy, TextContent, TextItem } from "pdfjs-dist/types/src/display/api";
 
 // return text between min and max, x and y
 function searchQuad(
@@ -110,7 +111,7 @@ async function loadPage(
 	});
 
 	// sort text elements
-	content.items.sort(function (a1, a2) {
+	content.items.sort(function (a1: TextItem, a2: TextItem) {
 		if (a1.transform[5] > a2.transform[5]) return -1; // y coord. descending
 		if (a1.transform[5] < a2.transform[5]) return 1;
 		if (a1.transform[4] > a2.transform[4]) return 1; // x coord. ascending
