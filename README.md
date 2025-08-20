@@ -50,6 +50,8 @@ In the editor (e.g. \_Extract) we run the plugin's command  `Extract PDF Annotat
 As such, you can relate comments for your topics (here 'Hello World') from several PDF files.
 
 ## Versions
+1.9.3 use pdfjs-dist like Obsidian does
+
 1.9.2 add new template attribute for page labels
 
 1.9.1 avoid duplicate tags, when using option to extract tags from annotation body
