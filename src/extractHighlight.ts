@@ -93,6 +93,7 @@ export function extractHighlight(annot: any, items: any) {
 async function loadPage(
 	page,
 	pagenum: number,
+	pageLabel: string,
 	file: PDFFile,
 	containingFolder: string,
 	total: object[],
@@ -125,6 +126,7 @@ async function loadPage(
 		anno.file = file;
 		anno.filepath = file.path; // we need a direct string property in the templates
 		anno.pageNumber = pagenum;
+		anno.pageLabel = pageLabel; // Real page number defined by author
 		anno.author = anno.titleObj.str;
 		anno.body = anno.contentsObj.str;
 		total.push(anno);
@@ -140,11 +142,20 @@ export async function loadPDFFile(
 ) {
 	const pdf: PDFDocumentProxy = await pdfjsLib.getDocument(file.content)
 		.promise;
+	const pageLabels = await pdf.getPageLabels();
 	for (let i = 1; i <= pdf.numPages; i++) {
 		const page = await pdf.getPage(i);
+		// if no page label is defined, use the page number
+		let pageLabel = '';
+		if (pageLabels && pageLabels[i - 1]) {
+			pageLabel = pageLabels[i - 1];
+		} else {
+			pageLabel = i.toString();
+		}
 		await loadPage(
 			page,
 			i,
+			pageLabel,
 			file,
 			containingFolder,
 			total,

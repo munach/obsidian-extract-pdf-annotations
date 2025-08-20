@@ -103,6 +103,7 @@ export class PDFAnnotationPluginFormatter {
 			file: annotation.file,
 			filepath: annotation.filepath,
 			pageNumber: annotation.pageNumber,
+			pageLabel: annotation.pageLabel,
 			author: annotation.author,
 			body: annotation.body,
 		};

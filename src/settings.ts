@@ -14,6 +14,7 @@ export const TEMPLATE_VARIABLES = {
 	file: "Binary content of file",
 	filepath: "Path of PDF file",
 	pageNumber: "Page number of annotation with reference to PDF pages",
+	pageLabel: "Page label (page number defined by author) of annotation with reference to PDF pages",
 	author: "Author of annotation",
 	body: "Body of annotation",
 };
