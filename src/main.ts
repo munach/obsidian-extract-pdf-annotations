@@ -143,23 +143,23 @@ export default class PDFAnnotationPlugin extends Plugin {
 	) {
 		const grandtotal = []; // array that will contain all fetched Annotations
 		try {
-			const filePathWithoutQuotes = filePathFromClipboard.replace(
-				/"/g,
+			const filePathWithoutBeginningAndEndQuotes = filePathFromClipboard.replace(
+				/^["']|["']$/g,
 				""
 			);
-			const stats = fs.statSync(filePathWithoutQuotes);
+			const stats = fs.statSync(filePathWithoutBeginningAndEndQuotes);
 			if (stats.isFile()) {
 				const pdfjsLib = await loadPdfJs();
 				const binaryContent = await FileSystemAdapter.readLocalFile(
-					filePathWithoutQuotes
+					filePathWithoutBeginningAndEndQuotes
 				);
 				const filePathWithSlashs: string =
-					filePathWithoutQuotes.replace(/\\/g, "/");
+					filePathWithoutBeginningAndEndQuotes.replace(/\\/g, "/");
 				const filePathSplits: string[] = filePathWithSlashs.split("/");
 				const fileName = filePathSplits.last();
 				const extension = fileName.split(".").last();
 				const encodedFilePath = encodeURI(
-					"file://" + filePathWithoutQuotes
+					"file://" + filePathWithoutBeginningAndEndQuotes
 				);
 				const file: PDFFile = new PDFFile(
 					fileName,
