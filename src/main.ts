@@ -18,7 +18,7 @@ import {
 	PDFAnnotationPluginSetting,
 	PDFAnnotationPluginSettingTab,
 } from "src/settings";
-import { IIndexable, PDFFile } from "src/types";
+import { FileMeta, IIndexable, PDFFile } from "src/types";
 
 import * as fs from "fs";
 import { PDFAnnotationPluginFormatter } from "./formatter";
@@ -75,7 +75,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 	async loadSinglePDFFile(pdfFile: TFile) {
 		const pdfjsLib = await loadPdfJs();
 		const containingFolder = pdfFile.parent.name;
-		const grandtotal = []; // array that will contain all fetched Annotations
+		const grandtotal = [];
 		const desiredAnnotations =
 			this.settings.parsedSettings.desiredAnnotations;
 		console.log("loading from file ", pdfFile);
@@ -88,36 +88,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 			desiredAnnotations
 		);
 		this.sort(grandtotal);
-
-		// Check if one file per annotation should be created
-		if (this.settings.oneNotePerAnnotation) {
-			grandtotal.forEach((anno, index) => {
-				let note = this.formatter.format([anno], false);
-				const fileNameOfExportNote =
-					this.getResolvedOneNotePerAnnotationExportName(pdfFile, index+1) + ".md";
-				const filePathOfExportNote = this.getResolvedExportPath(pdfFile, fileNameOfExportNote);
-				if (this.settings.extractTagsFromAnnotationsAsObsidianTags) {
-					note = this.extractTagsFromAnnotationsAndAddHeaderToNote(note, [anno]);
-				}
-				this.saveHighlightsToFileAndOpenIt(filePathOfExportNote, note, this.settings.overwriteExistingNote);
-			});
-		} else {
-			let finalMarkdown = this.formatter.format(grandtotal, false);
-			const fileNameOfExportNote =
-				this.getResolvedExportName(pdfFile) + ".md";
-			const filePathOfExportNote = this.getResolvedExportPath(
-				pdfFile,
-				fileNameOfExportNote
-			);
-			if (this.settings.extractTagsFromAnnotationsAsObsidianTags) {
-				finalMarkdown = this.extractTagsFromAnnotationsAndAddHeaderToNote(finalMarkdown, grandtotal);
-			}
-			await this.saveHighlightsToFileAndOpenIt(
-				filePathOfExportNote,
-				finalMarkdown, 
-				this.settings.overwriteExistingNote
-			);
-		}
+		await this.exportAnnotations(pdfFile, grandtotal, false);
 	}
 	private extractTagsFromAnnotationsAndAddHeaderToNote(note: string, annotations: any[]): string {
 		// Use Set instead of Array to eliminate duplicates
@@ -138,10 +109,39 @@ export default class PDFAnnotationPlugin extends Plugin {
 		return note;
 	}
 
+	private async exportAnnotations(
+		fileMeta: FileMeta,
+		grandtotal: any[],
+		isExternalFile: boolean
+	): Promise<void> {
+		if (this.settings.oneNotePerAnnotation) {
+			grandtotal.forEach((anno, index) => {
+				let note = this.formatter.format([anno], isExternalFile);
+				const fileNameOfExportNote =
+					this.getResolvedOneNotePerAnnotationExportName(fileMeta, index + 1) + ".md";
+				const filePathOfExportNote = this.getResolvedExportPath(fileMeta, fileNameOfExportNote);
+				if (this.settings.extractTagsFromAnnotationsAsObsidianTags) {
+					note = this.extractTagsFromAnnotationsAndAddHeaderToNote(note, [anno]);
+				}
+				this.saveHighlightsToFileAndOpenIt(filePathOfExportNote, note, this.settings.overwriteExistingNote);
+			});
+		} else {
+			let finalMarkdown = this.formatter.format(grandtotal, isExternalFile);
+			const fileNameOfExportNote =
+				this.getResolvedExportName(fileMeta) + ".md";
+			const filePathOfExportNote = this.getResolvedExportPath(fileMeta, fileNameOfExportNote);
+			if (this.settings.extractTagsFromAnnotationsAsObsidianTags) {
+				finalMarkdown = this.extractTagsFromAnnotationsAndAddHeaderToNote(finalMarkdown, grandtotal);
+			}
+			await this.saveHighlightsToFileAndOpenIt(filePathOfExportNote, finalMarkdown, this.settings.overwriteExistingNote);
+		}
+	}
+
 	async loadAnnotationsFromSinglePDFFileFromClipboardPath(
 		filePathFromClipboard: string
-	) {
-		const grandtotal = []; // array that will contain all fetched Annotations
+	): Promise<{ grandtotal: any[]; pdfFile: PDFFile | null }> {
+		const grandtotal = [];
+		let pdfFile: PDFFile | null = null;
 		try {
 			const filePathWithoutBeginningAndEndQuotes = filePathFromClipboard.replace(
 				/^["']|["']$/g,
@@ -161,7 +161,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				const encodedFilePath = encodeURI(
 					"file://" + filePathWithoutBeginningAndEndQuotes
 				);
-				const file: PDFFile = new PDFFile(
+				pdfFile = new PDFFile(
 					fileName,
 					binaryContent,
 					extension,
@@ -174,7 +174,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 				const desiredAnnotations =
 					this.settings.parsedSettings.desiredAnnotations;
 				await loadPDFFile(
-					file,
+					pdfFile,
 					pdfjsLib,
 					containingFolder,
 					grandtotal,
@@ -187,7 +187,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 			console.log("Data in clipboard could not be read as filepath.");
 			console.error(error);
 		}
-		return grandtotal;
+		return { grandtotal, pdfFile };
 	}
 
 	async onload() {
@@ -218,14 +218,15 @@ export default class PDFAnnotationPlugin extends Plugin {
 			name: "Extract PDF Annotations on single file from path in clipboard",
 			editorCallback: async (editor: Editor, view: MarkdownView) => {
 				const clipText = await navigator.clipboard.readText();
-				const grandtotal =
-					await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(
-						clipText
-					);
-				this.sort(grandtotal);
-				editor.replaceSelection(
-					this.formatter.format(grandtotal, true)
-				);
+				const result = await this.loadAnnotationsFromSinglePDFFileFromClipboardPath(clipText);
+				if (result.pdfFile) {
+					this.sort(result.grandtotal);
+					if (this.settings.exportClipboardExtraction) {
+						await this.exportAnnotations(result.pdfFile, result.grandtotal, true);
+					} else {
+						editor.replaceSelection(this.formatter.format(result.grandtotal, true));
+					}
+				}
 			},
 		});
 
@@ -295,8 +296,9 @@ export default class PDFAnnotationPlugin extends Plugin {
 					"oneNotePerAnnotation",
 					"oneNotePerAnnotationExportName",
 					"overwriteExistingNote",
-					"extractTagsFromAnnotationsAsObsidianTags",
-				];
+				"extractTagsFromAnnotationsAsObsidianTags",
+				"exportClipboardExtraction",
+			];
 				toLoad.forEach((setting) => {
 					if (setting in loadedSettings) {
 						(this.settings as IIndexable)[setting] =
@@ -328,7 +330,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 	}
 
 	getTemplateVariablesForExportName(
-		file: TFile
+		file: FileMeta
 	): Record<string, any> {
 		const shortcuts = {
 			filename: file.basename
@@ -338,7 +340,7 @@ export default class PDFAnnotationPlugin extends Plugin {
 	}
 
 	getTemplateVariablesForOneNotePerAnnotationExportName(
-		file: TFile,
+		file: FileMeta,
 		counter: number
 	): Record<string, any> {
 		const shortcuts = {
@@ -349,27 +351,30 @@ export default class PDFAnnotationPlugin extends Plugin {
 		return { file: file, ...shortcuts };
 	}
 
-	getResolvedExportName(file: TFile): string {
+	getResolvedExportName(file: FileMeta): string {
 		return this.exportNameTemplate(
 			this.getTemplateVariablesForExportName(file)
 		);
 	}
 
-	getResolvedOneNotePerAnnotationExportName(file: TFile, counter): string {
+	getResolvedOneNotePerAnnotationExportName(file: FileMeta, counter): string {
 		return this.oneNotePerAnnotationExportNameTemplate(
 			this.getTemplateVariablesForOneNotePerAnnotationExportName(file, counter)
 		);
 	}
 
-	getResolvedExportPath(pdfFile: TFile, fileNameOfExportNote: string): string {
+	getResolvedExportPath(pdfFile: FileMeta, fileNameOfExportNote: string): string {
 		const exportPath = this.settings.exportPath;
-		// Check if export path should be dynamic=next to PDF (./) or static=from settings (path/)
 		let filePathOfExportNote = "";
 		if (exportPath === "./") {
-			filePathOfExportNote = pdfFile.path.replace(
-				pdfFile.name,
-				fileNameOfExportNote
-			);
+			if (pdfFile.path.startsWith("file://")) {
+				filePathOfExportNote = fileNameOfExportNote;
+			} else {
+				filePathOfExportNote = pdfFile.path.replace(
+					pdfFile.name,
+					fileNameOfExportNote
+				);
+			}
 		} else {
 			filePathOfExportNote = exportPath + fileNameOfExportNote;
 		}
