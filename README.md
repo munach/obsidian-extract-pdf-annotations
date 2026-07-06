@@ -50,6 +50,8 @@ In the editor (e.g. \_Extract) we run the plugin's command  `Extract PDF Annotat
 As such, you can relate comments for your topics (here 'Hello World') from several PDF files.
 
 ## Versions
+1.9.5 add setting to export clipboard path extraction to file, enabling one-note-per-annotation and tag extraction for external PDFs
+
 1.9.4 extract from file path on clipboard can handle single quotes
 
 1.9.3 use pdfjs-dist like Obsidian does
