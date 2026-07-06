@@ -48,6 +48,7 @@ export class PDFAnnotationPluginSetting {
 	public oneNotePerAnnotationExportName: string;
 	public overwriteExistingNote: boolean;
 	public extractTagsFromAnnotationsAsObsidianTags: boolean;
+	public exportClipboardExtraction: boolean;
 	public parsedSettings: {
 		desiredAnnotations: string[];
 	};
@@ -87,6 +88,7 @@ export class PDFAnnotationPluginSetting {
 		this.oneNotePerAnnotationExportName = "Annotations for {{filename}}-{{counter}}";
 		this.overwriteExistingNote = false;
 		this.extractTagsFromAnnotationsAsObsidianTags = false;
+		this.exportClipboardExtraction = false;
 		this.parsedSettings = {
 			desiredAnnotations: this.parseCommaSeparatedStringToArray(
 				this.desiredAnnotations
@@ -349,6 +351,19 @@ export class PDFAnnotationPluginSettingTab extends PluginSettingTab {
 					.setValue(this.plugin.settings.extractTagsFromAnnotationsAsObsidianTags)
 					.onChange((value) => {
 						this.plugin.settings.extractTagsFromAnnotationsAsObsidianTags = value;
+						this.plugin.saveData(this.plugin.settings);
+					})
+			);
+		new Setting(containerEl)
+			.setName("Export annotations from clipboard path to file")
+			.setDesc(
+				"When enabled, the clipboard path command saves annotations to a file using the export settings above, instead of inserting them at the cursor."
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.exportClipboardExtraction)
+					.onChange((value) => {
+						this.plugin.settings.exportClipboardExtraction = value;
 						this.plugin.saveData(this.plugin.settings);
 					})
 			);
